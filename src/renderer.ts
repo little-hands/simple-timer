@@ -1,93 +1,265 @@
-let timeLeft: number = 0;
+let timeLeft: number = 3 * 60; // デフォルト3分
+let totalSeconds: number = 3 * 60;
 let timerInterval: number | null = null;
 let isRunning: boolean = false;
+let isEditing: boolean = false;
 
 const timerDisplay = document.getElementById('timerDisplay') as HTMLElement;
-const minutesInput = document.getElementById('minutesInput') as HTMLInputElement;
 const startBtn = document.getElementById('startBtn') as HTMLButtonElement;
-const stopBtn = document.getElementById('stopBtn') as HTMLButtonElement;
 const resetBtn = document.getElementById('resetBtn') as HTMLButtonElement;
+const statusText = document.getElementById('statusText') as HTMLElement;
+const progressCircle = document.getElementById('progressCircle') as unknown as SVGCircleElement;
+const timerContainer = document.querySelector('.timer-container') as HTMLElement;
 
-function updateDisplay(): void {
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
-    timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+function formatTime(seconds: number): string {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
-function startTimer(): void {
-    if (!isRunning) {
-        if (timeLeft === 0) {
-            timeLeft = parseInt(minutesInput.value) * 60;
-        }
-        
-        isRunning = true;
-        startBtn.disabled = true;
-        stopBtn.disabled = false;
-        minutesInput.disabled = true;
-        
-        timerInterval = window.setInterval(() => {
-            if (timeLeft > 0) {
-                timeLeft--;
-                updateDisplay();
-            } else {
-                stopTimer();
-                notifyTimerComplete();
+function updateProgress(): void {
+    const progress = (totalSeconds - timeLeft) / totalSeconds;
+    const circumference = 2 * Math.PI * 72;
+    const offset = circumference - (progress * circumference);
+    progressCircle.style.strokeDashoffset = offset.toString();
+}
+
+function updateDisplay(): void {
+    if (!isEditing) {
+        timerDisplay.textContent = formatTime(timeLeft);
+    }
+    updateProgress();
+}
+
+function enableTimerEdit(): void {
+    if (isRunning || isEditing) return;
+    
+    isEditing = true;
+    timerDisplay.classList.add('editing');
+    
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    
+    timerDisplay.innerHTML = `
+        <input type="number" class="timer-input" value="${minutes}" id="minutesTimerInput" min="0" max="99" placeholder="00">
+        <span class="timer-colon">:</span>
+        <input type="number" class="timer-input" value="${seconds}" id="secondsTimerInput" min="0" max="59" placeholder="00">
+        <button class="close-edit-btn" id="closeEditBtn">&times;</button>
+    `;
+    
+    const minutesInput = document.getElementById('minutesTimerInput') as HTMLInputElement;
+    const secondsInput = document.getElementById('secondsTimerInput') as HTMLInputElement;
+    const closeEditBtn = document.getElementById('closeEditBtn') as HTMLButtonElement;
+    
+    [minutesInput, secondsInput].forEach(input => {
+        input.addEventListener('blur', handleTimerInputBlur);
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                saveTimerEdit();
+            } else if (e.key === 'Escape') {
+                cancelTimerEdit();
             }
-        }, 1000);
+        });
+        
+        input.addEventListener('input', function(e) {
+            const target = e.target as HTMLInputElement;
+            let value = parseInt(target.value) || 0;
+            
+            if (target.id === 'secondsTimerInput' && value > 59) {
+                target.value = '59';
+            } else if (target.id === 'minutesTimerInput' && value > 99) {
+                target.value = '99';
+            }
+        });
+    });
+
+    // バツボタンのイベントリスナー
+    closeEditBtn.addEventListener('click', () => {
+        cancelTimerEdit();
+    });
+
+    setTimeout(() => {
+        minutesInput.focus();
+        minutesInput.select();
+    }, 0);
+}
+
+function handleOutsideClick(event: Event): void {
+    if (!isEditing) return;
+    
+    const timerDisplayElement = document.getElementById('timerDisplay');
+    const target = event.target as Node;
+    const isClickInsideTimer = timerDisplayElement && timerDisplayElement.contains(target);
+    
+    if (!isClickInsideTimer) {
+        saveTimerEdit();
+        document.removeEventListener('click', handleOutsideClick, true);
     }
 }
 
-function stopTimer(): void {
-    isRunning = false;
-    startBtn.disabled = false;
-    stopBtn.disabled = true;
+let blurTimeout: number;
+function handleTimerInputBlur(): void {
+    clearTimeout(blurTimeout);
+    blurTimeout = window.setTimeout(() => {
+        const activeElement = document.activeElement as HTMLElement;
+        const isTimerInput = activeElement && (
+            activeElement.id === 'minutesTimerInput' || 
+            activeElement.id === 'secondsTimerInput'
+        );
+        
+        if (!isTimerInput) {
+            saveTimerEdit();
+        }
+    }, 100);
+}
+
+function saveTimerEdit(): void {
+    if (!isEditing) return;
     
+    const minutesInput = document.getElementById('minutesTimerInput') as HTMLInputElement;
+    const secondsInput = document.getElementById('secondsTimerInput') as HTMLInputElement;
+    
+    if (!minutesInput || !secondsInput) return;
+    
+    const minutes = parseInt(minutesInput.value) || 0;
+    const seconds = parseInt(secondsInput.value) || 0;
+    
+    totalSeconds = minutes * 60 + seconds;
+    timeLeft = totalSeconds;
+    
+    cancelTimerEdit();
+    updateDisplay();
+    
+    document.removeEventListener('click', handleOutsideClick, true);
+}
+
+function cancelTimerEdit(): void {
+    if (!isEditing) return;
+    
+    isEditing = false;
+    timerDisplay.classList.remove('editing');
+    timerDisplay.textContent = formatTime(timeLeft);
+    
+    document.removeEventListener('click', handleOutsideClick, true);
+}
+
+function toggleTimer(): void {
+    if (isEditing) {
+        saveTimerEdit();
+        return;
+    }
+    
+    if (!isRunning) {
+        if (totalSeconds === 0) {
+            return;
+        }
+        startTimer();
+    } else {
+        pauseTimer();
+    }
+}
+
+function startTimer(): void {
+    isRunning = true;
+    startBtn.textContent = "Pause";
+
+    timerInterval = window.setInterval(() => {
+        timeLeft--;
+        updateDisplay();
+
+        if (timeLeft <= 0) {
+            window.clearInterval(timerInterval!);
+            timerFinished();
+        }
+    }, 1000);
+
+    updateDisplay();
+}
+
+function pauseTimer(): void {
     if (timerInterval) {
         window.clearInterval(timerInterval);
         timerInterval = null;
     }
+    isRunning = false;
+    startBtn.textContent = "Resume";
 }
 
 function resetTimer(): void {
-    stopTimer();
-    timeLeft = 0;
+    if (timerInterval) {
+        window.clearInterval(timerInterval);
+        timerInterval = null;
+    }
+    isRunning = false;
+    isEditing = false;
+    timeLeft = 3 * 60;
+    totalSeconds = 3 * 60;
+
+    startBtn.textContent = "Start";
+    timerContainer.classList.remove('timer-finished');
+    timerDisplay.classList.remove('editing');
+
     updateDisplay();
-    minutesInput.disabled = false;
 }
 
-function notifyTimerComplete(): void {
+function timerFinished(): void {
+    isRunning = false;
+    startBtn.textContent = "Start";
+    timerContainer.classList.add('timer-finished');
+
+    // 通知
     new Notification('タイマー終了', {
-        body: 'タイマーが終了しました！',
+        body: '設定した時間になりました！',
         silent: false
     });
-    
+
+    // アラーム音
     const audio = new Audio();
     audio.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZURE';
     audio.play();
 }
 
-startBtn.addEventListener('click', startTimer);
-stopBtn.addEventListener('click', stopTimer);
+// ドラッグとクリックの両立のためのイベント制御
+document.addEventListener('click', (e: MouseEvent) => {
+    const target = e.target as HTMLElement;
+    
+    // 編集モード中で、入力欄以外をクリックした場合は編集モードを解除
+    if (isEditing) {
+        const timerDisplayElement = document.getElementById('timerDisplay');
+        if (timerDisplayElement && !timerDisplayElement.contains(target)) {
+            saveTimerEdit();
+            return;
+        }
+    }
+    
+    // タイマー表示をクリックした場合は編集モードを開始
+    if (target.closest('#timerDisplay') && !isRunning && !isEditing) {
+        enableTimerEdit();
+    }
+});
+
+// イベントリスナー
+startBtn.addEventListener('click', toggleTimer);
 resetBtn.addEventListener('click', resetTimer);
 
+
+// キーボードショートカット
 document.addEventListener('keydown', (e: KeyboardEvent) => {
     if (e.code === 'Space') {
         e.preventDefault();
-        if (isRunning) {
-            stopTimer();
-        } else {
-            startTimer();
-        }
+        toggleTimer();
     } else if (e.key.toLowerCase() === 'r') {
         resetTimer();
     } else if (!isRunning && e.key >= '0' && e.key <= '9') {
-        minutesInput.focus();
+        enableTimerEdit();
     }
 });
 
-minutesInput.addEventListener('change', () => {
-    if (!isRunning) {
-        timeLeft = 0;
-        updateDisplay();
-    }
-});
+// 通知許可の要求
+if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+}
+
+// 初期表示
+updateDisplay();
