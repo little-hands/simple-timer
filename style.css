@@ -30,9 +30,9 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 20px;
-    padding: 10px;
-    min-width: 280px;
+    padding: 15px;
+    width: 100%;
+    height: 100vh;
 }
 
 .progress-ring {
@@ -191,13 +191,22 @@ body {
 }
 
 .start-btn {
-    width: 32px;
-    height: 32px;
+    position: absolute;
+    top: -70px;
+    right: -7px;
+    width: 28px;
+    height: 28px;
+}
+
+.reset-btn {
+    position: absolute;
+    bottom: -75px;
+    right: -7px;
 }
 
 .start-btn svg {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
 }
 
 .icon-btn:hover {
@@ -216,10 +225,7 @@ body {
 }
 
 .timer-controls {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    align-items: center;
+    position: relative;
 }
 
 .status-text {
