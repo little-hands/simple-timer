@@ -20,7 +20,7 @@ function formatTime(seconds: number): string {
 
 function updateProgress(): void {
     const progress = (totalSeconds - timeLeft) / totalSeconds;
-    const circumference = 2 * Math.PI * 72;
+    const circumference = 2 * Math.PI * 90;
     const offset = circumference - (progress * circumference);
     progressCircle.style.strokeDashoffset = offset.toString();
 }
@@ -30,6 +30,19 @@ function updateDisplay(): void {
         timerDisplay.textContent = formatTime(timeLeft);
     }
     updateProgress();
+}
+
+function updateStartButtonIcon(): void {
+    const playIcon = startBtn.querySelector('.play-icon') as SVGElement;
+    const pauseIcon = startBtn.querySelector('.pause-icon') as SVGElement;
+    
+    if (isRunning) {
+        playIcon.style.display = 'none';
+        pauseIcon.style.display = 'block';
+    } else {
+        playIcon.style.display = 'block';
+        pauseIcon.style.display = 'none';
+    }
 }
 
 function enableTimerEdit(): void {
@@ -162,7 +175,7 @@ function toggleTimer(): void {
 
 function startTimer(): void {
     isRunning = true;
-    startBtn.textContent = "Pause";
+    updateStartButtonIcon();
 
     timerInterval = window.setInterval(() => {
         timeLeft--;
@@ -183,7 +196,7 @@ function pauseTimer(): void {
         timerInterval = null;
     }
     isRunning = false;
-    startBtn.textContent = "Resume";
+    updateStartButtonIcon();
 }
 
 function resetTimer(): void {
@@ -196,7 +209,7 @@ function resetTimer(): void {
     timeLeft = 3 * 60;
     totalSeconds = 3 * 60;
 
-    startBtn.textContent = "Start";
+    updateStartButtonIcon();
     timerContainer.classList.remove('timer-finished');
     timerDisplay.classList.remove('editing');
 
@@ -205,7 +218,7 @@ function resetTimer(): void {
 
 function timerFinished(): void {
     isRunning = false;
-    startBtn.textContent = "Start";
+    updateStartButtonIcon();
     timerContainer.classList.add('timer-finished');
 
     // 通知
