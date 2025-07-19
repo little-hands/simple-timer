@@ -65,3 +65,6 @@ MacのデスクトップElectronアプリとして、AS Timerユーザーが乗�
 
 ## リポジトリ
 https://github.com/little-hands/simple-timer
+
+## 関連ドキュメント
+- [UI要素名一覧](UI_ELEMENTS.md) - 指示時に使用する各要素の名称定義
