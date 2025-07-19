@@ -1,7 +1,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
-import { setupCaptureHandlers, captureService } from './capture';
 
 let mainWindow: BrowserWindow | null = null;
 

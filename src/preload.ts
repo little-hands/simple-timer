@@ -12,5 +12,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     if (validChannels.includes(channel)) {
       ipcRenderer.on(channel, (_event: IpcRendererEvent, ...args: any[]) => func(...args));
     }
-  }
+  },
+  minimizeWindow: () => ipcRenderer.send('window-minimize'),
+  maximizeWindow: () => ipcRenderer.send('window-maximize'),
+  closeWindow: () => ipcRenderer.send('window-close')
 });
