@@ -20,7 +20,7 @@ function formatTime(seconds: number): string {
 
 function updateProgress(): void {
     const progress = (totalSeconds - timeLeft) / totalSeconds;
-    const circumference = 2 * Math.PI * 90;
+    const circumference = 2 * Math.PI * 65;
     const offset = circumference - (progress * circumference);
     progressCircle.style.strokeDashoffset = offset.toString();
 }
