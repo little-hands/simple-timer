@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Timer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="timer-display" id="timerDisplay">00:00</div>
+        <div class="controls">
+            <input type="number" id="minutesInput" min="1" max="999" value="25" class="minutes-input">
+            <span class="minutes-label">分</span>
+        </div>
+        <div class="buttons">
+            <button id="startBtn" class="btn btn-primary">開始</button>
+            <button id="stopBtn" class="btn btn-secondary" disabled>停止</button>
+            <button id="resetBtn" class="btn btn-secondary">リセット</button>
+        </div>
+        <div class="keyboard-hints">
+            <span>Space: 開始/停止</span>
+            <span>R: リセット</span>
+            <span>数字: 時間設定</span>
+        </div>
+    </div>
+    <script src="dist/renderer.js"></script>
+</body>
+</html>
