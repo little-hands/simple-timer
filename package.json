@@ -7,6 +7,8 @@
     "start": "npm run build && electron .",
     "dev": "tsc -w",
     "dev:electron": "electron . --dev",
+    "pack": "npm run build && electron-builder --dir",
+    "dist": "npm run build && electron-builder",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -17,9 +19,38 @@
     "@types/electron": "^1.6.12",
     "@types/node": "^24.0.15",
     "electron": "^37.2.3",
+    "electron-builder": "^26.0.12",
     "typescript": "^5.8.3"
   },
   "dependencies": {
     "puppeteer": "^24.14.0"
+  },
+  "build": {
+    "appId": "com.simple-timer.app",
+    "productName": "Simple Timer",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "dist/**/*",
+      "index.html",
+      "style.css",
+      "node_modules/**/*",
+      "!node_modules/.cache"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "assets/icon.icns",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        },
+        {
+          "target": "zip",
+          "arch": ["x64", "arm64"]
+        }
+      ]
+    }
   }
 }
