@@ -2,7 +2,6 @@ let timeLeft: number = 3 * 60; // デフォルト3分
 let totalSeconds: number = 3 * 60;
 let timerInterval: number | null = null;
 let isRunning: boolean = false;
-let isEditing: boolean = false;
 
 // 入力値スタック（4桁の数値を文字列で管理）
 let inputStack = "0000";
@@ -72,9 +71,7 @@ function updateProgress(): void {
 
 function updateDisplay(): void {
     try {
-        if (!isEditing) {
-            timerDisplay.textContent = formatTime(timeLeft);
-        }
+        timerDisplay.textContent = formatTime(timeLeft);
         updateProgress();
     } catch (error) {
         console.warn('表示更新に失敗しました:', error);
@@ -103,146 +100,12 @@ function updateStartButtonIcon(): void {
     }
 }
 
-function enableTimerEdit(): void {
-    if (isRunning || isEditing) return;
-    
-    isEditing = true;
-    timerDisplay.classList.add('editing');
-    
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
-    
-    timerDisplay.innerHTML = `
-        <input type="number" class="timer-input" value="${minutes}" id="minutesTimerInput" min="0" max="99" placeholder="00">
-        <span class="timer-colon">:</span>
-        <input type="number" class="timer-input" value="${seconds}" id="secondsTimerInput" min="0" max="59" placeholder="00">
-        <button class="close-edit-btn" id="closeEditBtn">&times;</button>
-    `;
-    
-    const minutesInput = document.getElementById('minutesTimerInput') as HTMLInputElement;
-    const secondsInput = document.getElementById('secondsTimerInput') as HTMLInputElement;
-    const closeEditBtn = document.getElementById('closeEditBtn') as HTMLButtonElement;
-    
-    [minutesInput, secondsInput].forEach(input => {
-        input.addEventListener('blur', handleTimerInputBlur);
-        input.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                saveTimerEdit();
-            } else if (e.key === 'Escape') {
-                cancelTimerEdit();
-            }
-        });
-        
-        input.addEventListener('input', function(e) {
-            const target = e.target as HTMLInputElement;
-            let value = parseInt(target.value) || 0;
-            
-            if (target.id === 'secondsTimerInput' && value > 59) {
-                target.value = '59';
-            } else if (target.id === 'minutesTimerInput' && value > 99) {
-                target.value = '99';
-            }
-        });
-    });
 
-    // バツボタンのイベントリスナー
-    closeEditBtn.addEventListener('click', () => {
-        cancelTimerEdit();
-    });
 
-    setTimeout(() => {
-        minutesInput.focus();
-        minutesInput.select();
-    }, 0);
-}
 
-function handleOutsideClick(event: Event): void {
-    if (!isEditing) return;
-    
-    const timerDisplayElement = document.getElementById('timerDisplay');
-    const target = event.target as Node;
-    const isClickInsideTimer = timerDisplayElement && timerDisplayElement.contains(target);
-    
-    if (!isClickInsideTimer) {
-        saveTimerEdit();
-        document.removeEventListener('click', handleOutsideClick, true);
-    }
-}
 
-let blurTimeout: number;
-function handleTimerInputBlur(): void {
-    clearTimeout(blurTimeout);
-    blurTimeout = window.setTimeout(() => {
-        const activeElement = document.activeElement as HTMLElement;
-        const isTimerInput = activeElement && (
-            activeElement.id === 'minutesTimerInput' || 
-            activeElement.id === 'secondsTimerInput'
-        );
-        
-        if (!isTimerInput) {
-            saveTimerEdit();
-        }
-    }, 100);
-}
-
-function saveTimerEdit(): void {
-    if (!isEditing) return;
-    
-    try {
-        const minutesInput = document.getElementById('minutesTimerInput') as HTMLInputElement;
-        const secondsInput = document.getElementById('secondsTimerInput') as HTMLInputElement;
-        
-        if (!minutesInput || !secondsInput) {
-            console.warn('タイマー入力要素が見つかりません');
-            cancelTimerEdit();
-            return;
-        }
-        
-        const minutes = Math.max(0, Math.min(99, parseInt(minutesInput.value) || 0));
-        const seconds = Math.max(0, Math.min(59, parseInt(secondsInput.value) || 0));
-        
-        // 最小1秒は設定する（0秒タイマーを防ぐ）
-        const newTotalSeconds = minutes * 60 + seconds;
-        if (newTotalSeconds === 0) {
-            totalSeconds = 1; // 最小1秒
-            timeLeft = 1;
-        } else {
-            totalSeconds = newTotalSeconds;
-            timeLeft = newTotalSeconds;
-        }
-        
-        cancelTimerEdit();
-        updateDisplay();
-        
-        document.removeEventListener('click', handleOutsideClick, true);
-    } catch (error) {
-        console.error('タイマー編集保存でエラーが発生しました:', error);
-        cancelTimerEdit();
-    }
-}
-
-function cancelTimerEdit(): void {
-    if (!isEditing) return;
-    
-    try {
-        isEditing = false;
-        timerDisplay.classList.remove('editing');
-        timerDisplay.textContent = formatTime(timeLeft);
-        
-        document.removeEventListener('click', handleOutsideClick, true);
-    } catch (error) {
-        console.warn('編集モード終了でエラーが発生しました:', error);
-        // 強制的に編集状態をリセット
-        isEditing = false;
-    }
-}
 
 function toggleTimer(): void {
-    if (isEditing) {
-        saveTimerEdit();
-        return;
-    }
-    
     if (!isRunning) {
         if (totalSeconds === 0) {
             return;
@@ -286,7 +149,6 @@ function resetTimer(): void {
         timerInterval = null;
     }
     isRunning = false;
-    isEditing = false;
     timeLeft = 3 * 60;
     totalSeconds = 3 * 60;
     
@@ -295,7 +157,6 @@ function resetTimer(): void {
 
     updateStartButtonIcon();
     timerContainer.classList.remove('timer-finished');
-    timerDisplay.classList.remove('editing');
 
     updateDisplay();
 }
@@ -354,24 +215,6 @@ async function timerFinished(): Promise<void> {
     }
 }
 
-// ドラッグとクリックの両立のためのイベント制御
-document.addEventListener('click', (e: MouseEvent) => {
-    const target = e.target as HTMLElement;
-    
-    // 編集モード中で、入力欄以外をクリックした場合は編集モードを解除
-    if (isEditing) {
-        const timerDisplayElement = document.getElementById('timerDisplay');
-        if (timerDisplayElement && !timerDisplayElement.contains(target)) {
-            saveTimerEdit();
-            return;
-        }
-    }
-    
-    // タイマー表示をクリックした場合は編集モードを開始
-    if (target.closest('#timerDisplay') && !isRunning && !isEditing) {
-        enableTimerEdit();
-    }
-});
 
 // イベントリスナー
 startBtn.addEventListener('click', toggleTimer);
@@ -380,11 +223,6 @@ resetBtn.addEventListener('click', resetTimer);
 
 // キーボードショートカット
 document.addEventListener('keydown', (e: KeyboardEvent) => {
-    // 編集モード中は通常のショートカットを無効化
-    if (isEditing) {
-        return;
-    }
-    
     if (e.code === 'Space') {
         e.preventDefault();
         toggleTimer();

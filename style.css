@@ -87,92 +87,10 @@ body {
     -webkit-app-region: no-drag;
 }
 
-.timer-display-small:hover:not(.editing) {
+.timer-display-small:hover {
     background: rgba(255, 255, 255, 0.08);
 }
 
-.timer-display-small.editing {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    cursor: text;
-    transform: translate(-50%, -50%) scale(1.05);
-}
-
-.timer-input {
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    color: white;
-    font-size: 2rem;
-    font-weight: 300;
-    text-align: center;
-    outline: none;
-    width: 50px;
-    font-family: inherit;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: textfield;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s ease;
-    border-radius: 8px;
-    padding: 4px 8px;
-    -webkit-app-region: no-drag;
-}
-
-.timer-input:focus {
-    background: rgba(255, 255, 255, 0.3);
-    border-color: rgba(255, 255, 255, 0.6);
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
-    transform: scale(1.05);
-}
-
-.timer-input::-webkit-outer-spin-button,
-.timer-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-.timer-input[type=number] {
-    -moz-appearance: textfield;
-}
-
-.timer-input::placeholder {
-    color: rgba(255, 255, 255, 0.7);
-}
-
-.timer-colon {
-    color: white;
-    font-size: 2rem;
-    font-weight: 300;
-    opacity: 0.8;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-}
-
-.close-edit-btn {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    width: 20px;
-    height: 20px;
-    border: none;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.8);
-    color: #333;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    -webkit-app-region: no-drag;
-}
-
-.close-edit-btn:hover {
-    background: rgba(255, 255, 255, 1);
-    transform: scale(1.1);
-}
 
 .icon-btn {
     width: 32px;
