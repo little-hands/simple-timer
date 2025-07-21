@@ -20,7 +20,7 @@ function formatTime(seconds: number): string {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
-// 数字入力処理（純粋関数）
+// 数字入力処理
 function processNumberInput(currentStack: string, digit: number): string {
     // 4桁入力済み（0000以外）の場合、自動リセット
     if (currentStack !== "0000" && currentStack.replace(/^0+/, '').length >= 4) {
@@ -31,7 +31,7 @@ function processNumberInput(currentStack: string, digit: number): string {
     return currentStack.slice(1) + digit;
 }
 
-// 入力スタックから分秒への変換（制限処理付き、純粋関数）
+// 入力スタックから分秒への変換
 function convertStackToTime(stack: string): { minutes: number, seconds: number } {
     // スタックから生の値を取得
     const rawMinutes = parseInt(stack.slice(0, 2));
@@ -72,9 +72,9 @@ function calculateProgressRatio(totalSeconds: number, timeLeft: number): number 
     return 1 - progress; // 残りの比率（オフセット比率）
 }
 
-function updateProgress(): void {
+function updateProgress(totalSecondsParam: number, timeLeftParam: number): void {
     try {
-        const ratio = calculateProgressRatio(totalSeconds, timeLeft);
+        const ratio = calculateProgressRatio(totalSecondsParam, timeLeftParam);
         const circumference = 2 * Math.PI * 65;
         const offset = ratio * circumference;
         progressCircle.style.strokeDashoffset = offset.toString();
@@ -83,16 +83,16 @@ function updateProgress(): void {
     }
 }
 
-function updateDisplay(): void {
+function updateDisplay(timeLeftParam: number, totalSecondsParam: number): void {
     try {
-        timerDisplay.textContent = formatTime(timeLeft);
-        updateProgress();
+        timerDisplay.textContent = formatTime(timeLeftParam);
+        updateProgress(totalSecondsParam, timeLeftParam);
     } catch (error) {
         console.warn('表示更新に失敗しました:', error);
     }
 }
 
-function updateStartButtonIcon(): void {
+function updateStartButtonIcon(isRunningParam: boolean): void {
     try {
         const playIcon = startBtn.querySelector('.play-icon') as SVGElement;
         const pauseIcon = startBtn.querySelector('.pause-icon') as SVGElement;
@@ -102,7 +102,7 @@ function updateStartButtonIcon(): void {
             return;
         }
         
-        if (isRunning) {
+        if (isRunningParam) {
             playIcon.style.display = 'none';
             pauseIcon.style.display = 'block';
         } else {
@@ -132,11 +132,11 @@ function toggleTimer(): void {
 
 function startTimer(): void {
     isRunning = true;
-    updateStartButtonIcon();
+    updateStartButtonIcon(isRunning);
 
     timerInterval = window.setInterval(() => {
         timeLeft--;
-        updateDisplay();
+        updateDisplay(timeLeft, totalSeconds);
 
         if (timeLeft <= 0) {
             window.clearInterval(timerInterval!);
@@ -145,7 +145,7 @@ function startTimer(): void {
         }
     }, 1000);
 
-    updateDisplay();
+    updateDisplay(timeLeft, totalSeconds);
 }
 
 function pauseTimer(): void {
@@ -154,7 +154,7 @@ function pauseTimer(): void {
         timerInterval = null;
     }
     isRunning = false;
-    updateStartButtonIcon();
+    updateStartButtonIcon(isRunning);
 }
 
 function resetTimer(): void {
@@ -169,10 +169,10 @@ function resetTimer(): void {
     // 入力スタックもリセット
     inputStack = "0000";
 
-    updateStartButtonIcon();
+    updateStartButtonIcon(isRunning);
     timerContainer.classList.remove('timer-finished');
 
-    updateDisplay();
+    updateDisplay(timeLeft, totalSeconds);
 }
 
 async function playAlarmSound(): Promise<void> {
@@ -186,11 +186,11 @@ async function playAlarmSound(): Promise<void> {
     }
 }
 
-function sendNotification(): void {
+function sendNotification(totalSecondsParam: number): void {
     try {
         const electronAPI = (window as any).electronAPI;
         if (electronAPI && typeof electronAPI.timerFinished === 'function') {
-            electronAPI.timerFinished(totalSeconds);
+            electronAPI.timerFinished(totalSecondsParam);
         } else {
             throw new Error('ElectronAPI が利用できません');
         }
@@ -214,11 +214,11 @@ function sendNotification(): void {
 async function timerFinished(): Promise<void> {
     try {
         isRunning = false;
-        updateStartButtonIcon();
+        updateStartButtonIcon(isRunning);
         timerContainer.classList.add('timer-finished');
         
         // 通知送信
-        sendNotification();
+        sendNotification(totalSeconds);
         
         // アラーム音（非同期で実行、失敗してもアプリは継続）
         playAlarmSound();
@@ -256,7 +256,7 @@ document.addEventListener('keydown', (e: KeyboardEvent) => {
         timeLeft = totalSeconds;
         
         // UIを更新
-        updateDisplay();
+        updateDisplay(timeLeft, totalSeconds);
     }
 });
 
@@ -275,4 +275,4 @@ async function requestNotificationPermission(): Promise<void> {
 requestNotificationPermission();
 
 // 初期表示
-updateDisplay();
+updateDisplay(timeLeft, totalSeconds);
