@@ -2,7 +2,7 @@ import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
 contextBridge.exposeInMainWorld('electronAPI', {
   send: (channel: string, data?: any) => {
-    const validChannels = ['timer-start', 'timer-stop', 'timer-reset'];
+    const validChannels = ['timer-start', 'timer-stop', 'timer-reset', 'timer-finished'];
     if (validChannels.includes(channel)) {
       ipcRenderer.send(channel, data);
     }
@@ -15,5 +15,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   minimizeWindow: () => ipcRenderer.send('window-minimize'),
   maximizeWindow: () => ipcRenderer.send('window-maximize'),
-  closeWindow: () => ipcRenderer.send('window-close')
+  closeWindow: () => ipcRenderer.send('window-close'),
+  timerFinished: (totalSeconds: number) => ipcRenderer.send('timer-finished', totalSeconds)
 });

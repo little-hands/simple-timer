@@ -220,13 +220,10 @@ function timerFinished(): void {
     isRunning = false;
     updateStartButtonIcon();
     timerContainer.classList.add('timer-finished');
-
-    // 通知
-    new Notification('タイマー終了', {
-        body: '設定した時間になりました！',
-        silent: false
-    });
-
+    
+    // Mac通知センターに通知を送信
+    (window as any).electronAPI.timerFinished(totalSeconds);
+    
     // アラーム音
     const audio = new Audio();
     audio.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZURE';

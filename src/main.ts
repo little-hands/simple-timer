@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, Notification } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -65,6 +65,38 @@ function createWindow(): void {
     if (mainWindow) {
       mainWindow.close();
     }
+  });
+
+  // タイマー終了通知の受信ハンドラー
+  ipcMain.on('timer-finished', (event, totalSeconds: number) => {
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    
+    // 時間表示の生成
+    let timeStr = '';
+    if (minutes > 0 && seconds > 0) {
+        timeStr = `${minutes}分${seconds}秒`;
+    } else if (minutes > 0) {
+        timeStr = `${minutes}分`;
+    } else {
+        timeStr = `${seconds}秒`;
+    }
+    
+    // Mac通知センターに表示
+    const notification = new Notification({
+        title: 'タイマー終了',
+        body: `${timeStr}のタイマーが終了しました`
+    });
+    
+    // 通知クリック時にウィンドウをフォーカス
+    notification.on('click', () => {
+        if (mainWindow) {
+            mainWindow.show();
+            mainWindow.focus();
+        }
+    });
+    
+    notification.show();
   });
 }
 
