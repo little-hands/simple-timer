@@ -107,6 +107,43 @@ https://github.com/little-hands/simple-timer
 ## 関連ドキュメント
 - [UI要素名一覧](UI_ELEMENTS.md) - 指示時に使用する各要素の名称定義
 
+## GitHub Issue テンプレート
+
+新機能や改善要求のissueを作成する際は、以下のテンプレート構造に従うこと：
+
+### 1. User Story
+```
+As a [ユーザータイプ]
+I want [機能・要求]
+Because [理由・背景]
+```
+
+### 2. Acceptance Criteria
+Gherkin記法（Given-When-Then）を使用してテストシナリオを記述：
+```
+**Scenario 1: [シナリオ名]**
+- Given [前提条件]
+- When [アクション]
+- Then [期待される結果]
+
+**Scenario 2: [シナリオ名]**
+- Given [前提条件]  
+- When [アクション]
+- Then [期待される結果]
+```
+
+### 3. Technical Design
+以下の項目を含む技術設計の詳細：
+- **現在の実装状況分析**
+- **アーキテクチャ選択の根拠**
+- **実装アプローチ**
+- **具体的なコード修正内容**（ファイル別）
+- **設計改善ポイント**
+- **エラーハンドリング戦略**
+- **テスト手法の推奨事項**
+
+このテンプレートにより、ユーザー視点から技術実装まで包括的にカバーし、実装の品質と一貫性を確保する。
+
 ## 開発フロー - Electron自動起動システム
 
 ### 概要
@@ -130,4 +167,12 @@ npm run start
 fi
 sleep 1
 done
+```
+
+## tmux操作ガイド
+
+### tmux send-keysコマンドの使用ルール
+**文字列を送信する場合は**、必ず以下の形式で実行すること：
+```bash
+tmux send-keys -t {ペインID（%N形式）} "{送信する文字列}" && sleep 0.2 Enter
 ```
