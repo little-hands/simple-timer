@@ -82,10 +82,11 @@ function createWindow(): void {
         timeStr = `${seconds}秒`;
     }
     
-    // Mac通知センターに表示
+    // Mac通知センターに表示（音なし）
     const notification = new Notification({
         title: 'タイマー終了',
-        body: `${timeStr}のタイマーが終了しました`
+        body: `${timeStr}のタイマーが終了しました`,
+        silent: true
     });
     
     // 通知クリック時にウィンドウをフォーカス

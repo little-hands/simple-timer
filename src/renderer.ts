@@ -264,7 +264,7 @@ function resetTimer(): void {
 async function playAlarmSound(): Promise<void> {
     try {
         const audio = new Audio();
-        audio.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZURE';
+        audio.src = './assets/sounds/jidaigeki.mp3';
         await audio.play();
     } catch (error) {
         console.warn('音声の再生に失敗しました:', error);
