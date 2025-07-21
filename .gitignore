@@ -5,3 +5,6 @@ dist-electron/
 .claude/
 *.log
 .DS_Store
+
+# 作業用ドキュメント（一時ファイル）
+work_documents/
