@@ -1,10 +1,6 @@
 import { describe, test, expect } from '@jest/globals';
 
-// テスト対象の関数をexportする必要があるため、実際の実装では
-// renderer.tsから関数をexportする必要があります
-// ここでは関数を直接定義してテストします
-
-// 数字入力処理（純粋関数）
+// テスト用に関数を再定義（実際の実装と同じ）
 function processNumberInput(currentStack: string, digit: number): string {
     // 4桁入力済み（0000以外）の場合、自動リセット
     if (currentStack !== "0000" && currentStack.replace(/^0+/, '').length >= 4) {
@@ -35,6 +31,16 @@ function convertStackToTime(stack: string): { minutes: number, seconds: number }
     }
     
     return { minutes, seconds };
+}
+
+// プログレス比率計算（純粋関数）
+function calculateProgressRatio(totalSeconds: number, timeLeft: number): number {
+    if (totalSeconds <= 0) {
+        return 1; // 未開始状態（100%オフセット）
+    }
+    
+    const progress = (totalSeconds - timeLeft) / totalSeconds;
+    return 1 - progress; // 残りの比率（オフセット比率）
 }
 
 // processNumberInput のテスト
@@ -177,5 +183,63 @@ describe('ユーザーシナリオ', () => {
         expect(convertStackToTime("0660")).toEqual({ minutes: 6, seconds: 59 });
         expect(convertStackToTime("6034")).toEqual({ minutes: 59, seconds: 34 });
         expect(convertStackToTime("6161")).toEqual({ minutes: 59, seconds: 59 });
+    });
+});
+
+// calculateProgressRatio のテスト
+describe('calculateProgressRatio', () => {
+    test('未開始状態: totalSeconds = 0', () => {
+        expect(calculateProgressRatio(0, 0)).toBe(1);
+    });
+
+    test('未開始状態: totalSeconds < 0', () => {
+        expect(calculateProgressRatio(-1, 0)).toBe(1);
+    });
+
+    test('開始直後: progress = 0%', () => {
+        expect(calculateProgressRatio(180, 180)).toBe(1);
+    });
+
+    test('25%完了', () => {
+        expect(calculateProgressRatio(100, 75)).toBeCloseTo(0.75);
+    });
+
+    test('50%完了', () => {
+        expect(calculateProgressRatio(100, 50)).toBeCloseTo(0.5);
+    });
+
+    test('75%完了', () => {
+        expect(calculateProgressRatio(100, 25)).toBeCloseTo(0.25);
+    });
+
+    test('完了状態: timeLeft = 0', () => {
+        expect(calculateProgressRatio(180, 0)).toBe(0);
+    });
+
+    test('境界値テスト', () => {
+        // 1秒タイマー
+        expect(calculateProgressRatio(1, 1)).toBe(1);
+        expect(calculateProgressRatio(1, 0)).toBe(0);
+        
+        // 1時間タイマー
+        expect(calculateProgressRatio(3600, 1800)).toBeCloseTo(0.5);
+    });
+
+    test('進捗比率の計算確認', () => {
+        // 10秒タイマー
+        expect(calculateProgressRatio(10, 10)).toBe(1.0); // 0%完了 = 100%オフセット
+        expect(calculateProgressRatio(10, 8)).toBeCloseTo(0.8);  // 20%完了 = 80%オフセット
+        expect(calculateProgressRatio(10, 5)).toBeCloseTo(0.5);  // 50%完了 = 50%オフセット
+        expect(calculateProgressRatio(10, 2)).toBeCloseTo(0.2);  // 80%完了 = 20%オフセット
+        expect(calculateProgressRatio(10, 0)).toBe(0.0);  // 100%完了 = 0%オフセット
+    });
+
+    test('実際のタイマー値での確認', () => {
+        // 3分タイマー（180秒）
+        expect(calculateProgressRatio(180, 180)).toBe(1.0); // 未開始
+        expect(calculateProgressRatio(180, 135)).toBe(0.75); // 25%完了
+        expect(calculateProgressRatio(180, 90)).toBe(0.5);  // 50%完了
+        expect(calculateProgressRatio(180, 45)).toBe(0.25); // 75%完了
+        expect(calculateProgressRatio(180, 0)).toBe(0.0);   // 完了
     });
 });

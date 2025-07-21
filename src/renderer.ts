@@ -53,16 +53,30 @@ function convertStackToTime(stack: string): { minutes: number, seconds: number }
     return { minutes, seconds };
 }
 
+/**
+ * プログレスバーのstroke-dashoffset用の比率を計算する純粋関数
+ * 
+ * @param totalSeconds - タイマーの総秒数（初期設定時間）
+ * @param timeLeft - 残り時間（秒）
+ * @returns stroke-dashoffsetに使用する比率（0-1）
+ *   - 1: 未開始状態（プログレスバー非表示、circumference分オフセット）
+ *   - 0.5: 50%完了（半分のオフセット）
+ *   - 0: 完了状態（オフセットなし、プログレスバー満タン）
+ */
+function calculateProgressRatio(totalSeconds: number, timeLeft: number): number {
+    if (totalSeconds <= 0) {
+        return 1; // 未開始状態（100%オフセット）
+    }
+    
+    const progress = (totalSeconds - timeLeft) / totalSeconds;
+    return 1 - progress; // 残りの比率（オフセット比率）
+}
+
 function updateProgress(): void {
     try {
-        if (totalSeconds <= 0) {
-            progressCircle.style.strokeDashoffset = '0';
-            return;
-        }
-        
-        const progress = (totalSeconds - timeLeft) / totalSeconds;
+        const ratio = calculateProgressRatio(totalSeconds, timeLeft);
         const circumference = 2 * Math.PI * 65;
-        const offset = circumference - (progress * circumference);
+        const offset = ratio * circumference;
         progressCircle.style.strokeDashoffset = offset.toString();
     } catch (error) {
         console.warn('プログレス更新に失敗しました:', error);
