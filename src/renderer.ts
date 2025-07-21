@@ -4,6 +4,9 @@ let timerInterval: number | null = null;
 let isRunning: boolean = false;
 let isEditing: boolean = false;
 
+// 入力値スタック（4桁の数値を文字列で管理）
+let inputStack = "0000";
+
 const timerDisplay = document.getElementById('timerDisplay') as HTMLElement;
 const startBtn = document.getElementById('startBtn') as HTMLButtonElement;
 const resetBtn = document.getElementById('resetBtn') as HTMLButtonElement;
@@ -16,6 +19,39 @@ function formatTime(seconds: number): string {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+// 数字入力処理（純粋関数）
+function processNumberInput(currentStack: string, digit: number): string {
+    // 4桁入力済み（0000以外）の場合、自動リセット
+    if (currentStack !== "0000" && currentStack.replace(/^0+/, '').length >= 4) {
+        return "000" + digit;
+    }
+    
+    // 右からpush（左の桁を削除、右に新しい数字を追加）
+    return currentStack.slice(1) + digit;
+}
+
+// 入力スタックから分秒への変換（制限処理付き、純粋関数）
+function convertStackToTime(stack: string): { minutes: number, seconds: number } {
+    // スタックから生の値を取得
+    const rawMinutes = parseInt(stack.slice(0, 2));
+    const rawSeconds = parseInt(stack.slice(2, 4));
+    
+    let minutes = rawMinutes;
+    let seconds = rawSeconds;
+    
+    // 秒数の制限処理
+    if (seconds >= 60) {
+        seconds = 59;
+    }
+    
+    // 分数の制限処理
+    if (minutes >= 60) {
+        minutes = 59;
+    }
+    
+    return { minutes, seconds };
 }
 
 function updateProgress(): void {
@@ -253,6 +289,9 @@ function resetTimer(): void {
     isEditing = false;
     timeLeft = 3 * 60;
     totalSeconds = 3 * 60;
+    
+    // 入力スタックもリセット
+    inputStack = "0000";
 
     updateStartButtonIcon();
     timerContainer.classList.remove('timer-finished');
@@ -341,13 +380,31 @@ resetBtn.addEventListener('click', resetTimer);
 
 // キーボードショートカット
 document.addEventListener('keydown', (e: KeyboardEvent) => {
+    // 編集モード中は通常のショートカットを無効化
+    if (isEditing) {
+        return;
+    }
+    
     if (e.code === 'Space') {
         e.preventDefault();
         toggleTimer();
     } else if (e.key.toLowerCase() === 'r') {
         resetTimer();
     } else if (!isRunning && e.key >= '0' && e.key <= '9') {
-        enableTimerEdit();
+        e.preventDefault();
+        
+        // 新しいスタックを計算
+        inputStack = processNumberInput(inputStack, parseInt(e.key));
+        
+        // スタックから分秒を計算
+        const { minutes, seconds } = convertStackToTime(inputStack);
+        
+        // タイマー値を更新
+        totalSeconds = minutes * 60 + seconds;
+        timeLeft = totalSeconds;
+        
+        // UIを更新
+        updateDisplay();
     }
 });
 

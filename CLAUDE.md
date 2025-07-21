@@ -146,9 +146,9 @@ issue-{イシュー番号}_{作業内容の概要}.md
 
 ### 1. ユーザーストーリー
 ```
-As a [ユーザータイプ]
-I want [機能・要求]
-Because [理由・背景]
+[ユーザータイプ]として、
+[機能・要求]がしたい。
+なぜなら[理由・背景]
 ```
 
 ### 2. 受入基準
@@ -179,28 +179,6 @@ Gherkin記法（Given-When-Then）を使用してテストシナリオを記述�
 
 ## 開発フロー - Electron自動起動システム
 
-### 概要
-Electronコード修正完了時に別プロセスが自動的にアプリを起動するシステム
-
-### 修正側の手順
-1. Electronコードの修正を完了
-2. 必要に応じてビルドやテストを実行
-3. 完了時に以下のコマンドを実行：
-   ```bash
-   touch build_ready.flag
-
-監視側スクリプト（別ターミナルで実行）
-
-```
-while true; do
-if [ -f "build_ready.flag" ]; then
-echo "ビルド完了通知を受信"
-rm build_ready.flag
-npm run start
-fi
-sleep 1
-done
-```
 
 ## tmux操作ガイド
 
