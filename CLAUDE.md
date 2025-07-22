@@ -82,9 +82,16 @@ MacのデスクトップElectronアプリとして、AS Timerユーザーが乗�
 ## 技術仕様
 
 ### アーキテクチャ
-- **メインプロセス**: `src/main.ts` - Electronウィンドウ管理
+- **メインプロセス**: `src/main/` - 責務分離されたElectronメインプロセス管理
+  - `index.ts` - アプリケーションエントリーポイント
+  - `AppConfigManager.ts` - アプリケーション機能設定の管理
+  - `WindowStateStore.ts` - ウィンドウ状態の永続化ストレージ
+  - `WindowManager.ts` - ウィンドウのライフサイクル管理
+  - `IPCHandler.ts` - プロセス間通信の処理
+  - `constants.ts` - 定数定義
 - **レンダラー**: `src/renderer.ts` - タイマーロジックとUI制御
 - **スタイリング**: `style.css` - フレックスボックスレイアウト
+- **型定義**: `src/types/electron.ts` - TypeScript型定義
 
 ### ウィンドウ設定
 - サイズ: 180x180px（正方形）
@@ -265,3 +272,103 @@ Mac通知センター連携機能の開発では：
 5. 既存HTML5通知からネイティブ通知への段階的移行
 
 この手法により、大きな機能でも安全かつ確実に実装が可能。
+
+## リファクタリング方針
+
+### 責務分離とYAGNI適用の原則
+
+#### 1. 単一責任の原則（SRP）による責務分離
+コードベースの保守性向上のため、各クラスが明確で単一の責務を持つよう設計する：
+
+**分離の指針**
+- **データの性質による分離**: 機能設定 vs UI状態
+- **変更の理由による分離**: 設定変更 vs ウィンドウ操作
+- **ライフサイクルによる分離**: 永続化 vs 一時状態
+
+**実施例: ConfigManager の分離**
+```
+Before: ConfigManager (混在した責務)
+├── アプリ設定管理
+├── ウィンドウ状態管理
+└── electron-store操作
+
+After: 明確な責務分離
+├── AppConfigManager (機能設定)
+│   ├── タイマーデフォルト時間
+│   ├── アニメーション設定
+│   └── 開発モード設定
+└── WindowStateStore (UI状態永続化)
+    ├── ウィンドウ位置
+    ├── ウィンドウサイズ
+    └── 表示状態
+```
+
+#### 2. YAGNI（You Aren't Gonna Need It）の徹底適用
+実装時は現在必要な機能のみを実装し、将来の拡張は実際に必要になってから追加する：
+
+**削除対象の判断基準**
+- 使用されていないメソッド
+- 汎用的すぎるインターフェース
+- 想定される将来機能のためのメソッド
+- テストでしか呼ばれないメソッド
+
+**実施例**
+```typescript
+// 削除: 汎用的すぎて使用されない
+- getWindow(type: WindowType) 
+
+// 削除: 将来機能のための実装
+- resetAll(), saveAppConfig() 
+
+// 削除: 自動処理で十分
+- closeAllWindows(), removeAllHandlers()
+```
+
+#### 3. 命名による意図の明確化
+クラス名・メソッド名で責務と動作を明確に表現する：
+
+**命名の改善例**
+- `ConfigManager` → `AppConfigManager` + `WindowStateStore`
+- `stateManager` → `windowStateStore` 
+- `Manager`系 → より具体的な責務を表す名前
+
+#### 4. TSDocによる設計意図の文書化
+各クラスの責務・依存関係・使用例をTSDocで明文化：
+
+**文書化内容**
+- クラスの責務と役割
+- 他クラスとの依存関係
+- 使用例とベストプラクティス
+- 制約事項と注意点
+
+#### 5. 依存関係の最適化
+各クラスが必要最小限の依存関係のみを持つよう設計：
+
+**依存関係の整理例**
+```typescript
+// Before: 全機能への依存
+WindowManager(configManager: ConfigManager)
+
+// After: 必要な機能のみへの依存
+WindowManager(
+  appConfigManager: AppConfigManager,    // 設定取得のみ
+  windowStateStore: WindowStateStore     // 状態保存のみ
+)
+
+IPCHandler(
+  windowManager: WindowManager,
+  appConfigManager: AppConfigManager     // 設定取得のみ
+)
+```
+
+#### 6. 段階的リファクタリングの実践
+大規模な変更は段階的に実施し、各段階で動作確認を行う：
+
+**リファクタリング手順**
+1. **現状分析**: 既存コードの責務と依存関係を整理
+2. **設計検討**: 分離後のクラス構成と責務を設計  
+3. **段階的実装**: 新クラス作成 → 依存関係更新 → 旧コード削除
+4. **YAGNI適用**: 未使用メソッドの特定と削除
+5. **動作確認**: 各段階でのビルド・実行確認
+
+この方針により、コードベースの保守性・可読性・テスタビリティが大幅に向上し、将来の機能追加や変更が容易になる。
