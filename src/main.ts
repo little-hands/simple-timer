@@ -2,18 +2,6 @@ import { app, BrowserWindow, ipcMain, Notification } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 
-// 開発環境でのみelectron-reloaderを有効化
-if (process.env.NODE_ENV !== 'production') {
-  try {
-    require('electron-reloader')(module, {
-      debug: true,
-      watchRenderer: true
-    });
-  } catch (_) {
-    console.log('Error loading electron-reloader');
-  }
-}
-
 let mainWindow: BrowserWindow | null = null;
 
 function createWindow(): void {
@@ -38,6 +26,23 @@ function createWindow(): void {
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
+
+  // 開発モードでファイル変更を監視
+  if (process.argv.includes('--dev')) {
+    const watchFiles = [
+      path.join(__dirname, '../style.css'),
+      path.join(__dirname, '../index.html')
+    ];
+    
+    watchFiles.forEach(file => {
+      fs.watchFile(file, () => {
+        console.log(`File changed: ${file}`);
+        if (mainWindow) {
+          mainWindow.webContents.reload();
+        }
+      });
+    });
+  }
 
   // ウィンドウコントロールのIPC設定
   ipcMain.on('window-minimize', () => {
