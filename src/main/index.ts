@@ -12,13 +12,15 @@
 import { app, BrowserWindow } from 'electron';
 import { AppConfigManager } from './AppConfigManager';
 import { WindowStateStore } from './WindowStateStore';
-import { WindowManager } from './WindowManager';
+import { MainWindowManager } from './MainWindowManager';
+import { OverlayWindowManager } from './OverlayWindowManager';
 import { IPCHandler } from './IPCHandler';
 
 // グローバルインスタンス
 let appConfigManager: AppConfigManager;
 let windowStateStore: WindowStateStore;
-let windowManager: WindowManager;
+let mainWindowManager: MainWindowManager;
+let overlayWindowManager: OverlayWindowManager;
 let ipcHandler: IPCHandler;
 
 /**
@@ -36,17 +38,21 @@ async function initializeApp(): Promise<void> {
   windowStateStore = new WindowStateStore();
   await windowStateStore.initialize();
   
+  // 開発モード判定
+  const isDevelopmentMode = process.argv.includes('--dev');
+  
   // ウィンドウマネージャーの初期化
-  windowManager = new WindowManager(appConfigManager, windowStateStore);
+  mainWindowManager = new MainWindowManager(appConfigManager, windowStateStore, isDevelopmentMode);
+  overlayWindowManager = new OverlayWindowManager(appConfigManager, isDevelopmentMode);
   
   // IPCハンドラーの初期化
-  ipcHandler = new IPCHandler(windowManager, appConfigManager);
+  ipcHandler = new IPCHandler(mainWindowManager, overlayWindowManager, appConfigManager);
   ipcHandler.setupHandlers();
   
   // ウィンドウの作成
   const savedBounds = windowStateStore.getMainWindowBounds();
-  windowManager.createMainWindow(savedBounds);
-  windowManager.createOverlayWindow();
+  mainWindowManager.createWindow(savedBounds);
+  overlayWindowManager.createWindow();
 }
 
 /**
@@ -77,7 +83,7 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     const savedBounds = windowStateStore.getMainWindowBounds();
-    windowManager.createMainWindow(savedBounds);
+    mainWindowManager.createWindow(savedBounds);
   }
 });
 

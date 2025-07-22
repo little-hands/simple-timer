@@ -13,18 +13,21 @@
  */
 import { ipcMain, Notification } from 'electron';
 import { IPCChannels } from '../types/electron';
-import { WindowManager } from './WindowManager';
+import { MainWindowManager } from './MainWindowManager';
+import { OverlayWindowManager } from './OverlayWindowManager';
 import { AppConfigManager } from './AppConfigManager';
 
 export class IPCHandler {
   /**
    * IPCHandlerのコンストラクタ
    * 
-   * @param windowManager - ウィンドウ管理クラスのインスタンス
+   * @param mainWindowManager - メインウィンドウ管理クラスのインスタンス
+   * @param overlayWindowManager - オーバーレイウィンドウ管理クラスのインスタンス
    * @param appConfigManager - アプリケーション設定管理クラスのインスタンス
    */
   constructor(
-    private windowManager: WindowManager,
+    private mainWindowManager: MainWindowManager,
+    private overlayWindowManager: OverlayWindowManager,
     private appConfigManager: AppConfigManager
   ) {}
   
@@ -100,7 +103,7 @@ export class IPCHandler {
     
     // 通知クリック時にウィンドウをフォーカス
     notification.on('click', () => {
-      const mainWindow = this.windowManager.getMainWindow();
+      const mainWindow = this.mainWindowManager.getWindow();
       if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.show();
         mainWindow.focus();
@@ -121,7 +124,7 @@ export class IPCHandler {
    * オーバーレイウィンドウは対象外です。
    */
   private handleWindowControl(action: 'minimize' | 'maximize' | 'close'): void {
-    const mainWindow = this.windowManager.getMainWindow();
+    const mainWindow = this.mainWindowManager.getWindow();
     
     if (!mainWindow || mainWindow.isDestroyed()) {
       return;
@@ -157,7 +160,7 @@ export class IPCHandler {
    * - 指定時間後に自動的に非表示
    */
   private handleCardsCelebration(): void {
-    const overlayWindow = this.windowManager.getOverlayWindow();
+    const overlayWindow = this.overlayWindowManager.getWindow();
     
     if (!overlayWindow || overlayWindow.isDestroyed()) {
       console.error('Overlay window not available for cards celebration');
@@ -165,7 +168,7 @@ export class IPCHandler {
     }
     
     // オーバーレイウィンドウを表示
-    this.windowManager.showOverlay();
+    this.overlayWindowManager.show();
     
     // アニメーション開始イベントを送信
     overlayWindow.webContents.send(IPCChannels.START_CARDS_ANIMATION);
@@ -173,7 +176,7 @@ export class IPCHandler {
     // 設定された時間後に自動的に隠す
     const duration = this.appConfigManager.getCardAnimationDuration();
     setTimeout(() => {
-      this.windowManager.hideOverlay();
+      this.overlayWindowManager.hide();
     }, duration);
   }
   
