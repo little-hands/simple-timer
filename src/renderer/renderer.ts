@@ -1,4 +1,4 @@
-import { formatTime, processNumberInput, convertStackToTime, calculateProgressRatio } from './renderer/functions.js';
+import { formatTime, processNumberInput, convertStackToTime, calculateProgressRatio } from './functions.js';
 
 let timeLeft: number = 3 * 60; // デフォルト3分
 let totalSeconds: number = 3 * 60;

@@ -5,7 +5,6 @@
     "target": "ES2022"
   },
   "include": [
-    "src/renderer.ts",
     "src/renderer/**/*"
   ],
   "exclude": [

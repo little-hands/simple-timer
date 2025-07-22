@@ -1,5 +1,5 @@
 import { describe, test, expect } from '@jest/globals';
-import { formatTime, processNumberInput, convertStackToTime, calculateProgressRatio } from './renderer/functions';
+import { formatTime, processNumberInput, convertStackToTime, calculateProgressRatio } from './functions';
 
 // formatTime のテスト
 describe('formatTime', () => {
