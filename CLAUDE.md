@@ -84,12 +84,16 @@ MacのデスクトップElectronアプリとして、AS Timerユーザーが乗�
 ### アーキテクチャ
 - **メインプロセス**: `src/main/` - 責務分離されたElectronメインプロセス管理
   - `index.ts` - アプリケーションエントリーポイント
-  - `AppConfigManager.ts` - アプリケーション機能設定の管理
+  - `AppConfigStore.ts` - アプリケーション機能設定の管理
   - `WindowStateStore.ts` - ウィンドウ状態の永続化ストレージ
-  - `WindowManager.ts` - ウィンドウのライフサイクル管理
+  - `MainWindowManager.ts` / `OverlayWindowManager.ts` - ウィンドウのライフサイクル管理
   - `IPCHandler.ts` - プロセス間通信の処理
   - `constants.ts` - 定数定義
-- **レンダラー**: `src/renderer.ts` - タイマーロジックとUI制御
+- **レンダラー**: `src/renderer/` - ES6モジュール形式のブラウザ環境コード
+  - `renderer.ts` - タイマーロジックとUI制御
+  - `functions.ts` - 純粋関数群（計算処理）
+  - `functions.test.ts` - 関数群のユニットテスト
+- **プリロード**: `src/preload.ts` - セキュアなAPI橋渡し
 - **スタイリング**: `style.css` - フレックスボックスレイアウト
 - **型定義**: `src/types/electron.ts` - TypeScript型定義
 
