@@ -5,10 +5,18 @@ import * as fs from 'fs';
 let mainWindow: BrowserWindow | null = null;
 let overlayWindow: BrowserWindow | null = null;
 
+// electron-storeを動的インポート
+let store: any;
+
 function createWindow(): void {
+  // 保存されたウィンドウ位置を取得
+  const savedBounds = store?.get('windowBounds') as { x: number, y: number } | undefined;
+  
   mainWindow = new BrowserWindow({
     width: 180,
     height: 180,
+    x: savedBounds?.x,
+    y: savedBounds?.y,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -23,6 +31,14 @@ function createWindow(): void {
   });
 
   mainWindow.loadFile(path.join(__dirname, '../index.html'));
+
+  // ウィンドウが移動されたら位置を保存
+  mainWindow.on('moved', () => {
+    if (mainWindow && store) {
+      const bounds = mainWindow.getBounds();
+      store.set('windowBounds', { x: bounds.x, y: bounds.y });
+    }
+  });
 
   mainWindow.on('closed', () => {
     mainWindow = null;
@@ -167,7 +183,11 @@ function setupIPCHandlers() {
   });
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  // electron-storeを初期化
+  const Store = (await import('electron-store')).default;
+  store = new Store();
+  
   createWindow();
   // オーバーレイウィンドウも準備
   createOverlayWindow();
