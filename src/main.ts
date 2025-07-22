@@ -1,8 +1,9 @@
-import { app, BrowserWindow, ipcMain, Notification } from 'electron';
+import { app, BrowserWindow, ipcMain, Notification, screen } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 
 let mainWindow: BrowserWindow | null = null;
+let overlayWindow: BrowserWindow | null = null;
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({
@@ -43,31 +44,58 @@ function createWindow(): void {
       });
     });
   }
+}
 
-  // ウィンドウコントロールのIPC設定
-  ipcMain.on('window-minimize', () => {
-    if (mainWindow) {
-      mainWindow.minimize();
-    }
+// フルスクリーンオーバーレイウィンドウを作成
+function createOverlayWindow(): void {
+  // プライマリディスプレイのサイズを取得
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { width, height } = primaryDisplay.bounds;
+
+  overlayWindow = new BrowserWindow({
+    width,
+    height,
+    x: 0,
+    y: 0,
+    webPreferences: {
+      contextIsolation: false,
+      nodeIntegration: true
+    },
+    frame: false,
+    transparent: true,
+    alwaysOnTop: true,
+    fullscreen: false,
+    skipTaskbar: true,
+    focusable: false,
+    resizable: false,
+    movable: false,
+    minimizable: false,
+    maximizable: false,
+    closable: false,
+    show: false // 最初は非表示
   });
 
-  ipcMain.on('window-maximize', () => {
-    if (mainWindow) {
-      if (mainWindow.isMaximized()) {
-        mainWindow.unmaximize();
-      } else {
-        mainWindow.maximize();
-      }
-    }
-  });
+  // MacでのmacOS特有のオーバーレイ設定
+  if (process.platform === 'darwin') {
+    overlayWindow.setAlwaysOnTop(true, 'screen-saver');
+    overlayWindow.setVisibleOnAllWorkspaces(true);
+  }
 
-  ipcMain.on('window-close', () => {
-    if (mainWindow) {
-      mainWindow.close();
-    }
-  });
+  const overlayPath = path.join(__dirname, '../overlay.html');
+  overlayWindow.loadFile(overlayPath);
 
-  // タイマー終了通知の受信ハンドラー
+  // 開発モードでDevToolsを開く
+  if (process.argv.includes('--dev')) {
+    overlayWindow.webContents.openDevTools({ mode: 'detach' });
+  }
+
+  overlayWindow.on('closed', () => {
+    overlayWindow = null;
+  });
+}
+
+// タイマー終了通知の受信ハンドラー（グローバル）
+function setupIPCHandlers() {
   ipcMain.on('timer-finished', (event, totalSeconds: number) => {
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
@@ -99,9 +127,53 @@ function createWindow(): void {
     
     notification.show();
   });
+
+  // ウィンドウコントロールのIPC設定
+  ipcMain.on('window-minimize', () => {
+    if (mainWindow) {
+      mainWindow.minimize();
+    }
+  });
+
+  ipcMain.on('window-maximize', () => {
+    if (mainWindow) {
+      if (mainWindow.isMaximized()) {
+        mainWindow.unmaximize();
+      } else {
+        mainWindow.maximize();
+      }
+    }
+  });
+
+  ipcMain.on('window-close', () => {
+    if (mainWindow) {
+      mainWindow.close();
+    }
+  });
+
+  // トランプアニメーション制御のIPC
+  ipcMain.on('show-cards-celebration', () => {
+    if (overlayWindow) {
+      overlayWindow.show();
+      overlayWindow.webContents.send('start-cards-animation');
+      
+      // 6秒後に自動的に隠す
+      setTimeout(() => {
+        if (overlayWindow) {
+          overlayWindow.hide();
+        }
+      }, 6000);
+    }
+  });
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  createWindow();
+  // オーバーレイウィンドウも準備
+  createOverlayWindow();
+  // IPCハンドラー設定
+  setupIPCHandlers();
+});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cards Overlay</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .cards-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .playing-card {
+            position: absolute;
+            width: 60px;
+            height: 84px;
+            background: white;
+            border: 2px solid #333;
+            border-radius: 6px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            font-family: 'Arial', sans-serif;
+            animation: cardFall var(--fall-duration) ease-in forwards;
+            will-change: transform;
+        }
+
+        .playing-card.hearts,
+        .playing-card.diamonds {
+            color: #e74c3c;
+        }
+
+        .playing-card.clubs,
+        .playing-card.spades {
+            color: #2c3e50;
+        }
+
+        @keyframes cardFall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(calc(100vh + 100px)) rotate(var(--rotation));
+                opacity: 0;
+            }
+        }
+
+        .playing-card::after {
+            content: attr(data-suit);
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="cards-container" id="cardsContainer"></div>
+    
+    <script>
+        const { ipcRenderer } = require('electron');
+        const cardsContainer = document.getElementById('cardsContainer');
+
+        // トランプアニメーション関数
+        function createPlayingCard() {
+            const suits = ['♠', '♥', '♦', '♣'];
+            const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+            const suitNames = ['spades', 'hearts', 'diamonds', 'clubs'];
+            
+            const suit = Math.floor(Math.random() * suits.length);
+            const value = values[Math.floor(Math.random() * values.length)];
+            
+            const card = document.createElement('div');
+            card.className = `playing-card ${suitNames[suit]}`;
+            card.textContent = value;
+            card.setAttribute('data-suit', suits[suit]);
+            
+            // ランダムな開始位置（画面幅全体）
+            const startX = Math.random() * window.innerWidth;
+            card.style.left = `${startX}px`;
+            card.style.top = `-100px`;
+            
+            // ランダムな回転とアニメーション時間
+            const rotation = (Math.random() - 0.5) * 1080; // -540度から540度
+            const duration = 3 + Math.random() * 3; // 3秒から6秒
+            
+            card.style.setProperty('--rotation', `${rotation}deg`);
+            card.style.setProperty('--fall-duration', `${duration}s`);
+            
+            cardsContainer.appendChild(card);
+            
+            // アニメーション終了後に要素を削除
+            setTimeout(() => {
+                if (card.parentNode) {
+                    card.remove();
+                }
+            }, duration * 1000 + 1000); // 少し余裕を持たせる
+        }
+
+        // ソリティアクリア風のカード連続生成
+        function startCardsCelebration() {
+            // まず既存のカードをクリア
+            cardsContainer.innerHTML = '';
+            
+            let cardCount = 0;
+            const maxCards = 104; // 2デッキ分
+            const interval = 80; // カード生成間隔（ミリ秒）
+            
+            const cardInterval = setInterval(() => {
+                createPlayingCard();
+                cardCount++;
+                
+                if (cardCount >= maxCards) {
+                    clearInterval(cardInterval);
+                }
+            }, interval);
+        }
+
+        // メインプロセスからのアニメーション開始指示を受信
+        ipcRenderer.on('start-cards-animation', () => {
+            startCardsCelebration();
+        });
+    </script>
+</body>
+</html>

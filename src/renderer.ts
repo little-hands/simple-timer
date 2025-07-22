@@ -12,6 +12,7 @@ const resetBtn = document.getElementById('resetBtn') as HTMLButtonElement;
 const statusText = document.getElementById('statusText') as HTMLElement;
 const progressCircle = document.getElementById('progressCircle') as unknown as SVGCircleElement;
 const timerContainer = document.querySelector('.timer-container') as HTMLElement;
+// cardsContainerはローカルでは不要（フルスクリーンオーバーレイで表示）
 
 
 function formatTime(seconds: number): string {
@@ -186,6 +187,21 @@ async function playAlarmSound(): Promise<void> {
     }
 }
 
+// フルスクリーントランプアニメーション開始
+function startCardsCelebration(): void {
+    try {
+        const electronAPI = (window as any).electronAPI;
+        
+        if (electronAPI && typeof electronAPI.showCardsCelebration === 'function') {
+            electronAPI.showCardsCelebration();
+        } else {
+            console.warn('ElectronAPI showCardsCelebration が利用できません');
+        }
+    } catch (error) {
+        console.warn('トランプアニメーション開始に失敗しました:', error);
+    }
+}
+
 function sendNotification(totalSecondsParam: number): void {
     try {
         const electronAPI = (window as any).electronAPI;
@@ -222,6 +238,9 @@ async function timerFinished(): Promise<void> {
         
         // アラーム音（非同期で実行、失敗してもアプリは継続）
         playAlarmSound();
+        
+        // トランプアニメーション開始
+        startCardsCelebration();
         
     } catch (error) {
         console.error('タイマー終了処理でエラーが発生しました:', error);

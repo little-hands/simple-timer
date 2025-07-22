@@ -16,5 +16,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   minimizeWindow: () => ipcRenderer.send('window-minimize'),
   maximizeWindow: () => ipcRenderer.send('window-maximize'),
   closeWindow: () => ipcRenderer.send('window-close'),
-  timerFinished: (totalSeconds: number) => ipcRenderer.send('timer-finished', totalSeconds)
+  timerFinished: (totalSeconds: number) => ipcRenderer.send('timer-finished', totalSeconds),
+  showCardsCelebration: () => ipcRenderer.send('show-cards-celebration')
 });
