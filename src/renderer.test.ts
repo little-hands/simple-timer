@@ -1,47 +1,32 @@
 import { describe, test, expect } from '@jest/globals';
+import { formatTime, processNumberInput, convertStackToTime, calculateProgressRatio } from './renderer/functions';
 
-// テスト用に関数を再定義（実際の実装と同じ）
-function processNumberInput(currentStack: string, digit: number): string {
-    // 4桁入力済み（0000以外）の場合、自動リセット
-    if (currentStack !== "0000" && currentStack.replace(/^0+/, '').length >= 4) {
-        return "000" + digit;
-    }
-    
-    // 右からpush（左の桁を削除、右に新しい数字を追加）
-    return currentStack.slice(1) + digit;
-}
+// formatTime のテスト
+describe('formatTime', () => {
+    test('0秒を正しくフォーマットする', () => {
+        expect(formatTime(0)).toBe('00:00');
+    });
 
-// 入力スタックから分秒への変換（制限処理付き、純粋関数）
-function convertStackToTime(stack: string): { minutes: number, seconds: number } {
-    // スタックから生の値を取得
-    const rawMinutes = parseInt(stack.slice(0, 2));
-    const rawSeconds = parseInt(stack.slice(2, 4));
-    
-    let minutes = rawMinutes;
-    let seconds = rawSeconds;
-    
-    // 秒数の制限処理
-    if (seconds >= 60) {
-        seconds = 59;
-    }
-    
-    // 分数の制限処理
-    if (minutes >= 60) {
-        minutes = 59;
-    }
-    
-    return { minutes, seconds };
-}
+    test('59秒を正しくフォーマットする', () => {
+        expect(formatTime(59)).toBe('00:59');
+    });
 
-// プログレス比率計算（純粋関数）
-function calculateProgressRatio(totalSeconds: number, timeLeft: number): number {
-    if (totalSeconds <= 0) {
-        return 1; // 未開始状態（100%オフセット）
-    }
-    
-    const progress = (totalSeconds - timeLeft) / totalSeconds;
-    return 1 - progress; // 残りの比率（オフセット比率）
-}
+    test('1分を正しくフォーマットする', () => {
+        expect(formatTime(60)).toBe('01:00');
+    });
+
+    test('1分1秒を正しくフォーマットする', () => {
+        expect(formatTime(61)).toBe('01:01');
+    });
+
+    test('10分を正しくフォーマットする', () => {
+        expect(formatTime(600)).toBe('10:00');
+    });
+
+    test('59分59秒を正しくフォーマットする', () => {
+        expect(formatTime(3599)).toBe('59:59');
+    });
+});
 
 // processNumberInput のテスト
 describe('processNumberInput', () => {
