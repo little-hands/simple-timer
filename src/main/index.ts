@@ -4,20 +4,20 @@
  * @description
  * このファイルはアプリケーションの起動とライフサイクル管理を行います。
  * 実際の処理は各責務に応じたクラスに委譲されています：
- * - AppConfigManager: アプリケーション設定の管理
+ * - AppConfigStore: アプリケーション設定の管理
  * - WindowStateStore: ウィンドウ状態の永続化
  * - WindowManager: ウィンドウの作成と管理
  * - IPCHandler: プロセス間通信の処理
  */
 import { app, BrowserWindow } from 'electron';
-import { AppConfigManager } from './AppConfigManager';
+import { AppConfigStore } from './AppConfigStore';
 import { WindowStateStore } from './WindowStateStore';
 import { MainWindowManager } from './MainWindowManager';
 import { OverlayWindowManager } from './OverlayWindowManager';
 import { IPCHandler } from './IPCHandler';
 
 // グローバルインスタンス
-let appConfigManager: AppConfigManager;
+let appConfigStore: AppConfigStore;
 let windowStateStore: WindowStateStore;
 let mainWindowManager: MainWindowManager;
 let overlayWindowManager: OverlayWindowManager;
@@ -31,8 +31,8 @@ let ipcHandler: IPCHandler;
  */
 async function initializeApp(): Promise<void> {
   // 設定マネージャーの初期化
-  appConfigManager = new AppConfigManager();
-  await appConfigManager.initialize();
+  appConfigStore = new AppConfigStore();
+  await appConfigStore.initialize();
   
   // ウィンドウ状態ストアの初期化
   windowStateStore = new WindowStateStore();
@@ -42,11 +42,11 @@ async function initializeApp(): Promise<void> {
   const isDevelopmentMode = process.argv.includes('--dev');
   
   // ウィンドウマネージャーの初期化
-  mainWindowManager = new MainWindowManager(appConfigManager, windowStateStore, isDevelopmentMode);
-  overlayWindowManager = new OverlayWindowManager(appConfigManager, isDevelopmentMode);
+  mainWindowManager = new MainWindowManager(appConfigStore, windowStateStore, isDevelopmentMode);
+  overlayWindowManager = new OverlayWindowManager(appConfigStore, isDevelopmentMode);
   
   // IPCハンドラーの初期化
-  ipcHandler = new IPCHandler(mainWindowManager, overlayWindowManager, appConfigManager);
+  ipcHandler = new IPCHandler(mainWindowManager, overlayWindowManager, appConfigStore);
   ipcHandler.setupHandlers();
   
   // ウィンドウの作成

@@ -7,17 +7,17 @@
  * - デフォルト設定値の管理
  * - 開発モード設定の管理
  * 
- * UI状態（ウィンドウ位置など）は WindowStateManager が担当し、
+ * UI状態（ウィンドウ位置など）は WindowStateStore が担当し、
  * このクラスは純粋にアプリケーションの動作設定のみを扱います。
  */
 import { AppConfig } from '../types/electron';
 import { DEFAULT_APP_CONFIG } from './constants';
 
-export class AppConfigManager {
+export class AppConfigStore {
   private store: any; // electron-storeのインスタンス
   
   /**
-   * AppConfigManagerのコンストラクタ
+   * AppConfigStoreのコンストラクタ
    * 
    * @remarks
    * electron-storeは動的インポートで初期化する必要があるため、
@@ -28,15 +28,15 @@ export class AppConfigManager {
   }
   
   /**
-   * AppConfigManagerを初期化します
+   * AppConfigStoreを初期化します
    * 
    * @returns 初期化が完了したPromise
    * @throws electron-storeのインポートに失敗した場合
    * 
    * @example
    * ```typescript
-   * const configManager = new AppConfigManager();
-   * await configManager.initialize();
+   * const configStore = new AppConfigStore();
+   * await configStore.initialize();
    * ```
    */
   async initialize(): Promise<void> {
@@ -51,7 +51,7 @@ export class AppConfigManager {
    * 
    * @example
    * ```typescript
-   * const seconds = configManager.getDefaultTimerSeconds(); // 180
+   * const seconds = configStore.getDefaultTimerSeconds(); // 180
    * ```
    */
   getDefaultTimerSeconds(): number {
@@ -66,7 +66,7 @@ export class AppConfigManager {
    * 
    * @example
    * ```typescript
-   * const duration = configManager.getCardAnimationDuration(); // 6000
+   * const duration = configStore.getCardAnimationDuration(); // 6000
    * ```
    */
   getCardAnimationDuration(): number {
@@ -81,7 +81,7 @@ export class AppConfigManager {
    * 
    * @example
    * ```typescript
-   * const devSettings = configManager.getDevSettings();
+   * const devSettings = configStore.getDevSettings();
    * if (devSettings.enableFileWatch) {
    *   setupFileWatching();
    * }
@@ -104,7 +104,7 @@ export class AppConfigManager {
    */
   private getAppConfig(): AppConfig {
     if (!this.store) {
-      console.warn('AppConfigManager not initialized, returning defaults');
+      console.warn('AppConfigStore not initialized, returning defaults');
       return DEFAULT_APP_CONFIG;
     }
     

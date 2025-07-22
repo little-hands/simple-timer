@@ -15,7 +15,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { WindowBounds } from '../types/electron';
 import { MAIN_WINDOW_CONFIG, WATCH_FILES } from './constants';
-import { AppConfigManager } from './AppConfigManager';
+import { AppConfigStore } from './AppConfigStore';
 import { WindowStateStore } from './WindowStateStore';
 
 export class MainWindowManager {
@@ -24,12 +24,12 @@ export class MainWindowManager {
   /**
    * MainWindowManagerのコンストラクタ
    * 
-   * @param appConfigManager - アプリケーション設定管理クラスのインスタンス
+   * @param appConfigStore - アプリケーション設定ストアクラスのインスタンス
    * @param windowStateStore - ウィンドウ状態ストアのインスタンス
    * @param isDevelopmentMode - 開発モードかどうか
    */
   constructor(
-    private appConfigManager: AppConfigManager,
+    private appConfigStore: AppConfigStore,
     private windowStateStore: WindowStateStore,
     private isDevelopmentMode: boolean
   ) {}
@@ -98,7 +98,7 @@ export class MainWindowManager {
    * @private
    */
   private setupFileWatching(): void {
-    const devSettings = this.appConfigManager.getDevSettings();
+    const devSettings = this.appConfigStore.getDevSettings();
     
     if (!devSettings?.enableFileWatch) {
       return;

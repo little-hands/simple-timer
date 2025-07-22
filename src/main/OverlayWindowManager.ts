@@ -13,7 +13,7 @@
 import { BrowserWindow, screen } from 'electron';
 import * as path from 'path';
 import { OVERLAY_WINDOW_CONFIG } from './constants';
-import { AppConfigManager } from './AppConfigManager';
+import { AppConfigStore } from './AppConfigStore';
 
 export class OverlayWindowManager {
   private window: BrowserWindow | null = null;
@@ -21,11 +21,11 @@ export class OverlayWindowManager {
   /**
    * OverlayWindowManagerのコンストラクタ
    * 
-   * @param appConfigManager - アプリケーション設定管理クラスのインスタンス
+   * @param appConfigStore - アプリケーション設定ストアクラスのインスタンス
    * @param isDevelopmentMode - 開発モードかどうか
    */
   constructor(
-    private appConfigManager: AppConfigManager,
+    private appConfigStore: AppConfigStore,
     private isDevelopmentMode: boolean
   ) {}
   
@@ -58,7 +58,7 @@ export class OverlayWindowManager {
     this.window.loadFile(path.join(__dirname, '../../overlay.html'));
     
     // 開発モード時のDevTools
-    if (this.isDevelopmentMode && this.appConfigManager.getDevSettings()?.openDevTools) {
+    if (this.isDevelopmentMode && this.appConfigStore.getDevSettings()?.openDevTools) {
       this.window.webContents.openDevTools({ mode: 'detach' });
     }
     
