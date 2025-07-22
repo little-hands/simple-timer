@@ -4,17 +4,20 @@
  * @description
  * このファイルはアプリケーションの起動とライフサイクル管理を行います。
  * 実際の処理は各責務に応じたクラスに委譲されています：
- * - ConfigManager: 設定の永続化と管理
+ * - AppConfigManager: アプリケーション設定の管理
+ * - WindowStateStore: ウィンドウ状態の永続化
  * - WindowManager: ウィンドウの作成と管理
  * - IPCHandler: プロセス間通信の処理
  */
 import { app, BrowserWindow } from 'electron';
-import { ConfigManager } from './ConfigManager';
+import { AppConfigManager } from './AppConfigManager';
+import { WindowStateStore } from './WindowStateStore';
 import { WindowManager } from './WindowManager';
 import { IPCHandler } from './IPCHandler';
 
 // グローバルインスタンス
-let configManager: ConfigManager;
+let appConfigManager: AppConfigManager;
+let windowStateStore: WindowStateStore;
 let windowManager: WindowManager;
 let ipcHandler: IPCHandler;
 
@@ -26,18 +29,22 @@ let ipcHandler: IPCHandler;
  */
 async function initializeApp(): Promise<void> {
   // 設定マネージャーの初期化
-  configManager = new ConfigManager();
-  await configManager.initialize();
+  appConfigManager = new AppConfigManager();
+  await appConfigManager.initialize();
+  
+  // ウィンドウ状態ストアの初期化
+  windowStateStore = new WindowStateStore();
+  await windowStateStore.initialize();
   
   // ウィンドウマネージャーの初期化
-  windowManager = new WindowManager(configManager);
+  windowManager = new WindowManager(appConfigManager, windowStateStore);
   
   // IPCハンドラーの初期化
-  ipcHandler = new IPCHandler(windowManager, configManager);
+  ipcHandler = new IPCHandler(windowManager, appConfigManager);
   ipcHandler.setupHandlers();
   
   // ウィンドウの作成
-  const savedBounds = configManager.getWindowBounds();
+  const savedBounds = windowStateStore.getMainWindowBounds();
   windowManager.createMainWindow(savedBounds);
   windowManager.createOverlayWindow();
 }
@@ -69,7 +76,7 @@ app.on('window-all-closed', () => {
  */
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
-    const savedBounds = configManager.getWindowBounds();
+    const savedBounds = windowStateStore.getMainWindowBounds();
     windowManager.createMainWindow(savedBounds);
   }
 });

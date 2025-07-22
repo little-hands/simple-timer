@@ -16,7 +16,8 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { WindowBounds } from '../types/electron';
 import { MAIN_WINDOW_CONFIG, OVERLAY_WINDOW_CONFIG, WATCH_FILES } from './constants';
-import { ConfigManager } from './ConfigManager';
+import { AppConfigManager } from './AppConfigManager';
+import { WindowStateStore } from './WindowStateStore';
 
 export class WindowManager {
   private mainWindow: BrowserWindow | null = null;
@@ -25,9 +26,13 @@ export class WindowManager {
   /**
    * WindowManagerのコンストラクタ
    * 
-   * @param configManager - 設定管理クラスのインスタンス
+   * @param appConfigManager - アプリケーション設定管理クラスのインスタンス
+   * @param windowStateStore - ウィンドウ状態ストアのインスタンス
    */
-  constructor(private configManager: ConfigManager) {}
+  constructor(
+    private appConfigManager: AppConfigManager,
+    private windowStateStore: WindowStateStore
+  ) {}
   
   /**
    * メインウィンドウを作成します
@@ -63,7 +68,7 @@ export class WindowManager {
     this.mainWindow.on('moved', () => {
       if (this.mainWindow) {
         const bounds = this.mainWindow.getBounds();
-        this.configManager.saveWindowBounds({ x: bounds.x, y: bounds.y });
+        this.windowStateStore.saveMainWindowBounds({ x: bounds.x, y: bounds.y });
       }
     });
     
@@ -114,7 +119,7 @@ export class WindowManager {
     this.overlayWindow.loadFile(path.join(__dirname, '../../overlay.html'));
     
     // 開発モード時のDevTools
-    if (this.isDevelopmentMode() && this.configManager.getAppConfig().dev?.openDevTools) {
+    if (this.isDevelopmentMode() && this.appConfigManager.getDevSettings()?.openDevTools) {
       this.overlayWindow.webContents.openDevTools({ mode: 'detach' });
     }
     
@@ -189,9 +194,9 @@ export class WindowManager {
    * @private
    */
   private setupFileWatching(): void {
-    const config = this.configManager.getAppConfig();
+    const devSettings = this.appConfigManager.getDevSettings();
     
-    if (!config.dev?.enableFileWatch) {
+    if (!devSettings?.enableFileWatch) {
       return;
     }
     

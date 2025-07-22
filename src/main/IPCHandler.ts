@@ -14,18 +14,18 @@
 import { ipcMain, Notification } from 'electron';
 import { IPCChannels } from '../types/electron';
 import { WindowManager } from './WindowManager';
-import { ConfigManager } from './ConfigManager';
+import { AppConfigManager } from './AppConfigManager';
 
 export class IPCHandler {
   /**
    * IPCHandlerのコンストラクタ
    * 
    * @param windowManager - ウィンドウ管理クラスのインスタンス
-   * @param configManager - 設定管理クラスのインスタンス
+   * @param appConfigManager - アプリケーション設定管理クラスのインスタンス
    */
   constructor(
     private windowManager: WindowManager,
-    private configManager: ConfigManager
+    private appConfigManager: AppConfigManager
   ) {}
   
   /**
@@ -171,7 +171,7 @@ export class IPCHandler {
     overlayWindow.webContents.send(IPCChannels.START_CARDS_ANIMATION);
     
     // 設定された時間後に自動的に隠す
-    const duration = this.configManager.getAppConfig().cardAnimationDuration;
+    const duration = this.appConfigManager.getCardAnimationDuration();
     setTimeout(() => {
       this.windowManager.hideOverlay();
     }, duration);
