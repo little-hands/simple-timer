@@ -47,7 +47,11 @@ export class OverlayWindowManager {
     this.window = new BrowserWindow({
       ...OVERLAY_WINDOW_CONFIG,
       width,
-      height
+      height,
+      webPreferences: {
+        ...OVERLAY_WINDOW_CONFIG.webPreferences,
+        preload: path.join(__dirname, '../preload.js')
+      }
     });
     
     // macOS固有の設定

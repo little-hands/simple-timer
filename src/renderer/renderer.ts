@@ -334,5 +334,14 @@ requestNotificationPermission();
 // 設定読み込み
 loadAppConfig();
 
+// 設定変更通知の受信
+const electronAPI = (window as any).electronAPI;
+if (electronAPI && typeof electronAPI.receive === 'function') {
+    electronAPI.receive('effect-type-changed', (effectType: string) => {
+        currentEffectType = effectType as 'notifier' | 'cards' | 'snow';
+        console.log('エフェクトタイプが変更されました:', effectType);
+    });
+}
+
 // 初期表示
 updateDisplay(timeLeft, totalSeconds);

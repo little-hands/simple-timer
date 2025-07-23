@@ -92,6 +92,13 @@ export class IPCHandler {
     
     ipcMain.handle(IPCChannels.SET_EFFECT_TYPE, async (event, effectType: EffectType) => {
       await this.appConfigStore.setEffectType(effectType);
+      
+      // メインウィンドウに設定変更を通知
+      const mainWindow = this.mainWindowManager.getWindow();
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send(IPCChannels.EFFECT_TYPE_CHANGED, effectType);
+      }
+      
       return true;
     });
 

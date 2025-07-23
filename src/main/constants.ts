@@ -28,8 +28,8 @@ export const OVERLAY_WINDOW_CONFIG = {
   x: 0,
   y: 0,
   webPreferences: {
-    contextIsolation: false,
-    nodeIntegration: true
+    contextIsolation: true,
+    nodeIntegration: false
   },
   frame: false,
   transparent: true,

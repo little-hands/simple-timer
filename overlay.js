@@ -1,0 +1,257 @@
+// DOM要素の取得
+const cardsContainer = document.getElementById('cardsContainer');
+
+// トランプアニメーション関数
+function createPlayingCard() {
+    const suits = ['♠', '♥', '♦', '♣'];
+    const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+    const suitNames = ['spades', 'hearts', 'diamonds', 'clubs'];
+    
+    const suit = Math.floor(Math.random() * suits.length);
+    const value = values[Math.floor(Math.random() * values.length)];
+    
+    const card = document.createElement('div');
+    card.className = `playing-card ${suitNames[suit]}`;
+    card.textContent = value;
+    card.setAttribute('data-suit', suits[suit]);
+    
+    // ランダムな開始位置（画面幅全体）
+    const startX = Math.random() * window.innerWidth;
+    card.style.left = `${startX}px`;
+    card.style.top = `-100px`;
+    
+    // ランダムな回転とアニメーション時間
+    const rotation = (Math.random() - 0.5) * 1080; // -540度から540度
+    const duration = 3 + Math.random() * 3; // 3秒から6秒
+    
+    card.style.setProperty('--rotation', `${rotation}deg`);
+    card.style.setProperty('--fall-duration', `${duration}s`);
+    
+    cardsContainer.appendChild(card);
+    
+    // アニメーション終了後に要素を削除
+    setTimeout(() => {
+        if (card.parentNode) {
+            card.remove();
+        }
+    }, duration * 1000 + 1000); // 少し余裕を持たせる
+}
+
+// ソリティアクリア風のカード連続生成
+function startCardsCelebration() {
+    // まず既存のカードをクリア
+    cardsContainer.innerHTML = '';
+    
+    let cardCount = 0;
+    const maxCards = 104; // 2デッキ分
+    const interval = 80; // カード生成間隔（ミリ秒）
+    
+    const cardInterval = setInterval(() => {
+        createPlayingCard();
+        cardCount++;
+        
+        if (cardCount >= maxCards) {
+            clearInterval(cardInterval);
+        }
+    }, interval);
+}
+
+// 雪エフェクトクラス
+class SnowEffect {
+    constructor() {
+        this.canvas = document.getElementById('snowCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.snowflakes = [];
+        this.animationId = null;
+        this.isActive = false;
+        
+        this.initCanvas();
+        this.generateSnowflakes();
+        this.setupEventListeners();
+    }
+    
+    initCanvas() {
+        // キャンバスサイズを画面サイズに合わせる
+        const rect = this.canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        
+        // 物理的なキャンバスサイズを設定
+        this.canvas.width = rect.width * dpr;
+        this.canvas.height = rect.height * dpr;
+        
+        // CSSサイズを設定
+        this.canvas.style.width = rect.width + 'px';
+        this.canvas.style.height = rect.height + 'px';
+        
+        // コンテキストをスケーリング
+        this.ctx.scale(dpr, dpr);
+        
+        // 論理サイズを更新（スノーフレーク座標計算用）
+        this.screenWidth = rect.width;
+        this.screenHeight = rect.height;
+    }
+    
+    generateSnowflakes() {
+        // 150個の雪片を生成
+        for (let i = 0; i < 150; i++) {
+            this.snowflakes.push(new Snowflake(this.screenWidth || window.innerWidth, this.screenHeight || window.innerHeight));
+        }
+    }
+    
+    setupEventListeners() {
+        // リサイズ対応
+        window.addEventListener('resize', () => {
+            this.initCanvas();
+        });
+        
+        // クリック・ESCキーで早期終了
+        document.addEventListener('click', () => {
+            if (this.isActive) {
+                this.stop();
+            }
+        });
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.isActive) {
+                this.stop();
+            }
+        });
+    }
+    
+    start() {
+        if (this.isActive) return;
+        
+        this.isActive = true;
+        const overlay = document.getElementById('snowOverlay');
+        overlay.classList.add('active');
+        
+        this.animate();
+        
+        // 5秒後に自動終了
+        this.autoStopTimeout = setTimeout(() => {
+            this.stop();
+        }, 5000);
+    }
+    
+    stop() {
+        if (!this.isActive) return;
+        
+        this.isActive = false;
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+            this.animationId = null;
+        }
+        
+        if (this.autoStopTimeout) {
+            clearTimeout(this.autoStopTimeout);
+            this.autoStopTimeout = null;
+        }
+        
+        const overlay = document.getElementById('snowOverlay');
+        overlay.classList.remove('active');
+        
+        // フェードアウト完了後にキャンバスをクリア
+        setTimeout(() => {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }, 500);
+    }
+    
+    animate() {
+        if (!this.isActive) return;
+        
+        // キャンバスをクリア
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        // 全ての雪片を更新・描画
+        this.snowflakes.forEach(flake => {
+            flake.update();
+            flake.draw(this.ctx);
+        });
+        
+        this.animationId = requestAnimationFrame(() => this.animate());
+    }
+}
+
+// 雪片クラス
+class Snowflake {
+    constructor(screenWidth, screenHeight) {
+        this.screenWidth = screenWidth;
+        this.screenHeight = screenHeight;
+        this.time = Math.random() * Math.PI * 2; // 横揺れ用の時間オフセット
+        this.reset();
+    }
+    
+    reset() {
+        // より均等な初期位置分散
+        this.x = Math.random() * this.screenWidth;
+        // 初期表示時は画面全体に分散、再生成時は画面上部から
+        if (this.y === undefined) {
+            // 初期生成時：画面全体にランダム分散
+            this.y = Math.random() * this.screenHeight;
+        } else {
+            // 再生成時：画面上部のより広い範囲から
+            this.y = -Math.random() * 200 - 20;
+        }
+        
+        // ランダムな速度（より自然な動き）
+        this.vx = (Math.random() - 0.5) * 1.5; // 横方向速度を少し増加
+        this.vy = Math.random() * 2 + 0.8; // 縦方向速度（0.8-2.8px/frame）
+        
+        // ランダムなサイズと透明度
+        this.radius = Math.random() * 4 + 1.5; // 1.5-5.5px（より多様なサイズ）
+        this.alpha = Math.random() * 0.5 + 0.5; // 0.5-1.0（より透明度のバリエーション）
+    }
+    
+    update() {
+        // 時間を進める
+        this.time += 0.02;
+        
+        // 位置更新（横揺れ効果を追加）
+        this.y += this.vy;
+        this.x += this.vx + Math.sin(this.time) * 0.3; // 横揺れ効果
+        
+        // 画面外に出たら上部から再生成
+        if (this.y > this.screenHeight + 10) {
+            this.reset();
+        }
+        
+        // 横方向の画面外処理
+        if (this.x > this.screenWidth + 10) {
+            this.x = -10;
+        } else if (this.x < -10) {
+            this.x = this.screenWidth + 10;
+        }
+    }
+    
+    draw(ctx) {
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+        
+        // 薄いグレーの縁取りを描画
+        ctx.strokeStyle = 'rgba(150, 150, 150, 0.8)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.stroke();
+        
+        // 白い雪片を描画
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.restore();
+    }
+}
+
+// 雪エフェクトインスタンス
+const snowEffect = new SnowEffect();
+
+// メインプロセスからのアニメーション開始指示を受信
+window.electronAPI.receive('start-cards-animation', () => {
+    startCardsCelebration();
+});
+
+window.electronAPI.receive('start-snow-animation', () => {
+    snowEffect.start();
+});

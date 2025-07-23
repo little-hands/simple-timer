@@ -8,7 +8,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     }
   },
   receive: (channel: string, func: (...args: any[]) => void) => {
-    const validChannels = ['timer-update'];
+    const validChannels = ['timer-update', 'start-cards-animation', 'start-snow-animation', 'effect-type-changed'];
     if (validChannels.includes(channel)) {
       ipcRenderer.on(channel, (_event: IpcRendererEvent, ...args: any[]) => func(...args));
     }

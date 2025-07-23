@@ -60,6 +60,7 @@ export enum IPCChannels {
   // 設定管理
   GET_APP_CONFIG = 'get-app-config',
   SET_EFFECT_TYPE = 'set-effect-type',
+  EFFECT_TYPE_CHANGED = 'effect-type-changed',
   SHOW_SETTINGS_WINDOW = 'show-settings-window',
   HIDE_SETTINGS_WINDOW = 'hide-settings-window'
 }
