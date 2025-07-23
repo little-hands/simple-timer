@@ -74,6 +74,6 @@ export const DEFAULT_APP_CONFIG: AppConfig = {
  * 開発モードで監視するファイル
  */
 export const WATCH_FILES = [
-  '../style.css',
-  '../index.html'
+  '../index/style.css',
+  '../index/index.html'
 ];

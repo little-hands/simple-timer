@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: 'unsafe-inline';">
     <title>Simple Timer</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -44,6 +45,6 @@
     </div>
 
 
-    <script type="module" src="dist/renderer/renderer.js"></script>
+    <script type="module" src="index.js"></script>
 </body>
 </html>

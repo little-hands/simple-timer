@@ -56,7 +56,7 @@ export class MainWindowManager {
       }
     });
     
-    this.window.loadFile(path.join(__dirname, '../../index.html'));
+    this.window.loadFile(path.join(__dirname, '../index/index.html'));
     
     // ウィンドウ移動時の位置保存
     this.window.on('moved', () => {
