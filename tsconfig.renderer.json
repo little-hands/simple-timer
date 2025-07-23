@@ -5,7 +5,7 @@
     "target": "ES2022"
   },
   "include": [
-    "src/index/**/*"
+    "src/timer/**/*"
   ],
   "exclude": [
     "src/preload.ts",
