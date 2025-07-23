@@ -193,23 +193,29 @@
             
             initCanvas() {
                 // キャンバスサイズを画面サイズに合わせる
-                this.canvas.width = window.innerWidth;
-                this.canvas.height = window.innerHeight;
-                
-                // HiDPIディスプレイ対応
-                const dpr = window.devicePixelRatio || 1;
                 const rect = this.canvas.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+                
+                // 物理的なキャンバスサイズを設定
                 this.canvas.width = rect.width * dpr;
                 this.canvas.height = rect.height * dpr;
-                this.ctx.scale(dpr, dpr);
+                
+                // CSSサイズを設定
                 this.canvas.style.width = rect.width + 'px';
                 this.canvas.style.height = rect.height + 'px';
+                
+                // コンテキストをスケーリング
+                this.ctx.scale(dpr, dpr);
+                
+                // 論理サイズを更新（スノーフレーク座標計算用）
+                this.screenWidth = rect.width;
+                this.screenHeight = rect.height;
             }
             
             generateSnowflakes() {
                 // 150個の雪片を生成
                 for (let i = 0; i < 150; i++) {
-                    this.snowflakes.push(new Snowflake(window.innerWidth, window.innerHeight));
+                    this.snowflakes.push(new Snowflake(this.screenWidth || window.innerWidth, this.screenHeight || window.innerHeight));
                 }
             }
             
@@ -341,10 +347,20 @@
             draw(ctx) {
                 ctx.save();
                 ctx.globalAlpha = this.alpha;
+                
+                // 薄いグレーの縁取りを描画
+                ctx.strokeStyle = 'rgba(150, 150, 150, 0.8)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                // 白い雪片を描画
                 ctx.fillStyle = '#ffffff';
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                 ctx.fill();
+                
                 ctx.restore();
             }
         }
