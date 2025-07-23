@@ -60,7 +60,7 @@ export class OverlayWindowManager {
       this.window.setVisibleOnAllWorkspaces(true);
     }
     
-    this.window.loadFile(path.join(__dirname, '../../src/overlay/overlay.html'));
+    this.window.loadFile(path.join(__dirname, '../overlay/overlay.html'));
     
     // 開発モード時のDevTools
     if (this.isDevelopmentMode && this.appConfigStore.getDevSettings()?.openDevTools) {

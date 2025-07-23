@@ -73,7 +73,7 @@ export class SettingsWindowManager {
     });
 
     // 設定HTMLファイルを読み込み
-    await this.settingsWindow.loadFile('src/settings/settings.html');
+    await this.settingsWindow.loadFile(path.join(__dirname, '../settings/settings.html'));
 
     // ウィンドウが準備できたら表示
     this.settingsWindow.once('ready-to-show', () => {
