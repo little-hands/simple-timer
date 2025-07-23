@@ -40,7 +40,7 @@ export class SettingsWindowManager {
 
     // 設定ウィンドウの位置を計算（メインウィンドウの中央）
     const settingsWidth = 320;
-    const settingsHeight = 400;
+    const settingsHeight = 480;
     const x = Math.max(0, Math.min(
       mainBounds.x + (mainBounds.width - settingsWidth) / 2,
       screenWidth - settingsWidth
