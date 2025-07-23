@@ -4,7 +4,7 @@
  * @description
  * このクラスは以下の責務を持ちます：
  * - 設定ウィンドウのライフサイクル管理
- * - メインウィンドウとの連携
+ * - タイマーウィンドウとの連携
  * - 設定ウィンドウの表示・非表示制御
  */
 import { BrowserWindow, screen } from 'electron';
@@ -12,15 +12,15 @@ import path from 'path';
 
 export class SettingsWindowManager {
   private settingsWindow: BrowserWindow | null = null;
-  private mainWindow: BrowserWindow;
+  private timerWindow: BrowserWindow;
 
   /**
    * SettingsWindowManagerのコンストラクタ
    * 
-   * @param mainWindow - メインウィンドウのインスタンス
+   * @param timerWindow - タイマーウィンドウのインスタンス
    */
-  constructor(mainWindow: BrowserWindow) {
-    this.mainWindow = mainWindow;
+  constructor(timerWindow: BrowserWindow) {
+    this.timerWindow = timerWindow;
   }
 
   /**
@@ -33,20 +33,20 @@ export class SettingsWindowManager {
       return;
     }
 
-    // メインウィンドウの位置を取得
-    const mainBounds = this.mainWindow.getBounds();
+    // タイマーウィンドウの位置を取得
+    const timerBounds = this.timerWindow.getBounds();
     const primaryDisplay = screen.getPrimaryDisplay();
     const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize;
 
-    // 設定ウィンドウの位置を計算（メインウィンドウの中央）
+    // 設定ウィンドウの位置を計算（タイマーウィンドウの中央）
     const settingsWidth = 320;
     const settingsHeight = 480;
     const x = Math.max(0, Math.min(
-      mainBounds.x + (mainBounds.width - settingsWidth) / 2,
+      timerBounds.x + (timerBounds.width - settingsWidth) / 2,
       screenWidth - settingsWidth
     ));
     const y = Math.max(0, Math.min(
-      mainBounds.y + (mainBounds.height - settingsHeight) / 2,
+      timerBounds.y + (timerBounds.height - settingsHeight) / 2,
       screenHeight - settingsHeight
     ));
 
@@ -55,7 +55,7 @@ export class SettingsWindowManager {
       height: settingsHeight,
       x: x,
       y: y,
-      parent: this.mainWindow,
+      parent: this.timerWindow,
       modal: true,
       resizable: false,
       minimizable: false,

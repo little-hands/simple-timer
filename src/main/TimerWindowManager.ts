@@ -1,9 +1,9 @@
 /**
- * メインウィンドウの管理を担当するクラス
+ * タイマーウィンドウの管理を担当するクラス
  * 
  * @description
  * このクラスは以下の責務を持ちます：
- * - メインウィンドウの作成とライフサイクル管理
+ * - タイマーウィンドウの作成とライフサイクル管理
  * - ウィンドウ位置の自動保存
  * - 開発モード時のファイル監視とリロード
  * 
@@ -14,15 +14,15 @@ import { BrowserWindow } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
 import { WindowBounds } from '../types/electron';
-import { MAIN_WINDOW_CONFIG, WATCH_FILES } from './constants';
+import { TIMER_WINDOW_CONFIG, WATCH_FILES } from './constants';
 import { AppConfigStore } from './AppConfigStore';
 import { WindowStateStore } from './WindowStateStore';
 
-export class MainWindowManager {
+export class TimerWindowManager {
   private window: BrowserWindow | null = null;
   
   /**
-   * MainWindowManagerのコンストラクタ
+   * TimerWindowManagerのコンストラクタ
    * 
    * @param appConfigStore - アプリケーション設定ストアクラスのインスタンス
    * @param windowStateStore - ウィンドウ状態ストアのインスタンス
@@ -35,7 +35,7 @@ export class MainWindowManager {
   ) {}
   
   /**
-   * メインウィンドウを作成します
+   * タイマーウィンドウを作成します
    * 
    * @param savedBounds - 保存されたウィンドウ位置（オプション）
    * @returns 作成されたBrowserWindow
@@ -47,11 +47,11 @@ export class MainWindowManager {
    */
   createWindow(savedBounds?: WindowBounds): BrowserWindow {
     this.window = new BrowserWindow({
-      ...MAIN_WINDOW_CONFIG,
+      ...TIMER_WINDOW_CONFIG,
       x: savedBounds?.x,
       y: savedBounds?.y,
       webPreferences: {
-        ...MAIN_WINDOW_CONFIG.webPreferences,
+        ...TIMER_WINDOW_CONFIG.webPreferences,
         preload: path.join(__dirname, '../preload.js')
       }
     });
@@ -62,7 +62,7 @@ export class MainWindowManager {
     this.window.on('moved', () => {
       if (this.window) {
         const bounds = this.window.getBounds();
-        this.windowStateStore.saveMainWindowBounds({ x: bounds.x, y: bounds.y });
+        this.windowStateStore.saveTimerWindowBounds({ x: bounds.x, y: bounds.y });
       }
     });
     
@@ -80,9 +80,9 @@ export class MainWindowManager {
   }
   
   /**
-   * メインウィンドウを取得します
+   * タイマーウィンドウを取得します
    * 
-   * @returns メインウィンドウ、存在しない場合はnull
+   * @returns タイマーウィンドウ、存在しない場合はnull
    */
   getWindow(): BrowserWindow | null {
     return this.window;
@@ -94,7 +94,7 @@ export class MainWindowManager {
    * 
    * @remarks
    * 開発モード時のみ有効。監視対象ファイルが変更されたら
-   * メインウィンドウを自動的にリロードします。
+   * タイマーウィンドウを自動的にリロードします。
    * @private
    */
   private setupFileWatching(): void {

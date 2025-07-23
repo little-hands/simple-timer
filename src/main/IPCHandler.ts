@@ -13,7 +13,7 @@
  */
 import { ipcMain, Notification } from 'electron';
 import { IPCChannels, EffectType } from '../types/electron';
-import { MainWindowManager } from './MainWindowManager';
+import { TimerWindowManager } from './TimerWindowManager';
 import { OverlayWindowManager } from './OverlayWindowManager';
 import { AppConfigStore } from './AppConfigStore';
 import { SettingsWindowManager } from './SettingsWindowManager';
@@ -24,12 +24,12 @@ export class IPCHandler {
   /**
    * IPCHandlerのコンストラクタ
    * 
-   * @param mainWindowManager - メインウィンドウ管理クラスのインスタンス
+   * @param timerWindowManager - タイマーウィンドウ管理クラスのインスタンス
    * @param overlayWindowManager - オーバーレイウィンドウ管理クラスのインスタンス
    * @param appConfigStore - アプリケーション設定ストアクラスのインスタンス
    */
   constructor(
-    private mainWindowManager: MainWindowManager,
+    private timerWindowManager: TimerWindowManager,
     private overlayWindowManager: OverlayWindowManager,
     private appConfigStore: AppConfigStore
   ) {}
@@ -93,10 +93,10 @@ export class IPCHandler {
     ipcMain.handle(IPCChannels.SET_EFFECT_TYPE, async (event, effectType: EffectType) => {
       await this.appConfigStore.setEffectType(effectType);
       
-      // メインウィンドウに設定変更を通知
-      const mainWindow = this.mainWindowManager.getWindow();
-      if (mainWindow && !mainWindow.isDestroyed()) {
-        mainWindow.webContents.send(IPCChannels.EFFECT_TYPE_CHANGED, effectType);
+      // タイマーウィンドウに設定変更を通知
+      const timerWindow = this.timerWindowManager.getWindow();
+      if (timerWindow && !timerWindow.isDestroyed()) {
+        timerWindow.webContents.send(IPCChannels.EFFECT_TYPE_CHANGED, effectType);
       }
       
       return true;
@@ -157,7 +157,7 @@ export class IPCHandler {
    * 
    * @remarks
    * - Mac通知センターに終了通知を表示
-   * - 通知クリック時はメインウィンドウにフォーカス
+   * - 通知クリック時はタイマーウィンドウにフォーカス
    * - 通知は音なしで表示（サウンドは別途再生される）
    */
   private showNotification(totalSeconds: number): void {
@@ -183,10 +183,10 @@ export class IPCHandler {
     
     // 通知クリック時にウィンドウをフォーカス
     notification.on('click', () => {
-      const mainWindow = this.mainWindowManager.getWindow();
-      if (mainWindow && !mainWindow.isDestroyed()) {
-        mainWindow.show();
-        mainWindow.focus();
+      const timerWindow = this.timerWindowManager.getWindow();
+      if (timerWindow && !timerWindow.isDestroyed()) {
+        timerWindow.show();
+        timerWindow.focus();
       }
     });
     
@@ -222,31 +222,31 @@ export class IPCHandler {
    * @private
    * 
    * @remarks
-   * メインウィンドウに対する制御のみを行います。
+   * タイマーウィンドウに対する制御のみを行います。
    * オーバーレイウィンドウは対象外です。
    */
   private handleWindowControl(action: 'minimize' | 'maximize' | 'close'): void {
-    const mainWindow = this.mainWindowManager.getWindow();
+    const timerWindow = this.timerWindowManager.getWindow();
     
-    if (!mainWindow || mainWindow.isDestroyed()) {
+    if (!timerWindow || timerWindow.isDestroyed()) {
       return;
     }
     
     switch (action) {
       case 'minimize':
-        mainWindow.minimize();
+        timerWindow.minimize();
         break;
         
       case 'maximize':
-        if (mainWindow.isMaximized()) {
-          mainWindow.unmaximize();
+        if (timerWindow.isMaximized()) {
+          timerWindow.unmaximize();
         } else {
-          mainWindow.maximize();
+          timerWindow.maximize();
         }
         break;
         
       case 'close':
-        mainWindow.close();
+        timerWindow.close();
         break;
     }
   }

@@ -4,9 +4,9 @@
 import { AppConfig } from '../types/electron';
 
 /**
- * メインウィンドウの設定
+ * タイマーウィンドウの設定
  */
-export const MAIN_WINDOW_CONFIG = {
+export const TIMER_WINDOW_CONFIG = {
   width: 180,
   height: 180,
   webPreferences: {
@@ -58,9 +58,9 @@ export const EFFECT_DURATION = {
  */
 export const DEFAULT_APP_CONFIG: AppConfig = {
   defaultTimerSeconds: 180, // 3分
-  mainWindowSize: {
-    width: MAIN_WINDOW_CONFIG.width,
-    height: MAIN_WINDOW_CONFIG.height
+  timerWindowSize: {
+    width: TIMER_WINDOW_CONFIG.width,
+    height: TIMER_WINDOW_CONFIG.height
   },
   cardAnimationDuration: 6000,
   effectType: 'notifier', // デフォルトは通常（Notifier）

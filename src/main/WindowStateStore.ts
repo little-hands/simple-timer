@@ -44,44 +44,44 @@ export class WindowStateStore {
   }
   
   /**
-   * 保存されたメインウィンドウの位置情報を取得します
+   * 保存されたタイマーウィンドウの位置情報を取得します
    * 
    * @returns 保存されたウィンドウ位置、存在しない場合はundefined
    * 
    * @example
    * ```typescript
-   * const bounds = windowStateStore.getMainWindowBounds();
+   * const bounds = windowStateStore.getTimerWindowBounds();
    * if (bounds) {
    *   console.log(`Window position: ${bounds.x}, ${bounds.y}`);
    * }
    * ```
    */
-  getMainWindowBounds(): WindowBounds | undefined {
+  getTimerWindowBounds(): WindowBounds | undefined {
     if (!this.store) {
       console.warn('WindowStateStore not initialized');
       return undefined;
     }
     
-    return this.store.get('mainWindow.bounds') as WindowBounds | undefined;
+    return this.store.get('timerWindow.bounds') as WindowBounds | undefined;
   }
   
   /**
-   * メインウィンドウの位置情報を保存します
+   * タイマーウィンドウの位置情報を保存します
    * 
    * @param bounds - 保存するウィンドウ位置情報
    * 
    * @example
    * ```typescript
-   * windowStateStore.saveMainWindowBounds({ x: 100, y: 200 });
+   * windowStateStore.saveTimerWindowBounds({ x: 100, y: 200 });
    * ```
    */
-  saveMainWindowBounds(bounds: WindowBounds): void {
+  saveTimerWindowBounds(bounds: WindowBounds): void {
     if (!this.store) {
       console.warn('WindowStateStore not initialized');
       return;
     }
     
-    this.store.set('mainWindow.bounds', bounds);
+    this.store.set('timerWindow.bounds', bounds);
   }
   
 }

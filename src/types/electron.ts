@@ -21,8 +21,8 @@ export type EffectType = 'notifier' | 'cards' | 'snow';
 export interface AppConfig {
   /** デフォルトのタイマー時間（秒） */
   defaultTimerSeconds: number;
-  /** メインウィンドウのデフォルトサイズ */
-  mainWindowSize: {
+  /** タイマーウィンドウのデフォルトサイズ */
+  timerWindowSize: {
     width: number;
     height: number;
   };

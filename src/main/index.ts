@@ -12,7 +12,7 @@
 import { app, BrowserWindow } from 'electron';
 import { AppConfigStore } from './AppConfigStore';
 import { WindowStateStore } from './WindowStateStore';
-import { MainWindowManager } from './MainWindowManager';
+import { TimerWindowManager } from './TimerWindowManager';
 import { OverlayWindowManager } from './OverlayWindowManager';
 import { SettingsWindowManager } from './SettingsWindowManager';
 import { IPCHandler } from './IPCHandler';
@@ -20,7 +20,7 @@ import { IPCHandler } from './IPCHandler';
 // グローバルインスタンス
 let appConfigStore: AppConfigStore;
 let windowStateStore: WindowStateStore;
-let mainWindowManager: MainWindowManager;
+let timerWindowManager: TimerWindowManager;
 let overlayWindowManager: OverlayWindowManager;
 let settingsWindowManager: SettingsWindowManager;
 let ipcHandler: IPCHandler;
@@ -44,21 +44,21 @@ async function initializeApp(): Promise<void> {
   const isDevelopmentMode = process.argv.includes('--dev');
   
   // ウィンドウマネージャーの初期化
-  mainWindowManager = new MainWindowManager(appConfigStore, windowStateStore, isDevelopmentMode);
+  timerWindowManager = new TimerWindowManager(appConfigStore, windowStateStore, isDevelopmentMode);
   overlayWindowManager = new OverlayWindowManager(appConfigStore, isDevelopmentMode);
   
   // IPCハンドラーの初期化
-  ipcHandler = new IPCHandler(mainWindowManager, overlayWindowManager, appConfigStore);
+  ipcHandler = new IPCHandler(timerWindowManager, overlayWindowManager, appConfigStore);
   ipcHandler.setupHandlers();
   
   // ウィンドウの作成
-  const savedBounds = windowStateStore.getMainWindowBounds();
-  const mainWindow = mainWindowManager.createWindow(savedBounds);
+  const savedBounds = windowStateStore.getTimerWindowBounds();
+  const timerWindow = timerWindowManager.createWindow(savedBounds);
   overlayWindowManager.createWindow();
   
-  // 設定ウィンドウマネージャーの初期化（メインウィンドウが必要）
-  if (mainWindow) {
-    settingsWindowManager = new SettingsWindowManager(mainWindow);
+  // 設定ウィンドウマネージャーの初期化（タイマーウィンドウが必要）
+  if (timerWindow) {
+    settingsWindowManager = new SettingsWindowManager(timerWindow);
     ipcHandler.setSettingsWindowManager(settingsWindowManager);
   }
 }
@@ -90,8 +90,8 @@ app.on('window-all-closed', () => {
  */
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
-    const savedBounds = windowStateStore.getMainWindowBounds();
-    mainWindowManager.createWindow(savedBounds);
+    const savedBounds = windowStateStore.getTimerWindowBounds();
+    timerWindowManager.createWindow(savedBounds);
   }
 });
 

@@ -269,7 +269,7 @@ async function saveEffectType(effectType: 'notifier' | 'cards' | 'snow'): Promis
 
 // UI状態更新
 function updateSettingsUI(): void {
-    // 設定ウィンドウで状態管理するため、メインウィンドウでは何もしない
+    // 設定ウィンドウで状態管理するため、タイマーウィンドウでは何もしない
     console.log('Current effect type:', currentEffectType);
 }
 
