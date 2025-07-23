@@ -13,7 +13,7 @@ export interface WindowBounds {
 /**
  * エフェクトの種類
  */
-export type EffectType = 'notifier' | 'cards';
+export type EffectType = 'notifier' | 'cards' | 'snow';
 
 /**
  * アプリケーション設定
@@ -54,6 +54,8 @@ export enum IPCChannels {
   // アニメーション
   SHOW_CARDS_CELEBRATION = 'show-cards-celebration',
   START_CARDS_ANIMATION = 'start-cards-animation',
+  SHOW_SNOW_EFFECT = 'show-snow-effect',
+  START_SNOW_ANIMATION = 'start-snow-animation',
   
   // 設定管理
   GET_APP_CONFIG = 'get-app-config',

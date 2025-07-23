@@ -80,6 +80,11 @@ export class IPCHandler {
       this.handleCardsCelebration();
     });
     
+    // 雪エフェクト
+    ipcMain.on(IPCChannels.SHOW_SNOW_EFFECT, () => {
+      this.handleSnowEffect();
+    });
+    
     // 設定管理API
     ipcMain.handle(IPCChannels.GET_APP_CONFIG, () => {
       return this.appConfigStore.getPublicConfig();
@@ -130,6 +135,9 @@ export class IPCHandler {
         break;
       case 'cards':
         this.handleCardsCelebration();
+        break;
+      case 'snow':
+        this.handleSnowEffect();
         break;
     }
   }
@@ -265,6 +273,28 @@ export class IPCHandler {
     setTimeout(() => {
       this.overlayWindowManager.hide();
     }, duration);
+  }
+  
+  /**
+   * 雪エフェクトアニメーションを処理します
+   * 
+   * @private
+   * 
+   * @remarks
+   * - オーバーレイウィンドウを表示
+   * - 雪アニメーション開始イベントを送信
+   * - 指定時間後に自動的に非表示
+   */
+  private handleSnowEffect(): void {
+    const overlayWindow = this.overlayWindowManager.getWindow();
+    
+    if (!overlayWindow || overlayWindow.isDestroyed()) {
+      console.error('Overlay window not available for snow effect');
+      return;
+    }
+    
+    // OverlayWindowManagerの雪エフェクトメソッドを使用
+    this.overlayWindowManager.showSnowEffect();
   }
   
 }

@@ -12,8 +12,9 @@
  */
 import { BrowserWindow, screen } from 'electron';
 import * as path from 'path';
-import { OVERLAY_WINDOW_CONFIG } from './constants';
+import { OVERLAY_WINDOW_CONFIG, EFFECT_DURATION } from './constants';
 import { AppConfigStore } from './AppConfigStore';
+import { IPCChannels } from '../types/electron';
 
 export class OverlayWindowManager {
   private window: BrowserWindow | null = null;
@@ -101,6 +102,32 @@ export class OverlayWindowManager {
     if (this.window) {
       this.window.hide();
     }
+  }
+  
+  /**
+   * 雪エフェクトを表示します
+   * 
+   * @remarks
+   * - オーバーレイウィンドウを表示
+   * - 雪アニメーション開始イベントを送信
+   * - 指定時間後に自動的に非表示
+   */
+  showSnowEffect(): void {
+    if (!this.window || this.window.isDestroyed()) {
+      console.error('Overlay window not available for snow effect');
+      return;
+    }
+    
+    // オーバーレイウィンドウを表示
+    this.show();
+    
+    // 雪アニメーション開始イベントを送信
+    this.window.webContents.send(IPCChannels.START_SNOW_ANIMATION);
+    
+    // 設定された時間後に自動的に隠す
+    setTimeout(() => {
+      this.hide();
+    }, EFFECT_DURATION.SNOW);
   }
   
 }

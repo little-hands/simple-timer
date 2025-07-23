@@ -9,7 +9,7 @@ let isRunning: boolean = false;
 let inputStack = "0000";
 
 // エフェクト選択関連の状態
-let currentEffectType: 'notifier' | 'cards' = 'notifier'; // デフォルト
+let currentEffectType: 'notifier' | 'cards' | 'snow' = 'notifier'; // デフォルト
 
 const timerDisplay = document.getElementById('timerDisplay') as HTMLElement;
 const startBtn = document.getElementById('startBtn') as HTMLButtonElement;
@@ -134,6 +134,17 @@ async function playAlarmSound(): Promise<void> {
     }
 }
 
+async function playSnowSound(): Promise<void> {
+    try {
+        const audio = new Audio();
+        audio.src = './assets/sounds/sleigh_bells.mp3';
+        await audio.play();
+    } catch (error) {
+        console.warn('雪エフェクト音声の再生に失敗しました:', error);
+        // 音声再生の失敗はアプリケーションの継続に影響しないため、エラーを投げない
+    }
+}
+
 // フルスクリーントランプアニメーション開始
 function startCardsCelebration(): void {
     try {
@@ -146,6 +157,21 @@ function startCardsCelebration(): void {
         }
     } catch (error) {
         console.warn('トランプアニメーション開始に失敗しました:', error);
+    }
+}
+
+// 雪エフェクトアニメーション開始
+function startSnowEffect(): void {
+    try {
+        const electronAPI = (window as any).electronAPI;
+        
+        if (electronAPI && typeof electronAPI.showSnowEffect === 'function') {
+            electronAPI.showSnowEffect();
+        } else {
+            console.warn('ElectronAPI showSnowEffect が利用できません');
+        }
+    } catch (error) {
+        console.warn('雪エフェクト開始に失敗しました:', error);
     }
 }
 
@@ -180,16 +206,27 @@ async function timerFinished(): Promise<void> {
         updateStartButtonIcon(isRunning);
         timerContainer.classList.add('timer-finished');
         
+        console.log('🎯 タイマー終了:', { currentEffectType });
+        
         // エフェクト設定に基づく実行
         switch (currentEffectType) {
             case 'notifier':
+                console.log('📢 通知エフェクト実行');
                 // 通知 + 音声の組み合わせ
                 sendNotification(totalSeconds);
                 playAlarmSound();
                 break;
             case 'cards':
-                // トランプアニメーションのみ
+                console.log('🃏 トランプエフェクト実行');
+                // トランプアニメーション + 音声
                 startCardsCelebration();
+                playAlarmSound();
+                break;
+            case 'snow':
+                console.log('❄️ 雪エフェクト実行');
+                // 雪アニメーション + 専用音声
+                startSnowEffect();
+                playSnowSound();
                 break;
         }
         
@@ -206,6 +243,7 @@ async function loadAppConfig(): Promise<void> {
         if (electronAPI && typeof electronAPI.getAppConfig === 'function') {
             const config = await electronAPI.getAppConfig();
             currentEffectType = config.effectType;
+            console.log('設定読み込み完了:', { effectType: currentEffectType, config });
             updateSettingsUI();
         }
     } catch (error) {
@@ -215,12 +253,13 @@ async function loadAppConfig(): Promise<void> {
 }
 
 // エフェクト設定保存
-async function saveEffectType(effectType: 'notifier' | 'cards'): Promise<void> {
+async function saveEffectType(effectType: 'notifier' | 'cards' | 'snow'): Promise<void> {
     try {
         const electronAPI = (window as any).electronAPI;
         if (electronAPI && typeof electronAPI.setEffectType === 'function') {
             await electronAPI.setEffectType(effectType);
             currentEffectType = effectType;
+            console.log('設定保存完了:', { effectType: currentEffectType });
             updateSettingsUI();
         }
     } catch (error) {

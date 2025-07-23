@@ -46,6 +46,14 @@ export const OVERLAY_WINDOW_CONFIG = {
 };
 
 /**
+ * エフェクトの持続時間（ミリ秒）
+ */
+export const EFFECT_DURATION = {
+  CARDS: 3000,
+  SNOW: 10000
+} as const;
+
+/**
  * デフォルトのアプリケーション設定
  */
 export const DEFAULT_APP_CONFIG: AppConfig = {
