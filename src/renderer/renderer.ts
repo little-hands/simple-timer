@@ -8,12 +8,16 @@ let isRunning: boolean = false;
 // 入力値スタック（4桁の数値を文字列で管理）
 let inputStack = "0000";
 
+// エフェクト選択関連の状態
+let currentEffectType: 'notifier' | 'cards' = 'notifier'; // デフォルト
+
 const timerDisplay = document.getElementById('timerDisplay') as HTMLElement;
 const startBtn = document.getElementById('startBtn') as HTMLButtonElement;
 const resetBtn = document.getElementById('resetBtn') as HTMLButtonElement;
 const statusText = document.getElementById('statusText') as HTMLElement;
 const progressCircle = document.getElementById('progressCircle') as unknown as SVGCircleElement;
 const timerContainer = document.querySelector('.timer-container') as HTMLElement;
+const settingsBtn = document.getElementById('settingsBtn') as HTMLButtonElement;
 // cardsContainerはローカルでは不要（フルスクリーンオーバーレイで表示）
 
 function updateProgress(totalSecondsParam: number, timeLeftParam: number): void {
@@ -176,14 +180,18 @@ async function timerFinished(): Promise<void> {
         updateStartButtonIcon(isRunning);
         timerContainer.classList.add('timer-finished');
         
-        // 通知送信
-        sendNotification(totalSeconds);
-        
-        // アラーム音（非同期で実行、失敗してもアプリは継続）
-        playAlarmSound();
-        
-        // トランプアニメーション開始
-        startCardsCelebration();
+        // エフェクト設定に基づく実行
+        switch (currentEffectType) {
+            case 'notifier':
+                // 通知 + 音声の組み合わせ
+                sendNotification(totalSeconds);
+                playAlarmSound();
+                break;
+            case 'cards':
+                // トランプアニメーションのみ
+                startCardsCelebration();
+                break;
+        }
         
     } catch (error) {
         console.error('タイマー終了処理でエラーが発生しました:', error);
@@ -191,10 +199,58 @@ async function timerFinished(): Promise<void> {
     }
 }
 
+// 設定読み込み
+async function loadAppConfig(): Promise<void> {
+    try {
+        const electronAPI = (window as any).electronAPI;
+        if (electronAPI && typeof electronAPI.getAppConfig === 'function') {
+            const config = await electronAPI.getAppConfig();
+            currentEffectType = config.effectType;
+            updateSettingsUI();
+        }
+    } catch (error) {
+        console.warn('設定読み込みに失敗しました:', error);
+        currentEffectType = 'notifier'; // フォールバック
+    }
+}
+
+// エフェクト設定保存
+async function saveEffectType(effectType: 'notifier' | 'cards'): Promise<void> {
+    try {
+        const electronAPI = (window as any).electronAPI;
+        if (electronAPI && typeof electronAPI.setEffectType === 'function') {
+            await electronAPI.setEffectType(effectType);
+            currentEffectType = effectType;
+            updateSettingsUI();
+        }
+    } catch (error) {
+        console.warn('設定保存に失敗しました:', error);
+    }
+}
+
+// UI状態更新
+function updateSettingsUI(): void {
+    // 設定ウィンドウで状態管理するため、メインウィンドウでは何もしない
+    console.log('Current effect type:', currentEffectType);
+}
+
+// 設定ウィンドウを開く
+function openSettingsWindow(): void {
+    try {
+        const electronAPI = (window as any).electronAPI;
+        if (electronAPI && typeof electronAPI.showSettingsWindow === 'function') {
+            electronAPI.showSettingsWindow();
+        }
+    } catch (error) {
+        console.warn('設定ウィンドウの表示に失敗しました:', error);
+    }
+}
+
 
 // イベントリスナー
 startBtn.addEventListener('click', toggleTimer);
 resetBtn.addEventListener('click', resetTimer);
+settingsBtn.addEventListener('click', openSettingsWindow);
 
 
 // キーボードショートカット
@@ -235,6 +291,9 @@ async function requestNotificationPermission(): Promise<void> {
 
 // 通知許可要求を実行
 requestNotificationPermission();
+
+// 設定読み込み
+loadAppConfig();
 
 // 初期表示
 updateDisplay(timeLeft, totalSeconds);

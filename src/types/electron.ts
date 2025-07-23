@@ -11,6 +11,11 @@ export interface WindowBounds {
 }
 
 /**
+ * エフェクトの種類
+ */
+export type EffectType = 'notifier' | 'cards';
+
+/**
  * アプリケーション設定
  */
 export interface AppConfig {
@@ -30,6 +35,8 @@ export interface AppConfig {
     /** DevToolsを自動で開くか */
     openDevTools: boolean;
   };
+  /** タイマー終了時のエフェクト種別 */
+  effectType: EffectType;
 }
 
 /**
@@ -46,6 +53,12 @@ export enum IPCChannels {
   
   // アニメーション
   SHOW_CARDS_CELEBRATION = 'show-cards-celebration',
-  START_CARDS_ANIMATION = 'start-cards-animation'
+  START_CARDS_ANIMATION = 'start-cards-animation',
+  
+  // 設定管理
+  GET_APP_CONFIG = 'get-app-config',
+  SET_EFFECT_TYPE = 'set-effect-type',
+  SHOW_SETTINGS_WINDOW = 'show-settings-window',
+  HIDE_SETTINGS_WINDOW = 'hide-settings-window'
 }
 

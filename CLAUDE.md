@@ -188,6 +188,221 @@ Gherkin記法（Given-When-Then）を使用してテストシナリオを記述�
 
 このテンプレートにより、ユーザー視点から技術実装まで包括的にカバーし、実装の品質と一貫性を確保する。
 
+## Issue #13 技術設計（Phase 4リファクタリング対応版）
+
+### 現在のアーキテクチャ分析（Phase 4完了後）
+
+**リファクタリング後の構造**:
+```
+src/
+├── main/           (メインプロセス - Node.js CommonJS)
+├── renderer/       (レンダラープロセス - ES6 Modules)
+│   ├── renderer.ts      - UIロジック・ElectronAPI呼び出し
+│   ├── functions.ts     - 純粋関数群（計算処理）
+│   └── functions.test.ts - ユニットテスト
+├── preload.ts      (セキュアブリッジ - CommonJS)
+└── types/          (型定義)
+```
+
+**現在のエフェクト実行フロー**:
+```typescript
+// src/renderer/renderer.ts:173-192
+async function timerFinished(): Promise<void> {
+    // 1. 基本状態変更
+    isRunning = false;
+    updateStartButtonIcon(isRunning);
+    timerContainer.classList.add('timer-finished');
+    
+    // 2. 全エフェクト実行（要変更）
+    sendNotification(totalSeconds);        // Mac通知 + IPC
+    playAlarmSound();                     // ブラウザ音声
+    startCardsCelebration();              // トランプ + IPC
+}
+```
+
+### アーキテクチャ選択の根拠
+
+**ES6モジュール対応**:
+- レンダラーコードは全てES6 modules形式
+- `import`/`export`構文使用
+- ブラウザ環境での動作保証
+
+**責務分離の活用**:
+- `functions.ts`: 計算処理（純粋関数）
+- `renderer.ts`: UI制御・IPC通信
+- エフェクト選択ロジックは`renderer.ts`に追加
+
+**設定管理の配置**:
+- メインプロセス: `AppConfigStore`で永続化
+- レンダラープロセス: 設定値のキャッシュと使用のみ
+
+### 実装アプローチ（フェーズ別）
+
+**Phase 1: 型定義と設定拡張**
+```typescript
+// src/types/electron.ts
+export type EffectType = 'notifier' | 'cards';
+
+export interface AppConfig {
+  // 既存設定...
+  effectType: EffectType;
+}
+
+export enum IPCChannels {
+  // 既存チャンネル...
+  GET_APP_CONFIG = 'get-app-config',
+  SET_EFFECT_TYPE = 'set-effect-type'
+}
+```
+
+**Phase 2: preload.ts API拡張**
+```typescript
+// src/preload.ts 追加
+contextBridge.exposeInMainWorld('electronAPI', {
+  // 既存API...
+  
+  // 設定管理API（新規追加）
+  getAppConfig: (): Promise<AppConfig> => ipcRenderer.invoke('get-app-config'),
+  setEffectType: (effectType: EffectType): Promise<void> => 
+    ipcRenderer.invoke('set-effect-type', effectType)
+});
+```
+
+**Phase 3: AppConfigStore設定保存機能**
+```typescript
+// src/main/AppConfigStore.ts 拡張
+export class AppConfigStore {
+  getEffectType(): EffectType {
+    const config = this.getAppConfig();
+    return config.effectType;
+  }
+  
+  async setEffectType(effectType: EffectType): Promise<void> {
+    if (!this.store) {
+      throw new Error('AppConfigStore not initialized');
+    }
+    
+    const currentConfig = this.getAppConfig();
+    const updatedConfig = { ...currentConfig, effectType };
+    this.store.set('appConfig', updatedConfig);
+  }
+  
+  // レンダラーへの公開用（セキュリティ考慮）
+  getPublicConfig(): AppConfig {
+    return this.getAppConfig();
+  }
+}
+```
+
+**Phase 4: IPCHandler拡張**
+```typescript
+// src/main/IPCHandler.ts 追加処理
+export class IPCHandler {
+  setupHandlers(): void {
+    // 既存ハンドラー...
+    
+    // 設定API
+    ipcMain.handle(IPCChannels.GET_APP_CONFIG, () => {
+      return this.appConfigStore.getPublicConfig();
+    });
+    
+    ipcMain.handle(IPCChannels.SET_EFFECT_TYPE, async (event, effectType: EffectType) => {
+      await this.appConfigStore.setEffectType(effectType);
+      return true;
+    });
+  }
+  
+  private handleTimerFinished(totalSeconds: number): void {
+    const effectType = this.appConfigStore.getEffectType();
+    this.executeEffect(effectType, totalSeconds);
+  }
+  
+  private executeEffect(effectType: EffectType, totalSeconds: number): void {
+    switch (effectType) {
+      case 'notifier':
+        this.showNotification(totalSeconds);
+        break;
+      case 'cards':
+        this.handleCardsCelebration();
+        break;
+    }
+  }
+}
+```
+
+**Phase 5: レンダラー側エフェクト制御**
+```typescript
+// src/renderer/renderer.ts 新規追加部分
+
+// エフェクト選択関連の状態
+let currentEffectType: EffectType = 'notifier'; // デフォルト
+
+// 設定読み込み
+async function loadAppConfig(): Promise<void> {
+  try {
+    const electronAPI = (window as any).electronAPI;
+    if (electronAPI && typeof electronAPI.getAppConfig === 'function') {
+      const config = await electronAPI.getAppConfig();
+      currentEffectType = config.effectType;
+      updateSettingsUI();
+    }
+  } catch (error) {
+    console.warn('設定読み込みに失敗しました:', error);
+    currentEffectType = 'notifier'; // フォールバック
+  }
+}
+
+// timerFinished関数の修正
+async function timerFinished(): Promise<void> {
+  try {
+    isRunning = false;
+    updateStartButtonIcon(isRunning);
+    timerContainer.classList.add('timer-finished');
+    
+    // エフェクト設定に基づく実行
+    switch (currentEffectType) {
+      case 'notifier':
+        // 通知 + 音声の組み合わせ
+        sendNotification(totalSeconds);
+        playAlarmSound();
+        break;
+      case 'cards':
+        // トランプアニメーションのみ
+        startCardsCelebration();
+        break;
+    }
+    
+  } catch (error) {
+    console.error('タイマー終了処理でエラーが発生しました:', error);
+  }
+}
+
+// アプリ初期化時に設定読み込み
+loadAppConfig();
+```
+
+### 設計改善ポイント
+
+**ES6モジュール活用**:
+- `import`/`export`による明確な依存関係
+- ツリーシェイキング対応
+- モジュール境界の明確化
+
+**責務分離の強化**:
+- `functions.ts`: 純粋関数（テスト容易）
+- `renderer.ts`: UI制御・IPC通信・状態管理
+- `main/`: 永続化・ネイティブ機能
+
+**型安全性**:
+- `EffectType`による選択肢の型制約
+- `AppConfig`インターフェースによる設定構造保証
+- preload.tsでのIPC通信型安全性
+
+**エラーハンドリング**:
+- 設定読み込み失敗時のフォールバック
+- IPC通信エラーの適切な処理
+- UI状態の一貫性保証
+
 ## 開発フロー - Electron自動起動システム
 
 
@@ -276,6 +491,49 @@ Mac通知センター連携機能の開発では：
 5. 既存HTML5通知からネイティブ通知への段階的移行
 
 この手法により、大きな機能でも安全かつ確実に実装が可能。
+
+## 開発プロセス
+
+### 5段階開発フロー
+
+新機能開発や問題修正は以下の5段階プロセスで進める：
+
+#### **1. 📋 計画 (Planning)**
+- 要求の明確化とゴール設定
+- 技術選択と設計方針の決定
+- TodoWriteでタスクの分解と優先順位付け
+- 潜在的リスクの特定と対策検討
+
+#### **2. ⚡ 実装 (Implementation)**
+- 段階的な機能開発（小さな単位での開発サイクル）
+- 各段階でのビルド確認とテスト作成
+- TodoWriteでプログレス管理
+- 継続的な動作確認
+
+#### **3. ✅ 確認 (Quality Check)**
+- 全体ビルドとテスト実行（`npm run build` + `npm test`）
+- Electronアプリの動作確認
+- 既存機能への影響チェック
+- パフォーマンスとセキュリティ確認
+
+#### **4. 🔧 改善 (Improvement)**
+- 発見された問題の修正
+- コードの最適化とリファクタリング
+- 設計の見直しと改善
+- 次回開発への改善点抽出
+
+#### **5. 📝 記録 (Learning Documentation)**
+- 重要な技術知見の文書化
+- トラブルシューティング情報のCLAUDE.mdへの追加
+- ベストプラクティスの更新
+- 次回開発での活用準備
+
+### プロセスの利点
+
+- **品質向上**: 段階的確認による問題の早期発見
+- **知見蓄積**: 学習内容の体系的な記録と再利用
+- **効率化**: 計画的なタスク管理と進捗の可視化
+- **保守性**: 設計思想と解決方法の明文化
 
 ## リファクタリング方針
 

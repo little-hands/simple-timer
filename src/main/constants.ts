@@ -55,6 +55,7 @@ export const DEFAULT_APP_CONFIG: AppConfig = {
     height: MAIN_WINDOW_CONFIG.height
   },
   cardAnimationDuration: 6000,
+  effectType: 'notifier', // デフォルトは通常（Notifier）
   dev: {
     enableFileWatch: true,
     openDevTools: true

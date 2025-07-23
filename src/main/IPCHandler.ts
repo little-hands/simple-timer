@@ -12,12 +12,15 @@
  * WindowManagerを通じて適切なウィンドウ操作を行います。
  */
 import { ipcMain, Notification } from 'electron';
-import { IPCChannels } from '../types/electron';
+import { IPCChannels, EffectType } from '../types/electron';
 import { MainWindowManager } from './MainWindowManager';
 import { OverlayWindowManager } from './OverlayWindowManager';
 import { AppConfigStore } from './AppConfigStore';
+import { SettingsWindowManager } from './SettingsWindowManager';
 
 export class IPCHandler {
+  private settingsWindowManager: SettingsWindowManager | null = null;
+
   /**
    * IPCHandlerのコンストラクタ
    * 
@@ -30,6 +33,15 @@ export class IPCHandler {
     private overlayWindowManager: OverlayWindowManager,
     private appConfigStore: AppConfigStore
   ) {}
+
+  /**
+   * 設定ウィンドウマネージャーを設定します
+   * 
+   * @param settingsWindowManager - 設定ウィンドウ管理クラスのインスタンス
+   */
+  setSettingsWindowManager(settingsWindowManager: SettingsWindowManager): void {
+    this.settingsWindowManager = settingsWindowManager;
+  }
   
   /**
    * すべてのIPCハンドラーを設定します
@@ -67,6 +79,25 @@ export class IPCHandler {
     ipcMain.on(IPCChannels.SHOW_CARDS_CELEBRATION, () => {
       this.handleCardsCelebration();
     });
+    
+    // 設定管理API
+    ipcMain.handle(IPCChannels.GET_APP_CONFIG, () => {
+      return this.appConfigStore.getPublicConfig();
+    });
+    
+    ipcMain.handle(IPCChannels.SET_EFFECT_TYPE, async (event, effectType: EffectType) => {
+      await this.appConfigStore.setEffectType(effectType);
+      return true;
+    });
+
+    // 設定ウィンドウ制御
+    ipcMain.on(IPCChannels.SHOW_SETTINGS_WINDOW, () => {
+      this.handleShowSettingsWindow();
+    });
+
+    ipcMain.on(IPCChannels.HIDE_SETTINGS_WINDOW, () => {
+      this.handleHideSettingsWindow();
+    });
   }
   
   /**
@@ -76,11 +107,45 @@ export class IPCHandler {
    * @private
    * 
    * @remarks
+   * - 設定されたエフェクトタイプに応じて処理を分岐
+   * - notifier: Mac通知センターへの通知表示
+   * - cards: トランプアニメーション表示
+   */
+  private handleTimerFinished(totalSeconds: number): void {
+    const effectType = this.appConfigStore.getEffectType();
+    this.executeEffect(effectType, totalSeconds);
+  }
+  
+  /**
+   * エフェクトタイプに応じた処理を実行します
+   * 
+   * @param effectType - 実行するエフェクトタイプ
+   * @param totalSeconds - タイマーの総秒数
+   * @private
+   */
+  private executeEffect(effectType: EffectType, totalSeconds: number): void {
+    switch (effectType) {
+      case 'notifier':
+        this.showNotification(totalSeconds);
+        break;
+      case 'cards':
+        this.handleCardsCelebration();
+        break;
+    }
+  }
+  
+  /**
+   * Mac通知センターに通知を表示します
+   * 
+   * @param totalSeconds - タイマーの総秒数
+   * @private
+   * 
+   * @remarks
    * - Mac通知センターに終了通知を表示
    * - 通知クリック時はメインウィンドウにフォーカス
    * - 通知は音なしで表示（サウンドは別途再生される）
    */
-  private handleTimerFinished(totalSeconds: number): void {
+  private showNotification(totalSeconds: number): void {
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
     
@@ -111,6 +176,28 @@ export class IPCHandler {
     });
     
     notification.show();
+  }
+
+  /**
+   * 設定ウィンドウの表示を処理します
+   * 
+   * @private
+   */
+  private handleShowSettingsWindow(): void {
+    if (this.settingsWindowManager) {
+      this.settingsWindowManager.show();
+    }
+  }
+
+  /**
+   * 設定ウィンドウの非表示を処理します
+   * 
+   * @private
+   */
+  private handleHideSettingsWindow(): void {
+    if (this.settingsWindowManager) {
+      this.settingsWindowManager.hide();
+    }
   }
   
   /**

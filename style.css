@@ -110,16 +110,22 @@ body {
 
 .start-btn {
     position: absolute;
-    top: -70px;
-    right: -7px;
-    width: 28px;
-    height: 28px;
+    bottom: -78px;
+    left: -157px;
 }
 
 .reset-btn {
     position: absolute;
-    bottom: -75px;
+    bottom: -78px;
     right: -7px;
+}
+
+.settings-btn {
+    position: absolute;
+    top: -70px;
+    right: -7px;
+    width: 28px;
+    height: 28px;
 }
 
 .start-btn svg {
@@ -189,3 +195,4 @@ body {
 .close-btn { background: #ff5f57; }
 .minimize-btn { background: #ffbd2e; }
 .maximize-btn { background: #28ca42; }
+

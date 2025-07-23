@@ -14,6 +14,7 @@ import { AppConfigStore } from './AppConfigStore';
 import { WindowStateStore } from './WindowStateStore';
 import { MainWindowManager } from './MainWindowManager';
 import { OverlayWindowManager } from './OverlayWindowManager';
+import { SettingsWindowManager } from './SettingsWindowManager';
 import { IPCHandler } from './IPCHandler';
 
 // グローバルインスタンス
@@ -21,6 +22,7 @@ let appConfigStore: AppConfigStore;
 let windowStateStore: WindowStateStore;
 let mainWindowManager: MainWindowManager;
 let overlayWindowManager: OverlayWindowManager;
+let settingsWindowManager: SettingsWindowManager;
 let ipcHandler: IPCHandler;
 
 /**
@@ -51,8 +53,14 @@ async function initializeApp(): Promise<void> {
   
   // ウィンドウの作成
   const savedBounds = windowStateStore.getMainWindowBounds();
-  mainWindowManager.createWindow(savedBounds);
+  const mainWindow = mainWindowManager.createWindow(savedBounds);
   overlayWindowManager.createWindow();
+  
+  // 設定ウィンドウマネージャーの初期化（メインウィンドウが必要）
+  if (mainWindow) {
+    settingsWindowManager = new SettingsWindowManager(mainWindow);
+    ipcHandler.setSettingsWindowManager(settingsWindowManager);
+  }
 }
 
 /**

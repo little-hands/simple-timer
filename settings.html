@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .settings-modal {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            min-width: 280px;
+            max-width: 400px;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 20px 24px 16px;
+            background: rgba(0, 0, 0, 0.02);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #666;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-body {
+            padding: 20px 24px;
+        }
+
+        .setting-section {
+            margin-bottom: 24px;
+        }
+
+        .setting-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .option-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.02);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-item:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .option-item.selected {
+            background: rgba(0, 123, 255, 0.1);
+            border-color: #007bff;
+            color: #007bff;
+        }
+
+        .option-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .option-content {
+            flex: 1;
+        }
+
+        .option-title {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .option-description {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.3;
+        }
+
+        .selected .option-description {
+            color: #0066cc;
+        }
+    </style>
+</head>
+<body>
+    <div class="settings-modal">
+        <div class="modal-header">
+            <h2 class="modal-title">設定</h2>
+            <button class="close-btn" id="closeBtn">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="setting-section">
+                <div class="section-title">エフェクト</div>
+                <div class="option-group">
+                    <div class="option-item" data-effect="notifier">
+                        <div class="option-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+                            </svg>
+                        </div>
+                        <div class="option-content">
+                            <div class="option-title">通常（Notifier）</div>
+                            <div class="option-description">Mac通知センターとアラーム音</div>
+                        </div>
+                    </div>
+                    <div class="option-item" data-effect="cards">
+                        <div class="option-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M21.47 4.35l-1.34-.56v9.03l2.43-5.86c.41-1.02-.06-2.19-1.09-2.61zm-1.34 14.94v-4.5l-2.43 5.86c-.41 1.02.06 2.19 1.09 2.61l1.34-.56v-3.41zM19 7.41V4.59L17.59 4c-.56-.23-1.21.13-1.44.69L14.5 8.5l4.5 1.91V7.41zM4.5 8.5L2.85 4.69C2.62 4.13 1.97 3.77 1.41 4L0 4.59v2.82L4.5 8.5zM0 19.41L1.41 20c.56.23 1.21-.13 1.44-.69L4.5 15.5L0 16.59v2.82zM19 16.59L14.5 15.5l1.65 3.81c.23.56.88.92 1.44.69L19 19.41v-2.82z"/>
+                            </svg>
+                        </div>
+                        <div class="option-content">
+                            <div class="option-title">トランプ</div>
+                            <div class="option-description">フルスクリーントランプアニメーション</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentEffectType = 'notifier';
+
+        // 設定読み込み
+        async function loadSettings() {
+            try {
+                const electronAPI = window.electronAPI;
+                if (electronAPI && electronAPI.getAppConfig) {
+                    const config = await electronAPI.getAppConfig();
+                    currentEffectType = config.effectType;
+                    updateSelection();
+                }
+            } catch (error) {
+                console.warn('設定読み込みに失敗しました:', error);
+            }
+        }
+
+        // 選択状態の更新
+        function updateSelection() {
+            const options = document.querySelectorAll('.option-item');
+            options.forEach(option => {
+                const effectType = option.getAttribute('data-effect');
+                option.classList.toggle('selected', effectType === currentEffectType);
+            });
+        }
+
+        // エフェクト選択処理
+        async function selectEffect(effectType) {
+            try {
+                const electronAPI = window.electronAPI;
+                if (electronAPI && electronAPI.setEffectType) {
+                    await electronAPI.setEffectType(effectType);
+                    currentEffectType = effectType;
+                    updateSelection();
+                }
+            } catch (error) {
+                console.warn('設定保存に失敗しました:', error);
+            }
+        }
+
+        // イベントリスナー
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSettings();
+
+            // 閉じるボタン
+            document.getElementById('closeBtn').addEventListener('click', () => {
+                if (window.electronAPI && window.electronAPI.hideSettingsWindow) {
+                    window.electronAPI.hideSettingsWindow();
+                }
+            });
+
+            // エフェクト選択
+            document.querySelectorAll('.option-item').forEach(option => {
+                option.addEventListener('click', () => {
+                    const effectType = option.getAttribute('data-effect');
+                    selectEffect(effectType);
+                });
+            });
+
+            // ESCキーで閉じる
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    if (window.electronAPI && window.electronAPI.hideSettingsWindow) {
+                        window.electronAPI.hideSettingsWindow();
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

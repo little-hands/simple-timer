@@ -17,5 +17,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   maximizeWindow: () => ipcRenderer.send('window-maximize'),
   closeWindow: () => ipcRenderer.send('window-close'),
   timerFinished: (totalSeconds: number) => ipcRenderer.send('timer-finished', totalSeconds),
-  showCardsCelebration: () => ipcRenderer.send('show-cards-celebration')
+  showCardsCelebration: () => ipcRenderer.send('show-cards-celebration'),
+  
+  // 設定管理API
+  getAppConfig: () => ipcRenderer.invoke('get-app-config'),
+  setEffectType: (effectType: string) => ipcRenderer.invoke('set-effect-type', effectType),
+  showSettingsWindow: () => ipcRenderer.send('show-settings-window'),
+  hideSettingsWindow: () => ipcRenderer.send('hide-settings-window')
 });
