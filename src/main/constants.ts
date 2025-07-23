@@ -50,7 +50,7 @@ export const OVERLAY_WINDOW_CONFIG = {
  */
 export const EFFECT_DURATION = {
   CARDS: 3000,
-  SNOW: 10000
+  SNOW: 6000
 } as const;
 
 /**
