@@ -7,23 +7,22 @@
     <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-    <div class="popup-overlay" id="popupOverlay">
-        <div class="pulse-ring"></div>
-        <div class="pulse-ring"></div>
-        
-        <div class="popup">
-            <div class="time-icon">⏰</div>
+    <div class="popup-overlay" id="popupOverlay">        
+        <div class="popup-container">
+            <div class="clock-icon">⏰</div>
             
-            <div class="sparkle-container">
-                <div class="sparkle">✨</div>
-                <div class="sparkle">✨</div>
-                <div class="sparkle">✨</div>
-                <div class="sparkle">✨</div>
+            <div class="speech-bubble">
+                <div class="sparkle-container">
+                    <div class="sparkle">✨</div>
+                    <div class="sparkle">✨</div>
+                    <div class="sparkle">✨</div>
+                    <div class="sparkle">✨</div>
+                    
+                    <div class="main-text">Time's up</div>
+                </div>
                 
-                <div class="main-text">Time's up</div>
+                <button class="dismiss-btn" onclick="dismissPopup()">OK</button>
             </div>
-            
-            <button class="dismiss-btn" onclick="dismissPopup()">OK</button>
         </div>
     </div>
 
