@@ -14,10 +14,11 @@ import { BrowserWindow, screen } from 'electron';
 import * as path from 'path';
 import { OVERLAY_WINDOW_CONFIG, EFFECT_DURATION } from './constants';
 import { AppConfigStore } from './AppConfigStore';
-import { IPCChannels } from '../types/electron';
+import { IPCChannels, EffectType } from '../types/electron';
 
 export class OverlayWindowManager {
   private window: BrowserWindow | null = null;
+  private currentHtmlFile: string | null = null;
   
   /**
    * OverlayWindowManagerのコンストラクタ
@@ -29,6 +30,24 @@ export class OverlayWindowManager {
     private appConfigStore: AppConfigStore,
     private isDevelopmentMode: boolean
   ) {}
+  
+  /**
+   * エフェクトに適したHTMLファイルを確実に読み込む
+   */
+  private async ensureCorrectHtmlLoaded(effectType: EffectType): Promise<void> {
+    if (!this.window) {
+      throw new Error('Window must be created before loading HTML');
+    }
+    
+    const htmlFile = effectType === 'popup' ? 'popup.html' : 'overlay.html';
+    const htmlPath = path.join(__dirname, `../overlay/${htmlFile}`);
+    
+    // HTMLファイルが異なる場合のみ読み込み
+    if (this.currentHtmlFile !== htmlPath) {
+      await this.window.loadFile(htmlPath);
+      this.currentHtmlFile = htmlPath;
+    }
+  }
   
   /**
    * オーバーレイウィンドウを作成します
@@ -60,7 +79,9 @@ export class OverlayWindowManager {
       this.window.setVisibleOnAllWorkspaces(true);
     }
     
-    this.window.loadFile(path.join(__dirname, '../overlay/overlay.html'));
+    const initialHtmlPath = path.join(__dirname, '../overlay/overlay.html');
+    this.window.loadFile(initialHtmlPath);
+    this.currentHtmlFile = initialHtmlPath;
     
     // 開発モード時のDevTools
     if (this.isDevelopmentMode && this.appConfigStore.getDevSettings()?.openDevTools) {
@@ -70,6 +91,7 @@ export class OverlayWindowManager {
     // ウィンドウクローズ時のクリーンアップ
     this.window.on('closed', () => {
       this.window = null;
+      this.currentHtmlFile = null;
     });
     
     return this.window;
@@ -109,6 +131,43 @@ export class OverlayWindowManager {
   }
   
   /**
+   * カードセレブレーションアニメーションを表示します
+   * 
+   * @remarks
+   * - オーバーレイウィンドウを表示
+   * - カードアニメーション開始イベントを送信
+   * - 設定された時間後に自動的に非表示
+   */
+  async showCardsCelebration(): Promise<void> {
+    try {
+      if (!this.window || this.window.isDestroyed()) {
+        this.createWindow();
+      }
+      
+      if (!this.window) {
+        throw new Error('Failed to create overlay window');
+      }
+      
+      // 適切なHTMLファイルを読み込み
+      await this.ensureCorrectHtmlLoaded('cards');
+      
+      // オーバーレイウィンドウを表示
+      this.show();
+      
+      // カードアニメーション開始イベントを送信
+      this.window.webContents.send(IPCChannels.START_CARDS_ANIMATION);
+      
+      // 設定された時間後に自動的に隠す
+      const duration = this.appConfigStore.getCardAnimationDuration();
+      setTimeout(() => {
+        this.hide();
+      }, duration);
+    } catch (error) {
+      console.error('Failed to show cards celebration:', error);
+    }
+  }
+  
+  /**
    * 雪エフェクトを表示します
    * 
    * @remarks
@@ -116,22 +175,32 @@ export class OverlayWindowManager {
    * - 雪アニメーション開始イベントを送信
    * - 指定時間後に自動的に非表示
    */
-  showSnowEffect(): void {
-    if (!this.window || this.window.isDestroyed()) {
-      console.error('Overlay window not available for snow effect');
-      return;
+  async showSnowEffect(): Promise<void> {
+    try {
+      if (!this.window || this.window.isDestroyed()) {
+        this.createWindow();
+      }
+      
+      if (!this.window) {
+        throw new Error('Failed to create overlay window');
+      }
+      
+      // 適切なHTMLファイルを読み込み
+      await this.ensureCorrectHtmlLoaded('snow');
+      
+      // オーバーレイウィンドウを表示
+      this.show();
+      
+      // 雪アニメーション開始イベントを送信
+      this.window.webContents.send(IPCChannels.START_SNOW_ANIMATION);
+      
+      // 設定された時間後に自動的に隠す
+      setTimeout(() => {
+        this.hide();
+      }, EFFECT_DURATION.SNOW);
+    } catch (error) {
+      console.error('Failed to show snow effect:', error);
     }
-    
-    // オーバーレイウィンドウを表示
-    this.show();
-    
-    // 雪アニメーション開始イベントを送信
-    this.window.webContents.send(IPCChannels.START_SNOW_ANIMATION);
-    
-    // 設定された時間後に自動的に隠す
-    setTimeout(() => {
-      this.hide();
-    }, EFFECT_DURATION.SNOW);
   }
   
   /**
@@ -151,8 +220,9 @@ export class OverlayWindowManager {
       if (!this.window) {
         throw new Error('Failed to create overlay window');
       }
-      // popup.htmlを読み込み
-      await this.window.loadFile(path.join(__dirname, '../overlay/popup.html'));
+      
+      // 適切なHTMLファイルを読み込み
+      await this.ensureCorrectHtmlLoaded('popup');
       this.show();
     } catch (error) {
       console.error('Failed to show popup message:', error);

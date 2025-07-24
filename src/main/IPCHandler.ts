@@ -269,25 +269,12 @@ export class IPCHandler {
    * - アニメーション開始イベントを送信
    * - 指定時間後に自動的に非表示
    */
-  private handleCardsCelebration(): void {
-    const overlayWindow = this.overlayWindowManager.getWindow();
-    
-    if (!overlayWindow || overlayWindow.isDestroyed()) {
-      console.error('Overlay window not available for cards celebration');
-      return;
+  private async handleCardsCelebration(): Promise<void> {
+    try {
+      await this.overlayWindowManager.showCardsCelebration();
+    } catch (error) {
+      console.error('Failed to handle cards celebration:', error);
     }
-    
-    // オーバーレイウィンドウを表示
-    this.overlayWindowManager.show();
-    
-    // アニメーション開始イベントを送信
-    overlayWindow.webContents.send(IPCChannels.START_CARDS_ANIMATION);
-    
-    // 設定された時間後に自動的に隠す
-    const duration = this.appConfigStore.getCardAnimationDuration();
-    setTimeout(() => {
-      this.overlayWindowManager.hide();
-    }, duration);
   }
   
   /**
@@ -300,16 +287,12 @@ export class IPCHandler {
    * - 雪アニメーション開始イベントを送信
    * - 指定時間後に自動的に非表示
    */
-  private handleSnowEffect(): void {
-    const overlayWindow = this.overlayWindowManager.getWindow();
-    
-    if (!overlayWindow || overlayWindow.isDestroyed()) {
-      console.error('Overlay window not available for snow effect');
-      return;
+  private async handleSnowEffect(): Promise<void> {
+    try {
+      await this.overlayWindowManager.showSnowEffect();
+    } catch (error) {
+      console.error('Failed to handle snow effect:', error);
     }
-    
-    // OverlayWindowManagerの雪エフェクトメソッドを使用
-    this.overlayWindowManager.showSnowEffect();
   }
   
   /**
