@@ -26,6 +26,8 @@ html, body {
     align-items: center;
     justify-content: center;
     animation: fadeIn 0.3s ease-out;
+    pointer-events: auto;
+    cursor: pointer;
 }
 
 .popup-container {
@@ -34,6 +36,7 @@ html, body {
     flex-direction: column-reverse;
     align-items: center;
     transform: translateY(-100px);
+    pointer-events: none;
 }
 
 .clock-icon {
@@ -72,7 +75,6 @@ html, body {
     filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
 }
 
-/* 吹き出しの縁エフェクトを削除 */
 
 .sparkle-container {
     position: relative;
@@ -120,31 +122,17 @@ html, body {
     animation-delay: 0.9s;
 }
 
-.dismiss-btn {
-    margin-top: 16px;
-    background: linear-gradient(135deg, #4285f4 0%, #6366f1 100%);
-    border: none;
-    color: white;
-    padding: 8px 20px;
-    border-radius: 16px;
+/* クリック案内テキスト */
+.click-anywhere-hint {
     font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+    font-weight: 400;
+    color: #666;
+    text-align: center;
+    margin-top: 8px;
+    opacity: 0.8;
+    pointer-events: none;
 }
 
-.dismiss-btn:hover {
-    background: linear-gradient(135deg, #3367d6 0%, #5a52d5 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(66, 133, 244, 0.4);
-}
-
-/* 時計を囲む縁リングを削除 */
-
-/* パルスリング関連のスタイルも削除 */
 
 /* アニメーション定義 */
 @keyframes fadeIn {
@@ -199,7 +187,6 @@ html, body {
     }
 }
 
-/* pulse と borderGlow アニメーションを削除 */
 
 /* レスポンシブ対応 */
 @media (max-width: 480px) {
@@ -222,12 +209,17 @@ html, body {
 @media (prefers-reduced-motion: reduce) {
     .popup-overlay,
     .speech-bubble,
-    .sparkle {
+    .sparkle,
+    .click-anywhere-hint {
         animation: none;
     }
     
     .speech-bubble {
         transform: none;
+    }
+    
+    .click-anywhere-hint {
+        opacity: 1;
     }
 }
 

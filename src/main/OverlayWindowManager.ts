@@ -148,19 +148,12 @@ export class OverlayWindowManager {
       if (!this.window || this.window.isDestroyed()) {
         this.createWindow();
       }
-      
       if (!this.window) {
         throw new Error('Failed to create overlay window');
       }
-      
       // popup.htmlを読み込み
       await this.window.loadFile(path.join(__dirname, '../overlay/popup.html'));
-      
-      // オーバーレイウィンドウを表示
       this.show();
-      
-      // 自動消去は無効化 - OKボタンまたはESCキーでのみ消去
-      
     } catch (error) {
       console.error('Failed to show popup message:', error);
       // フォールバック: コンソールにメッセージ表示
@@ -170,14 +163,10 @@ export class OverlayWindowManager {
   
   /**
    * ポップアップメッセージを非表示にします
-   * 
-   * @remarks
-   * ユーザーのクリックやESCキーによる即座消去用
    */
   hidePopupMessage(): void {
     if (this.window && !this.window.isDestroyed()) {
       this.hide();
     }
   }
-  
 }

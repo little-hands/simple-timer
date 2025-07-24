@@ -314,12 +314,6 @@ export class IPCHandler {
   
   /**
    * ポップアップメッセージを処理します
-   * 
-   * @private
-   * 
-   * @remarks
-   * - OverlayWindowManagerのポップアップメッセージ表示を呼び出し
-   * - エラーハンドリングを含む
    */
   private async handlePopupMessage(): Promise<void> {
     try {
@@ -331,14 +325,8 @@ export class IPCHandler {
   
   /**
    * ポップアップメッセージの非表示を処理します
-   * 
-   * @private
-   * 
-   * @remarks
-   * ユーザーのクリックやESCキーによる即座消去に対応
    */
   private handleHidePopupMessage(): void {
     this.overlayWindowManager.hidePopupMessage();
   }
-  
 }

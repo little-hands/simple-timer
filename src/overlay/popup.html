@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-    <div class="popup-overlay" id="popupOverlay">        
+    <div class="popup-overlay" id="popupOverlay" onclick="dismissPopup()">        
         <div class="popup-container">
             <div class="clock-icon">⏰</div>
             
@@ -21,7 +21,7 @@
                     <div class="main-text">Time's up</div>
                 </div>
                 
-                <button class="dismiss-btn" onclick="dismissPopup()">OK</button>
+                <div class="click-anywhere-hint">Click anywhere to dismiss</div>
             </div>
         </div>
     </div>

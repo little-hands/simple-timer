@@ -1,5 +1,5 @@
 // ポップアップメッセージ JavaScript
-// Electron IPC連携とユーザーインタラクション処理
+// シンプルなElectron IPC連携とユーザーインタラクション処理
 
 // ポップアップを閉じる関数
 function dismissPopup() {
@@ -23,21 +23,9 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-// オーバーレイ外クリックでのポップアップ消去
-document.addEventListener('click', (event) => {
-    const popup = document.querySelector('.popup');
-    if (popup && !popup.contains(event.target)) {
-        dismissPopup();
-    }
-});
-
 // ポップアップ初期化処理
 document.addEventListener('DOMContentLoaded', () => {
-    const overlay = document.getElementById('popupOverlay');
-    if (overlay) {
-        // 自動消去は無効化 - OKボタンまたはESCキーでのみ消去
-        console.log('ポップアップ表示完了 - 手動消去のみ有効');
-    }
+    console.log('ポップアップ表示完了 - CSSでクリック制御');
 });
 
 // エラーハンドリング
