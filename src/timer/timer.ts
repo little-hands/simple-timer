@@ -231,7 +231,7 @@ async function timerFinished(): Promise<void> {
             case 'popup':
                 console.log('✨ ポップアップエフェクト実行');
                 // ポップアップメッセージ + 音声
-                sendNotification(totalSeconds);
+                startPopupMessage();
                 playAlarmSound();
                 break;
         }
@@ -344,9 +344,21 @@ loadAppConfig();
 const electronAPI = (window as any).electronAPI;
 if (electronAPI && typeof electronAPI.receive === 'function') {
     electronAPI.receive('effect-type-changed', (effectType: string) => {
-        currentEffectType = effectType as 'notifier' | 'cards' | 'snow';
+        currentEffectType = effectType as 'notifier' | 'cards' | 'snow' | 'popup';
         console.log('エフェクトタイプが変更されました:', effectType);
     });
+}
+
+// ポップアップメッセージ開始
+function startPopupMessage(): void {
+    try {
+        const electronAPI = (window as any).electronAPI;
+        if (electronAPI && typeof electronAPI.timerFinished === 'function') {
+            electronAPI.timerFinished(totalSeconds);
+        }
+    } catch (error) {
+        console.error('ポップアップメッセージ開始に失敗しました:', error);
+    }
 }
 
 // 初期表示
