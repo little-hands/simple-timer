@@ -13,7 +13,7 @@ export interface WindowBounds {
 /**
  * エフェクトの種類
  */
-export type EffectType = 'notifier' | 'cards' | 'snow';
+export type EffectType = 'notifier' | 'cards' | 'snow' | 'popup';
 
 /**
  * アプリケーション設定
@@ -56,6 +56,8 @@ export enum IPCChannels {
   START_CARDS_ANIMATION = 'start-cards-animation',
   SHOW_SNOW_EFFECT = 'show-snow-effect',
   START_SNOW_ANIMATION = 'start-snow-animation',
+  SHOW_POPUP_MESSAGE = 'show-popup-message',
+  START_POPUP_ANIMATION = 'start-popup-animation',
   
   // 設定管理
   GET_APP_CONFIG = 'get-app-config',

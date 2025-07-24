@@ -456,6 +456,77 @@ tmux send-keys -t {ペインID（%N形式）} "{送信する文字列}" && sleep
 - [ ] 既存機能が正常動作する
 - [ ] コンソールエラーがない（DevTools + ターミナル）
 
+**ブラウザ単体テスト手法**
+HTML/CSSベースのUI機能開発時は、Electronから独立してブラウザで単体テストを実施する：
+
+```html
+<!-- example: src/overlay/popup-test.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="popup.css">
+  <style>
+    .test-controls {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 10px;
+      z-index: 10000;
+    }
+  </style>
+</head>
+<body>
+  <!-- テスト用コントロールUI -->
+  <div class="test-controls">
+    <button onclick="showPopup()">Show</button>
+    <button onclick="hidePopup()">Hide</button>
+    <p>画面サイズ: <span id="screenSize"></span></p>
+  </div>
+  
+  <!-- 実際のUI要素 -->
+  <div class="popup-overlay" id="popupOverlay">
+    <!-- popup内容 -->
+  </div>
+  
+  <script>
+    // テスト用JavaScript
+    function showPopup() { /* 表示ロジック */ }
+    function hidePopup() { /* 非表示ロジック */ }
+  </script>
+</body>
+</html>
+```
+
+**利点:**
+- **高速フィードバック**: Electronビルド不要で即座に確認
+- **レスポンシブテスト**: ブラウザサイズ変更で様々な画面サイズを簡単テスト
+- **アニメーション確認**: DevToolsでCSS調整しながらリアルタイム確認
+- **クロスブラウザ確認**: Safari/Chrome/Firefoxでの互換性確認
+- **デバッグ効率**: ブラウザDevToolsの豊富なデバッグ機能活用
+
+**実行手順:**
+```bash
+# テストファイル作成
+touch src/overlay/feature-test.html
+
+# ブラウザで開く
+open src/overlay/feature-test.html
+
+# 確認項目
+# - 基本表示・配置
+# - アニメーション品質  
+# - レスポンシブ動作
+# - 操作イベント（クリック・キー）
+```
+
+**適用場面:**
+- オーバーレイ・ポップアップUI
+- アニメーション効果
+- レスポンシブレイアウト
+- CSS視覚効果全般
+
 **ユーザー確認が必要なタイミング**
 - UI/UXに関わる変更の確認
 - 通知やサウンドなどのOS連携機能

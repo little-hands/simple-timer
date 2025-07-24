@@ -5,13 +5,10 @@
 }
 
 body {
+    margin: 0;
+    padding: 0;
     background: transparent;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    width: 100vw;
     overflow: hidden;
 }
 
@@ -19,12 +16,12 @@ body {
     background: linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.95) 100%);
     backdrop-filter: blur(25px);
     -webkit-backdrop-filter: blur(25px);
-    border-radius: 20px;
+    border-radius: 0;
     box-shadow: 0 20px 60px rgba(35, 82, 200, 0.2), 
                 0 8px 32px rgba(0, 0, 0, 0.15),
                 inset 0 1px 0 rgba(255, 255, 255, 0.5);
-    min-width: 320px;
-    max-width: 420px;
+    width: 340px;
+    height: 541px;
     padding: 0;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.3);
@@ -41,6 +38,7 @@ body {
     background: linear-gradient(135deg, #2352C8 0%, #6B8AFF 100%);
     opacity: 0.1;
     z-index: 0;
+    border-radius: 0;
 }
 
 .modal-header {
@@ -86,13 +84,13 @@ body {
 }
 
 .modal-body {
-    padding: 0 28px 28px;
+    padding: 0 28px 24px;
     position: relative;
     z-index: 1;
 }
 
 .setting-section {
-    margin-bottom: 28px;
+    margin-bottom: 20px;
 }
 
 .setting-section:last-child {
@@ -125,7 +123,7 @@ body {
 .option-group {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
 }
 
 .option-item {

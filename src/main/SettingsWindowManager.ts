@@ -39,8 +39,8 @@ export class SettingsWindowManager {
     const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize;
 
     // 設定ウィンドウの位置を計算（タイマーウィンドウの中央）
-    const settingsWidth = 320;
-    const settingsHeight = 480;
+    const settingsWidth = 340;
+    const settingsHeight = 541;
     const x = Math.max(0, Math.min(
       timerBounds.x + (timerBounds.width - settingsWidth) / 2,
       screenWidth - settingsWidth

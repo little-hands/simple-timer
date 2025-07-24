@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Timer Finished - Popup Message</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-overlay" id="popupOverlay">
+    <div class="popup-message">
+      <span class="message-text">✨ Time's up ✨</span>
+    </div>
+  </div>
+
+  <script>
+    // クリックで即座に消去
+    document.addEventListener('click', () => {
+      if (window.electronAPI && typeof window.electronAPI.hidePopupMessage === 'function') {
+        window.electronAPI.hidePopupMessage();
+      }
+    });
+
+    // ESCキーでも消去
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        if (window.electronAPI && typeof window.electronAPI.hidePopupMessage === 'function') {
+          window.electronAPI.hidePopupMessage();
+        }
+      }
+    });
+
+    // フェードイン開始
+    document.addEventListener('DOMContentLoaded', () => {
+      const overlay = document.getElementById('popupOverlay');
+      if (overlay) {
+        overlay.classList.add('fade-in');
+        
+        // 3秒後に自動フェードアウト
+        setTimeout(() => {
+          overlay.classList.add('fade-out');
+          
+          // フェードアウト完了後に非表示
+          setTimeout(() => {
+            if (window.electronAPI && typeof window.electronAPI.hidePopupMessage === 'function') {
+              window.electronAPI.hidePopupMessage();
+            }
+          }, 500);
+        }, 3000);
+      }
+    });
+  </script>
+</body>
+</html>

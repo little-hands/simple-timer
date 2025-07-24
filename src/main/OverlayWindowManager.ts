@@ -134,4 +134,53 @@ export class OverlayWindowManager {
     }, EFFECT_DURATION.SNOW);
   }
   
+  /**
+   * ポップアップメッセージを表示します
+   * 
+   * @remarks
+   * - popup.htmlを専用で読み込み
+   * - ポップアップメッセージ表示
+   * - 3秒後に自動的に非表示
+   */
+  async showPopupMessage(): Promise<void> {
+    try {
+      // ウィンドウが存在しない場合は作成
+      if (!this.window || this.window.isDestroyed()) {
+        this.createWindow();
+      }
+      
+      if (!this.window) {
+        throw new Error('Failed to create overlay window');
+      }
+      
+      // popup.htmlを読み込み
+      await this.window.loadFile(path.join(__dirname, '../overlay/popup.html'));
+      
+      // オーバーレイウィンドウを表示
+      this.show();
+      
+      // 3秒後に自動的に隠す
+      setTimeout(() => {
+        this.hide();
+      }, 3000);
+      
+    } catch (error) {
+      console.error('Failed to show popup message:', error);
+      // フォールバック: コンソールにメッセージ表示
+      console.log('✨ Time\'s up ✨');
+    }
+  }
+  
+  /**
+   * ポップアップメッセージを非表示にします
+   * 
+   * @remarks
+   * ユーザーのクリックやESCキーによる即座消去用
+   */
+  hidePopupMessage(): void {
+    if (this.window && !this.window.isDestroyed()) {
+      this.hide();
+    }
+  }
+  
 }

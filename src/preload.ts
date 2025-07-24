@@ -19,6 +19,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   timerFinished: (totalSeconds: number) => ipcRenderer.send('timer-finished', totalSeconds),
   showCardsCelebration: () => ipcRenderer.send('show-cards-celebration'),
   showSnowEffect: () => ipcRenderer.send('show-snow-effect'),
+  hidePopupMessage: () => ipcRenderer.send('hide-popup-message'),
   
   // 設定管理API
   getAppConfig: () => ipcRenderer.invoke('get-app-config'),

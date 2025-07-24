@@ -85,6 +85,11 @@ export class IPCHandler {
       this.handleSnowEffect();
     });
     
+    // ポップアップメッセージ非表示
+    ipcMain.on('hide-popup-message', () => {
+      this.handleHidePopupMessage();
+    });
+    
     // 設定管理API
     ipcMain.handle(IPCChannels.GET_APP_CONFIG, () => {
       return this.appConfigStore.getPublicConfig();
@@ -145,6 +150,9 @@ export class IPCHandler {
         break;
       case 'snow':
         this.handleSnowEffect();
+        break;
+      case 'popup':
+        this.handlePopupMessage();
         break;
     }
   }
@@ -302,6 +310,35 @@ export class IPCHandler {
     
     // OverlayWindowManagerの雪エフェクトメソッドを使用
     this.overlayWindowManager.showSnowEffect();
+  }
+  
+  /**
+   * ポップアップメッセージを処理します
+   * 
+   * @private
+   * 
+   * @remarks
+   * - OverlayWindowManagerのポップアップメッセージ表示を呼び出し
+   * - エラーハンドリングを含む
+   */
+  private async handlePopupMessage(): Promise<void> {
+    try {
+      await this.overlayWindowManager.showPopupMessage();
+    } catch (error) {
+      console.error('Failed to handle popup message:', error);
+    }
+  }
+  
+  /**
+   * ポップアップメッセージの非表示を処理します
+   * 
+   * @private
+   * 
+   * @remarks
+   * ユーザーのクリックやESCキーによる即座消去に対応
+   */
+  private handleHidePopupMessage(): void {
+    this.overlayWindowManager.hidePopupMessage();
   }
   
 }

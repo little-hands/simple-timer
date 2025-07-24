@@ -9,7 +9,7 @@ let isRunning: boolean = false;
 let inputStack = "0000";
 
 // エフェクト選択関連の状態
-let currentEffectType: 'notifier' | 'cards' | 'snow' = 'notifier'; // デフォルト
+let currentEffectType: 'notifier' | 'cards' | 'snow' | 'popup' = 'notifier'; // デフォルト
 
 const timerDisplay = document.getElementById('timerDisplay') as HTMLElement;
 const startBtn = document.getElementById('startBtn') as HTMLButtonElement;
@@ -227,6 +227,12 @@ async function timerFinished(): Promise<void> {
                 // 雪アニメーション + 専用音声
                 startSnowEffect();
                 playSnowSound();
+                break;
+            case 'popup':
+                console.log('✨ ポップアップエフェクト実行');
+                // ポップアップメッセージ + 音声
+                sendNotification(totalSeconds);
+                playAlarmSound();
                 break;
         }
         

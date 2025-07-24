@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Popup Test - ブラウザ単体確認用</title>
+  <link rel="stylesheet" href="popup.css">
+  <style>
+    /* テスト用の補助スタイル */
+    .test-controls {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 10px;
+      z-index: 10000;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .test-button {
+      background: #007AFF;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      margin: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    
+    .test-button:hover {
+      background: #0056CC;
+    }
+    
+    .test-info {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <!-- テスト用コントロール -->
+  <div class="test-controls">
+    <h3>Popup Test Controls</h3>
+    <button class="test-button" onclick="showPopup()">Show Popup</button>
+    <button class="test-button" onclick="hidePopup()">Hide Popup</button>
+    <button class="test-button" onclick="toggleAnimation()">Toggle Animation</button>
+    
+    <div class="test-info">
+      <p>• クリックで即座に消去</p>
+      <p>• ESCキーで消去</p>
+      <p>• 3秒後に自動消去</p>
+      <p>画面サイズ: <span id="screenSize"></span></p>
+    </div>
+  </div>
+
+  <!-- ポップアップオーバーレイ -->
+  <div class="popup-overlay" id="popupOverlay" style="display: none;">
+    <div class="popup-message">
+      <span class="message-text">✨ Time's up ✨</span>
+    </div>
+  </div>
+
+  <script>
+    const overlay = document.getElementById('popupOverlay');
+    let autoHideTimeout;
+    
+    // 画面サイズ表示
+    function updateScreenSize() {
+      document.getElementById('screenSize').textContent = 
+        `${window.innerWidth} x ${window.innerHeight}`;
+    }
+    updateScreenSize();
+    window.addEventListener('resize', updateScreenSize);
+    
+    // ポップアップ表示
+    function showPopup() {
+      if (!overlay) return;
+      
+      // クリーンアップ
+      clearTimeout(autoHideTimeout);
+      overlay.classList.remove('fade-in', 'fade-out');
+      
+      // 表示開始
+      overlay.style.display = 'flex';
+      
+      // フェードイン（少し遅延させてスムーズに）
+      setTimeout(() => {
+        overlay.classList.add('fade-in');
+      }, 10);
+      
+      // 3秒後に自動非表示
+      autoHideTimeout = setTimeout(() => {
+        hidePopup();
+      }, 3000);
+      
+      console.log('Popup shown');
+    }
+    
+    // ポップアップ非表示
+    function hidePopup() {
+      if (!overlay) return;
+      
+      clearTimeout(autoHideTimeout);
+      overlay.classList.remove('fade-in');
+      overlay.classList.add('fade-out');
+      
+      // フェードアウト完了後に非表示
+      setTimeout(() => {
+        overlay.style.display = 'none';
+        overlay.classList.remove('fade-out');
+      }, 500);
+      
+      console.log('Popup hidden');
+    }
+    
+    // アニメーション切り替え（テスト用）
+    function toggleAnimation() {
+      overlay.style.transition = overlay.style.transition ? '' : 'none';
+      console.log('Animation toggled:', overlay.style.transition ? 'OFF' : 'ON');
+    }
+    
+    // クリックで消去
+    overlay.addEventListener('click', (e) => {
+      // メッセージ部分をクリックした場合も消去
+      hidePopup();
+    });
+    
+    // ESCキーで消去
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && overlay.style.display !== 'none') {
+        hidePopup();
+      }
+    });
+    
+    // スペースキーでトグル（テスト用）
+    document.addEventListener('keydown', (event) => {
+      if (event.key === ' ' && event.target === document.body) {
+        event.preventDefault();
+        if (overlay.style.display === 'none') {
+          showPopup();
+        } else {
+          hidePopup();
+        }
+      }
+    });
+    
+    console.log('Popup test ready');
+    console.log('Controls: Show/Hide buttons, Click, ESC key, Space key');
+  </script>
+</body>
+</html>
