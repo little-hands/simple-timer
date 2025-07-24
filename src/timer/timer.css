@@ -160,7 +160,8 @@ body {
 }
 
 .timer-finished {
-    animation: pulse 1s infinite;
+    /* フワフワ動く演出を無効化 */
+    /* animation: pulse 1s infinite; */
 }
 
 @keyframes pulse {

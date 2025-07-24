@@ -140,7 +140,7 @@ export class OverlayWindowManager {
    * @remarks
    * - popup.htmlを専用で読み込み
    * - ポップアップメッセージ表示
-   * - 3秒後に自動的に非表示
+   * - OKボタンまたはESCキーで手動消去
    */
   async showPopupMessage(): Promise<void> {
     try {
@@ -159,10 +159,7 @@ export class OverlayWindowManager {
       // オーバーレイウィンドウを表示
       this.show();
       
-      // 3秒後に自動的に隠す
-      setTimeout(() => {
-        this.hide();
-      }, 3000);
+      // 自動消去は無効化 - OKボタンまたはESCキーでのみ消去
       
     } catch (error) {
       console.error('Failed to show popup message:', error);

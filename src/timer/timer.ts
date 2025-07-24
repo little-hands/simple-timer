@@ -145,6 +145,17 @@ async function playSnowSound(): Promise<void> {
     }
 }
 
+async function playPopupSound(): Promise<void> {
+    try {
+        const audio = new Audio();
+        audio.src = '../assets/sounds/xylophone.mp3';
+        await audio.play();
+    } catch (error) {
+        console.warn('ポップアップ音声の再生に失敗しました:', error);
+        // 音声再生の失敗はアプリケーションの継続に影響しないため、エラーを投げない
+    }
+}
+
 // フルスクリーントランプアニメーション開始
 function startCardsCelebration(): void {
     try {
@@ -230,9 +241,9 @@ async function timerFinished(): Promise<void> {
                 break;
             case 'popup':
                 console.log('✨ ポップアップエフェクト実行');
-                // ポップアップメッセージ + 音声
+                // ポップアップメッセージ + xylophone音声
                 startPopupMessage();
-                playAlarmSound();
+                playPopupSound();
                 break;
         }
         
