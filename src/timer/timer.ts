@@ -126,7 +126,7 @@ function resetTimer(): void {
 async function playAlarmSound(): Promise<void> {
     try {
         const audio = new Audio();
-        audio.src = './assets/sounds/jidaigeki.mp3';
+        audio.src = '../assets/sounds/jidaigeki.mp3';
         await audio.play();
     } catch (error) {
         console.warn('音声の再生に失敗しました:', error);
@@ -137,7 +137,7 @@ async function playAlarmSound(): Promise<void> {
 async function playSnowSound(): Promise<void> {
     try {
         const audio = new Audio();
-        audio.src = './assets/sounds/sleigh_bells.mp3';
+        audio.src = '../assets/sounds/sleigh_bells.mp3';
         await audio.play();
     } catch (error) {
         console.warn('雪エフェクト音声の再生に失敗しました:', error);

@@ -654,3 +654,46 @@ IPCHandler(
 - 「このクラスは何をするクラスか？」を1文で答えられるか
 - 「このメソッドはクラスの責務に直接関係するか？」を明確に判断できるか
 - 「外部環境に依存せずにユニットテストできるか？」を確認できるか
+
+## Git Worktree ネーミングルール
+
+### Worktree ディレクトリ名
+```
+# Issue有り
+{プロジェクト名}-issue{番号}
+例: simple-timer-issue17
+
+# Issue無し  
+{プロジェクト名}-{種別}-{概要}
+例: simple-timer-spike-webgl
+```
+
+### ブランチ名
+```
+# Issue有り
+{種別}/issue-{番号}-{概要}
+例: feature/issue-17-card-animation-manager
+
+# Issue無し
+{種別}/{概要}  
+例: spike/webgl-animations
+```
+
+### ブランチ種別
+- `feature/` - 新機能
+- `bugfix/` - バグ修正
+- `hotfix/` - 緊急修正
+- `refactor/` - リファクタリング
+- `spike/` - 技術調査
+- `experiment/` - 実験
+- `docs/` - ドキュメント
+- `chore/` - 雑務
+
+### 作成コマンド
+```bash
+# Issue有り
+git worktree add ../simple-timer-issue17 -b feature/issue-17-card-animation-manager
+
+# Issue無し
+git worktree add ../simple-timer-spike-webgl -b spike/webgl-animations
+```
