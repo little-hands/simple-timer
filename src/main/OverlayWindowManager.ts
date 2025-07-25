@@ -204,12 +204,11 @@ export class OverlayWindowManager {
   }
   
   /**
-   * ポップアップメッセージを表示します
+   * ポップアップメッセージを表示します（新方式）
    * 
    * @remarks
-   * - popup.htmlを専用で読み込み
-   * - ポップアップメッセージ表示
-   * - OKボタンまたはESCキーで手動消去
+   * - EffectManager経由でpopupエフェクトを表示
+   * - HTMLの切り替え不要
    */
   async showPopupMessage(): Promise<void> {
     try {
@@ -221,13 +220,17 @@ export class OverlayWindowManager {
         throw new Error('Failed to create overlay window');
       }
       
-      // 適切なHTMLファイルを読み込み
-      await this.ensureCorrectHtmlLoaded('popup');
+      // overlay.htmlが読み込まれていることを確認
+      if (this.currentHtmlFile !== path.join(__dirname, '../overlay/overlay.html')) {
+        await this.window.loadFile(path.join(__dirname, '../overlay/overlay.html'));
+        this.currentHtmlFile = path.join(__dirname, '../overlay/overlay.html');
+      }
       this.show();
+      
+      // EffectManager経由でポップアップを表示
+      this.window.webContents.send(IPCChannels.START_POPUP_ANIMATION);
     } catch (error) {
       console.error('Failed to show popup message:', error);
-      // フォールバック: コンソールにメッセージ表示
-      console.log('✨ Time\'s up ✨');
     }
   }
   
@@ -237,6 +240,16 @@ export class OverlayWindowManager {
   hidePopupMessage(): void {
     if (this.window && !this.window.isDestroyed()) {
       this.hide();
+    }
+  }
+  
+  /**
+   * オーバーレイウィンドウのクリックスルー設定を変更します
+   */
+  setClickThrough(enable: boolean): void {
+    if (this.window && !this.window.isDestroyed()) {
+      this.window.setIgnoreMouseEvents(enable);
+      console.log(`OverlayWindowManager: Click-through ${enable ? 'enabled' : 'disabled'}`);
     }
   }
 }

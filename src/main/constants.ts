@@ -63,7 +63,7 @@ export const DEFAULT_APP_CONFIG: AppConfig = {
     height: TIMER_WINDOW_CONFIG.height
   },
   cardAnimationDuration: 6000,
-  effectType: 'notifier', // デフォルトは通常（Notifier）
+  effectType: 'popup', // テスト用にpopupに変更
   dev: {
     enableFileWatch: true,
     openDevTools: true

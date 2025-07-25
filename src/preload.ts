@@ -8,11 +8,17 @@ contextBridge.exposeInMainWorld('electronAPI', {
     }
   },
   receive: (channel: string, func: (...args: any[]) => void) => {
-    const validChannels = ['timer-update', 'start-cards-animation', 'start-snow-animation', 'effect-type-changed'];
+    const validChannels = ['timer-update', 'start-cards-animation', 'start-snow-animation', 'start-popup-animation', 'effect-type-changed'];
     if (validChannels.includes(channel)) {
       ipcRenderer.on(channel, (_event: IpcRendererEvent, ...args: any[]) => func(...args));
     }
   },
+  
+  // 新しいAPI追加
+  onStartPopupAnimation: (callback: () => void) => {
+    ipcRenderer.on('start-popup-animation', callback);
+  },
+  setClickThrough: (enable: boolean) => ipcRenderer.send('set-click-through', enable),
   minimizeWindow: () => ipcRenderer.send('window-minimize'),
   maximizeWindow: () => ipcRenderer.send('window-maximize'),
   closeWindow: () => ipcRenderer.send('window-close'),

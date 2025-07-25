@@ -18,6 +18,17 @@
             overflow: hidden;
             pointer-events: none;
         }
+        
+        /* エフェクトコンテナの共通スタイル */
+        .effect-zone {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+        }
 
         .cards-container {
             position: fixed;
@@ -108,16 +119,56 @@
             height: 100%;
             pointer-events: none;
         }
+        
+        /* ポップアップエフェクト用スタイル */
+        #popup-zone {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .popup-content {
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
+            padding: 20px 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: opacity 0.3s ease;
+        }
+        
+        .popup-message {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .popup-icon {
+            font-size: 48px;
+        }
+        
+        .popup-text {
+            font-size: 24px;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
-    <div class="cards-container" id="cardsContainer"></div>
-    
-    <!-- 雪エフェクト用オーバーレイ -->
-    <div class="snow-overlay" id="snowOverlay">
-        <canvas class="snow-canvas" id="snowCanvas"></canvas>
+    <!-- エフェクトゾーン（各エフェクトが独立して使用） -->
+    <div id="cards-zone" class="effect-zone">
+        <div class="cards-container" id="cardsContainer"></div>
     </div>
     
+    <div id="snow-zone" class="effect-zone">
+        <div class="snow-overlay" id="snowOverlay">
+            <canvas class="snow-canvas" id="snowCanvas"></canvas>
+        </div>
+    </div>
+    
+    <div id="popup-zone" class="effect-zone"></div>
+    
     <script src="overlay.js"></script>
+    <!-- EffectManagerテスト用（後で統合） -->
+    <script type="module" src="overlay-manager-test.js"></script>
 </body>
 </html>

@@ -90,6 +90,11 @@ export class IPCHandler {
       this.handleHidePopupMessage();
     });
     
+    // オーバーレイクリックスルー設定
+    ipcMain.on('set-click-through', (event, enable: boolean) => {
+      this.overlayWindowManager.setClickThrough(enable);
+    });
+    
     // 設定管理API
     ipcMain.handle(IPCChannels.GET_APP_CONFIG, () => {
       return this.appConfigStore.getPublicConfig();
