@@ -23,10 +23,22 @@ export class PopupEffect implements IEffect {
     
     // ポップアップHTML作成
     this.container.innerHTML = `
-      <div class="popup-content" id="popup-content-${this.id}">
-        <div class="popup-message">
-          <span class="popup-icon">⏰</span>
-          <span class="popup-text">Time's up!</span>
+      <div class="popup-overlay" id="popup-content-${this.id}">        
+        <div class="popup-container">
+          <div class="speech-bubble">
+            <div class="sparkle-container">
+              <div class="sparkle">✨</div>
+              <div class="sparkle">✨</div>
+              <div class="sparkle">✨</div>
+              <div class="sparkle">✨</div>
+              
+              <div class="main-text">Time's up</div>
+            </div>
+            
+            <div class="click-anywhere-hint">Click anywhere to dismiss</div>
+          </div>
+          
+          <div class="clock-icon">⏰</div>
         </div>
       </div>
     `;
