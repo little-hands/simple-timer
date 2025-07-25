@@ -10,19 +10,34 @@ export class OverlayEffectManager {
   private containers = new Map<EffectType, HTMLElement>();
   
   constructor() {
-    console.log('OverlayEffectManager: Initializing');
     this.initializeContainers();
+    
+    // 初期状態を透過に設定
+    this.setClickThrough(true);
   }
   
   /**
    * オーバーレイを完全透過（クリックスルー）にする
    */
   private setClickThrough(enable: boolean): void {
+    // Electronレベル制御
     const electronAPI = (window as any).electronAPI;
-    if (electronAPI && electronAPI.setClickThrough) {
+    if (electronAPI?.setClickThrough) {
       electronAPI.setClickThrough(enable);
-      console.log(`OverlayEffectManager: Click-through ${enable ? 'enabled' : 'disabled'}`);
+    } else {
+      console.error('OverlayEffectManager: electronAPI.setClickThrough not available');
     }
+    
+    // DOM制御（保険）
+    const zones = ['popup-zone', 'cards-zone', 'snow-zone'];
+    zones.forEach(id => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.style.pointerEvents = enable ? 'none' : 'auto';
+      } else {
+        console.error(`OverlayEffectManager: Element ${id} not found`);
+      }
+    });
   }
   
   /**
@@ -40,7 +55,6 @@ export class OverlayEffectManager {
       const container = document.getElementById(id);
       if (container) {
         this.containers.set(type as EffectType, container);
-        console.log(`OverlayEffectManager: Container initialized for ${type}`);
       } else {
         console.warn(`OverlayEffectManager: Container not found for ${type}`);
       }
@@ -51,8 +65,6 @@ export class OverlayEffectManager {
    * エフェクトを表示する（既存のものは自動的に停止）
    */
   async showEffect(type: EffectType): Promise<void> {
-    console.log(`OverlayEffectManager: Showing effect ${type}`);
-    
     // エフェクト表示時はクリックスルーを無効化
     this.setClickThrough(false);
     
@@ -72,7 +84,6 @@ export class OverlayEffectManager {
     
     try {
       await effect.start();
-      console.log(`OverlayEffectManager: Effect ${type} started successfully`);
     } catch (error) {
       console.error(`OverlayEffectManager: Failed to start ${type}`, error);
       this.activeEffects.delete(type);
@@ -85,7 +96,6 @@ export class OverlayEffectManager {
   async stopEffect(type: EffectType): Promise<void> {
     const effect = this.activeEffects.get(type);
     if (effect) {
-      console.log(`OverlayEffectManager: Stopping effect ${type}`);
       try {
         await effect.stop();
       } catch (error) {
@@ -106,7 +116,6 @@ export class OverlayEffectManager {
    * すべてのエフェクトを停止する
    */
   async stopAllEffects(): Promise<void> {
-    console.log('OverlayEffectManager: Stopping all effects');
     const promises: Promise<void>[] = [];
     
     for (const type of this.activeEffects.keys()) {
@@ -122,7 +131,9 @@ export class OverlayEffectManager {
   private createEffect(type: EffectType, container: HTMLElement): IEffect {
     switch (type) {
       case 'popup':
-        return new PopupEffect(container);
+        return new PopupEffect(container, () => {
+          this.stopEffect('popup');
+        });
       
       case 'cards':
         // TODO: CardsEffectクラスを実装

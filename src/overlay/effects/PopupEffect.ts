@@ -9,15 +9,15 @@ export class PopupEffect implements IEffect {
   private container: HTMLElement;
   private active: boolean = false;
   private autoHideTimer?: NodeJS.Timeout;
+  private onEffectStop?: () => void;
   
-  constructor(container: HTMLElement) {
+  constructor(container: HTMLElement, onEffectStop?: () => void) {
     this.id = `popup-${Date.now()}`;
     this.container = container;
+    this.onEffectStop = onEffectStop;
   }
   
   async start(): Promise<void> {
-    console.log(`PopupEffect[${this.id}]: Starting`);
-    
     // 既存のコンテンツをクリア
     this.cleanup();
     
@@ -35,8 +35,7 @@ export class PopupEffect implements IEffect {
     const popupContent = document.getElementById(`popup-content-${this.id}`);
     if (popupContent) {
       popupContent.addEventListener('click', () => {
-        console.log(`PopupEffect[${this.id}]: Clicked, hiding`);
-        this.stop();
+        this.notifyStopToManager();
       });
       
       // ポインターイベントを有効化（クリック可能にする）
@@ -49,14 +48,11 @@ export class PopupEffect implements IEffect {
     
     // 5秒後に自動非表示
     this.autoHideTimer = setTimeout(() => {
-      console.log(`PopupEffect[${this.id}]: Auto-hiding`);
-      this.stop();
+      this.notifyStopToManager();
     }, 5000);
   }
   
   async stop(): Promise<void> {
-    console.log(`PopupEffect[${this.id}]: Stopping`);
-    
     // フェードアウトアニメーション（後で実装）
     this.container.style.opacity = '0';
     
@@ -69,8 +65,6 @@ export class PopupEffect implements IEffect {
   }
   
   cleanup(): void {
-    console.log(`PopupEffect[${this.id}]: Cleanup`);
-    
     // タイマークリア
     if (this.autoHideTimer) {
       clearTimeout(this.autoHideTimer);
@@ -84,5 +78,17 @@ export class PopupEffect implements IEffect {
   
   isActive(): boolean {
     return this.active;
+  }
+  
+  /**
+   * マネージャーに停止を通知する
+   */
+  private notifyStopToManager(): void {
+    if (this.onEffectStop) {
+      this.onEffectStop();
+    } else {
+      console.warn(`PopupEffect[${this.id}]: No stop callback available, calling stop() directly`);
+      this.stop();
+    }
   }
 }

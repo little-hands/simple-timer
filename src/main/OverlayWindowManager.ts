@@ -84,8 +84,9 @@ export class OverlayWindowManager {
     this.currentHtmlFile = initialHtmlPath;
     
     // 開発モード時のDevTools
-    if (this.isDevelopmentMode && this.appConfigStore.getDevSettings()?.openDevTools) {
+    if (this.isDevelopmentMode) {
       this.window.webContents.openDevTools({ mode: 'detach' });
+      console.log('OverlayWindowManager: DevTools opened for overlay window');
     }
     
     // ウィンドウクローズ時のクリーンアップ
