@@ -10,7 +10,7 @@
  * UI状態（ウィンドウ位置など）は WindowStateStore が担当し、
  * このクラスは純粋にアプリケーションの動作設定のみを扱います。
  */
-import { AppConfig, EffectType } from '../types/electron';
+import { AppConfig, EffectType } from "../types/app-types";
 import { DEFAULT_APP_CONFIG } from './constants';
 
 export class AppConfigStore {

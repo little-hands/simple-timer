@@ -10,7 +10,7 @@
  * アプリケーション機能設定は AppConfigManager が担当し、
  * このクラスは純粋にUI状態の永続化のみを扱います。
  */
-import { WindowBounds } from '../types/electron';
+import { WindowBounds } from "../types/app-types";
 
 export class WindowStateStore {
   private store: any; // electron-storeのインスタンス

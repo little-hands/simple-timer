@@ -14,7 +14,7 @@ import { BrowserWindow, screen } from 'electron';
 import * as path from 'path';
 import { OVERLAY_WINDOW_CONFIG, EFFECT_DURATION } from './constants';
 import { AppConfigStore } from './AppConfigStore';
-import { IPCChannels, EffectType } from '../types/electron';
+import { IPCChannels, EffectType } from "../types/app-types";
 
 export class OverlayWindowManager {
   private window: BrowserWindow | null = null;

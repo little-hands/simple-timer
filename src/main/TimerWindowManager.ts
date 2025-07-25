@@ -13,7 +13,7 @@
 import { BrowserWindow } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
-import { WindowBounds } from '../types/electron';
+import { WindowBounds } from "../types/app-types";
 import { TIMER_WINDOW_CONFIG, WATCH_FILES } from './constants';
 import { AppConfigStore } from './AppConfigStore';
 import { WindowStateStore } from './WindowStateStore';

@@ -1,7 +1,7 @@
 /**
  * アプリケーション全体で使用される定数定義
  */
-import { AppConfig } from '../types/electron';
+import { AppConfig } from "../types/app-types";
 
 /**
  * タイマーウィンドウの設定
