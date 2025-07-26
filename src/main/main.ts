@@ -15,7 +15,7 @@ import { WindowStateStore } from './WindowStateStore';
 import { TimerWindowManager } from './TimerWindowManager';
 import { OverlayWindowManager } from './OverlayWindowManager';
 import { SettingsWindowManager } from './SettingsWindowManager';
-import { IPCHandler } from './IPCHandler';
+import { IPCHandler } from './handlers/IPCHandler';
 
 // グローバルインスタンス
 let appConfigStore: AppConfigStore;

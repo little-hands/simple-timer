@@ -12,11 +12,11 @@
  * WindowManagerを通じて適切なウィンドウ操作を行います。
  */
 import { ipcMain } from 'electron';
-import { IPCChannels, EffectType } from "../types/app-types";
-import { TimerWindowManager } from './TimerWindowManager';
-import { OverlayWindowManager } from './OverlayWindowManager';
-import { AppConfigStore } from './AppConfigStore';
-import { SettingsWindowManager } from './SettingsWindowManager';
+import { IPCChannels, EffectType } from "../../types/app-types";
+import { TimerWindowManager } from '../TimerWindowManager';
+import { OverlayWindowManager } from '../OverlayWindowManager';
+import { AppConfigStore } from '../AppConfigStore';
+import { SettingsWindowManager } from '../SettingsWindowManager';
 import { EffectExecutor } from './EffectExecutor';
 
 export class IPCHandler {

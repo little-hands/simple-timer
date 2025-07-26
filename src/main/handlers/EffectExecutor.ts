@@ -11,10 +11,10 @@
  * 適切なエフェクトを実行し、タイマー終了をユーザーに通知します。
  */
 import { Notification } from 'electron';
-import { EffectType } from "../types/app-types";
-import { TimerWindowManager } from './TimerWindowManager';
-import { OverlayWindowManager } from './OverlayWindowManager';
-import { AppConfigStore } from './AppConfigStore';
+import { EffectType } from "../../types/app-types";
+import { TimerWindowManager } from '../TimerWindowManager';
+import { OverlayWindowManager } from '../OverlayWindowManager';
+import { AppConfigStore } from '../AppConfigStore';
 
 export class EffectExecutor {
   /**
