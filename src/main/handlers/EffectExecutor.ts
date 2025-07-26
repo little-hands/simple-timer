@@ -163,4 +163,11 @@ export class EffectExecutor {
       console.error('Failed to execute popup message:', error);
     }
   }
+  
+  /**
+   * ポップアップメッセージを非表示にします
+   */
+  hidePopupMessage(): void {
+    this.overlayWindowManager.hidePopupMessage();
+  }
 }

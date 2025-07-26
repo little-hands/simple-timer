@@ -95,7 +95,7 @@ export class IPCHandler {
     
     // ポップアップメッセージ非表示
     ipcMain.on('hide-popup-message', () => {
-      this.handleHidePopupMessage();
+      this.effectExecutor.hidePopupMessage();
     });
     
     // オーバーレイクリックスルー設定
@@ -237,10 +237,4 @@ export class IPCHandler {
     }
   }
   
-  /**
-   * ポップアップメッセージの非表示を処理します
-   */
-  private handleHidePopupMessage(): void {
-    this.overlayWindowManager.hidePopupMessage();
-  }
 }
