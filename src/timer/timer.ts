@@ -1,7 +1,8 @@
 import { formatTime, processNumberInput, convertStackToTime, calculateProgressRatio } from './functions.js';
 
-let timeLeft: number = 3 * 60; // デフォルト3分
-let totalSeconds: number = 3 * 60;
+let timeLeft: number = 180; // デフォルト3分（設定読み込みで上書きされる）
+let totalSeconds: number = 180;
+let defaultTimerSeconds: number = 180; // 設定から読み込んだデフォルト値を保持
 let timerInterval: number | null = null;
 let isRunning: boolean = false;
 
@@ -111,8 +112,8 @@ function resetTimer(): void {
         timerInterval = null;
     }
     isRunning = false;
-    timeLeft = 3 * 60;
-    totalSeconds = 3 * 60;
+    timeLeft = defaultTimerSeconds;
+    totalSeconds = defaultTimerSeconds;
     
     // 入力スタックもリセット
     inputStack = "0000";
@@ -260,7 +261,14 @@ async function loadAppConfig(): Promise<void> {
         if (electronAPI && typeof electronAPI.getAppConfig === 'function') {
             const config = await electronAPI.getAppConfig();
             currentEffectType = config.effectType;
-            console.log('設定読み込み完了:', { effectType: currentEffectType, config });
+            
+            // デフォルトタイマー秒数を設定
+            defaultTimerSeconds = config.defaultTimerSeconds || 180;
+            timeLeft = defaultTimerSeconds;
+            totalSeconds = defaultTimerSeconds;
+            updateDisplay(timeLeft, totalSeconds);
+            
+            console.log('設定読み込み完了:', { effectType: currentEffectType, defaultTimerSeconds, config });
             updateSettingsUI();
         }
     } catch (error) {

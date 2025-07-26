@@ -11,15 +11,17 @@
  * すべてのIPC通信はこのクラスに集約され、
  * WindowManagerを通じて適切なウィンドウ操作を行います。
  */
-import { ipcMain, Notification } from 'electron';
+import { ipcMain } from 'electron';
 import { IPCChannels, EffectType } from "../types/app-types";
 import { TimerWindowManager } from './TimerWindowManager';
 import { OverlayWindowManager } from './OverlayWindowManager';
 import { AppConfigStore } from './AppConfigStore';
 import { SettingsWindowManager } from './SettingsWindowManager';
+import { EffectExecutor } from './EffectExecutor';
 
 export class IPCHandler {
   private settingsWindowManager: SettingsWindowManager | null = null;
+  private effectExecutor: EffectExecutor;
 
   /**
    * IPCHandlerのコンストラクタ
@@ -32,7 +34,13 @@ export class IPCHandler {
     private timerWindowManager: TimerWindowManager,
     private overlayWindowManager: OverlayWindowManager,
     private appConfigStore: AppConfigStore
-  ) {}
+  ) {
+    this.effectExecutor = new EffectExecutor(
+      timerWindowManager,
+      overlayWindowManager,
+      appConfigStore
+    );
+  }
 
   /**
    * 設定ウィンドウマネージャーを設定します
@@ -58,8 +66,8 @@ export class IPCHandler {
    */
   setupHandlers(): void {
     // タイマー終了通知
-    ipcMain.on(IPCChannels.TIMER_FINISHED, (event, totalSeconds: number) => {
-      this.handleTimerFinished(totalSeconds);
+    ipcMain.on(IPCChannels.TIMER_FINISHED, async (event, totalSeconds: number) => {
+      await this.effectExecutor.executeTimerFinishedEffect(totalSeconds);
     });
     
     // ウィンドウ制御
@@ -122,89 +130,7 @@ export class IPCHandler {
     });
   }
   
-  /**
-   * タイマー終了時の処理を行います
-   * 
-   * @param totalSeconds - タイマーの総秒数
-   * @private
-   * 
-   * @remarks
-   * - 設定されたエフェクトタイプに応じて処理を分岐
-   * - notifier: Mac通知センターへの通知表示
-   * - cards: トランプアニメーション表示
-   */
-  private handleTimerFinished(totalSeconds: number): void {
-    const effectType = this.appConfigStore.getEffectType();
-    this.executeEffect(effectType, totalSeconds);
-  }
   
-  /**
-   * エフェクトタイプに応じた処理を実行します
-   * 
-   * @param effectType - 実行するエフェクトタイプ
-   * @param totalSeconds - タイマーの総秒数
-   * @private
-   */
-  private executeEffect(effectType: EffectType, totalSeconds: number): void {
-    switch (effectType) {
-      case 'notifier':
-        this.showNotification(totalSeconds);
-        break;
-      case 'cards':
-        this.handleCardsCelebration();
-        break;
-      case 'snow':
-        this.handleSnowEffect();
-        break;
-      case 'popup':
-        this.handlePopupMessage();
-        break;
-    }
-  }
-  
-  /**
-   * Mac通知センターに通知を表示します
-   * 
-   * @param totalSeconds - タイマーの総秒数
-   * @private
-   * 
-   * @remarks
-   * - Mac通知センターに終了通知を表示
-   * - 通知クリック時はタイマーウィンドウにフォーカス
-   * - 通知は音なしで表示（サウンドは別途再生される）
-   */
-  private showNotification(totalSeconds: number): void {
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    
-    // 時間表示の生成
-    let timeStr = '';
-    if (minutes > 0 && seconds > 0) {
-      timeStr = `${minutes}分${seconds}秒`;
-    } else if (minutes > 0) {
-      timeStr = `${minutes}分`;
-    } else {
-      timeStr = `${seconds}秒`;
-    }
-    
-    // Mac通知センターに表示（音なし）
-    const notification = new Notification({
-      title: 'タイマー終了',
-      body: `${timeStr}のタイマーが終了しました`,
-      silent: true
-    });
-    
-    // 通知クリック時にウィンドウをフォーカス
-    notification.on('click', () => {
-      const timerWindow = this.timerWindowManager.getWindow();
-      if (timerWindow && !timerWindow.isDestroyed()) {
-        timerWindow.show();
-        timerWindow.focus();
-      }
-    });
-    
-    notification.show();
-  }
 
   /**
    * 設定ウィンドウの表示を処理します

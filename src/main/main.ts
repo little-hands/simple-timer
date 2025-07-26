@@ -32,16 +32,16 @@ let ipcHandler: IPCHandler;
  * 各マネージャークラスの初期化と依存関係の注入を行います
  */
 async function initializeApp(): Promise<void> {
+  // 開発モード判定
+  const isDevelopmentMode = process.argv.includes('--dev');
+  
   // 設定マネージャーの初期化
-  appConfigStore = new AppConfigStore();
+  appConfigStore = new AppConfigStore(isDevelopmentMode);
   await appConfigStore.initialize();
   
   // ウィンドウ状態ストアの初期化
   windowStateStore = new WindowStateStore();
   await windowStateStore.initialize();
-  
-  // 開発モード判定
-  const isDevelopmentMode = process.argv.includes('--dev');
   
   // ウィンドウマネージャーの初期化
   timerWindowManager = new TimerWindowManager(appConfigStore, windowStateStore, isDevelopmentMode);

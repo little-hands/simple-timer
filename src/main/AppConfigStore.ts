@@ -15,16 +15,20 @@ import { DEFAULT_APP_CONFIG } from './constants';
 
 export class AppConfigStore {
   private store: any; // electron-storeのインスタンス
+  private isDevelopmentMode: boolean;
   
   /**
    * AppConfigStoreのコンストラクタ
+   * 
+   * @param isDevelopmentMode - 開発モードかどうか
    * 
    * @remarks
    * electron-storeは動的インポートで初期化する必要があるため、
    * コンストラクタではなくinitializeメソッドで初期化します
    */
-  constructor() {
+  constructor(isDevelopmentMode: boolean = false) {
     this.store = null;
+    this.isDevelopmentMode = isDevelopmentMode;
   }
   
   /**
@@ -49,12 +53,19 @@ export class AppConfigStore {
    * 
    * @returns デフォルトタイマー時間（秒）
    * 
+   * @remarks
+   * 開発モード時は1秒、通常時は設定値を返します
+   * 
    * @example
    * ```typescript
-   * const seconds = configStore.getDefaultTimerSeconds(); // 180
+   * const seconds = configStore.getDefaultTimerSeconds(); // 180 または 1（開発モード）
    * ```
    */
   getDefaultTimerSeconds(): number {
+    // 開発モード時は1秒を返す
+    if (this.isDevelopmentMode) {
+      return 1;
+    }
     const config = this.getAppConfig();
     return config.defaultTimerSeconds;
   }
@@ -133,13 +144,26 @@ export class AppConfigStore {
    * 
    * @returns レンダラーで利用可能なアプリケーション設定
    * 
+   * @remarks
+   * 開発モード時はdefaultTimerSecondsを1秒に上書きします
+   * 
    * @example
    * ```typescript
    * const publicConfig = configStore.getPublicConfig();
    * ```
    */
   getPublicConfig(): AppConfig {
-    return this.getAppConfig();
+    const config = this.getAppConfig();
+    
+    // 開発モード時はデフォルトタイマー秒数を1秒に上書き
+    if (this.isDevelopmentMode) {
+      return {
+        ...config,
+        defaultTimerSeconds: 1
+      };
+    }
+    
+    return config;
   }
   
   

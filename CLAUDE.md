@@ -768,3 +768,27 @@ git worktree add ../simple-timer-issue17 -b feature/issue-17-card-animation-mana
 # Issue無し
 git worktree add ../simple-timer-spike-webgl -b spike/webgl-animations
 ```
+
+## 動作確認の依頼について
+
+ユーザーに動作確認を依頼する場合は、必ず開発モードで起動するよう指示すること：
+
+```bash
+npm start -- --dev
+```
+
+**開発モードの利点：**
+- DevToolsが自動的に開く（コンソールログの確認が容易）
+- デフォルトタイマーが1秒（素早い動作確認が可能）
+- ファイル監視機能が有効（変更時の自動リロード）
+
+**動作確認依頼の例：**
+```
+開発モードで起動して動作確認をお願いします：
+npm start -- --dev
+
+確認項目：
+1. タイマーが1秒で表示されているか
+2. スタートボタンで1秒後に終了エフェクトが表示されるか
+3. DevToolsのコンソールにエラーが出ていないか
+```

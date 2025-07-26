@@ -71,8 +71,11 @@ export class TimerWindowManager {
       this.window = null;
     });
     
-    // 開発モード時のファイル監視
+    // 開発モード時の設定
     if (this.isDevelopmentMode) {
+      // DevToolsを開く
+      this.window.webContents.openDevTools();
+      // ファイル監視を設定
       this.setupFileWatching();
     }
     
