@@ -217,6 +217,10 @@ class PopupEffect {
                 case 'popup':
                     await effectManager.showEffect('popup');
                     break;
+                case 'popup-preact':
+                    // Preactベースのポップアップ
+                    await this.showPreactPopup();
+                    break;
                 case 'sample':
                     // サンプルエフェクト（時間経過で自動消失）
                     await effectManager.showSampleEffect();
@@ -231,6 +235,17 @@ class PopupEffect {
             console.log(`PopupEffect: ${effectType} effect completed`);
         } catch (error) {
             console.error(`PopupEffect: Failed to show ${effectType} effect:`, error);
+        }
+    }
+    
+    async showPreactPopup() {
+        console.log('PopupEffect: Showing Preact popup...');
+        
+        try {
+            // Preact popupのHTMLに切り替え
+            window.location.href = './popup-preact.html';
+        } catch (error) {
+            console.error('PopupEffect: Failed to show Preact popup:', error);
         }
     }
     
