@@ -295,4 +295,53 @@ class CardManager {
   }
 }
 
-// CardManagerクラスのみを定義（エクスポートは別ファイルで行う）
+// CardManagerのグローバルインスタンス（DOMContentLoaded後に初期化）
+let cardManager;
+
+// DOMContentLoaded後にCardManagerを初期化
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof CardManager !== 'undefined') {
+        cardManager = new CardManager();
+        console.log('CardManager initialized');
+    } else {
+        console.error('CardManager class not found');
+    }
+});
+
+// ソリティアクリア風のカード連続生成（CardManager使用版）
+function startCardsCelebration() {
+    if (!cardManager) {
+        console.error('CardManager not initialized');
+        return;
+    }
+    
+    // 前回の残骸を完全削除（メモリ安全性確保）
+    cardManager.forceCleanup();
+    
+    let cardCount = 0;
+    const maxCards = 104; // 2デッキ分
+    const interval = 80; // カード生成間隔（ミリ秒）
+    
+    console.log('Starting cards celebration with CardManager');
+    
+    const cardInterval = setInterval(() => {
+        cardManager.createCard();
+        cardCount++;
+        
+        if (cardCount >= maxCards) {
+            clearInterval(cardInterval);
+            console.log('Cards generation completed:', cardManager.getStats());
+            
+            // 全アニメーション終了後の保険クリーンアップ（8秒後）
+            setTimeout(() => {
+                cardManager.forceCleanup();
+                console.log('Animation cleanup completed');
+            }, 8000); // 最大6秒アニメーション + 余裕2秒
+        }
+    }, interval);
+}
+
+// メインプロセスからのアニメーション開始指示を受信
+window.electronAPI.receive('start-cards-animation', () => {
+    startCardsCelebration();
+});
