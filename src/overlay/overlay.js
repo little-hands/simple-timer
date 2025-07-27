@@ -193,6 +193,62 @@ const snowEffect = new SnowEffect();
 
 // カード関連の処理は card-effects.js に移動
 
+// ポップアップエフェクトクラス
+class PopupEffect {
+    constructor() {
+        this.setupEventListeners();
+    }
+    
+    async showEffect() {
+        console.log('PopupEffect: Starting popup effect...');
+        
+        try {
+            // EffectManagerをダイナミックにインポート
+            const { OverlayEffectManager } = await import('./overlay/OverlayEffectManager.js');
+            const effectManager = new OverlayEffectManager();
+            await effectManager.showEffect('popup');
+            console.log('PopupEffect: Popup effect completed');
+        } catch (error) {
+            console.error('PopupEffect: Failed to show popup effect:', error);
+        }
+    }
+    
+    setupEventListeners() {
+        // ElectronAPIの準備を待つ
+        const setupIPC = () => {
+            if (window.electronAPI) {
+                console.log('PopupEffect: Setting up IPC listeners...');
+                
+                // 新しいAPI
+                if (window.electronAPI.onStartPopupAnimation) {
+                    window.electronAPI.onStartPopupAnimation(() => {
+                        console.log('IPC: Start popup animation received (new API)');
+                        this.showEffect();
+                    });
+                }
+                
+                // 旧API互換
+                if (window.electronAPI.receive) {
+                    window.electronAPI.receive('start-popup-animation', () => {
+                        console.log('IPC: Start popup animation received (old API)');
+                        this.showEffect();
+                    });
+                }
+                
+                console.log('PopupEffect: IPC setup complete');
+            } else {
+                console.warn('PopupEffect: electronAPI not ready, retrying...');
+                setTimeout(setupIPC, 100);
+            }
+        };
+        
+        setTimeout(setupIPC, 100);
+    }
+}
+
+// ポップアップエフェクトインスタンス
+const popupEffect = new PopupEffect();
+
 window.electronAPI.receive('start-snow-animation', () => {
     snowEffect.start();
 });

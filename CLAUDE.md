@@ -777,6 +777,8 @@ git worktree add ../simple-timer-spike-webgl -b spike/webgl-animations
 npm start -- --dev
 ```
 
+**重要**: 修正後に動作確認を依頼する時は、`npm start -- --dev`を実行して、そのままbashプロセスを実行したままにして。
+
 **開発モードの利点：**
 - DevToolsが自動的に開く（コンソールログの確認が容易）
 - デフォルトタイマーが1秒（素早い動作確認が可能）
