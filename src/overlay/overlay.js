@@ -213,19 +213,54 @@ class PopupEffect {
         }
     }
     
+    async handleOverlayEffect(effectType) {
+        console.log(`PopupEffect: Starting overlay effect: ${effectType}`);
+        
+        try {
+            // EffectManagerをダイナミックにインポート
+            const { OverlayEffectManager } = await import('./overlay/OverlayEffectManager.js');
+            const effectManager = new OverlayEffectManager();
+            
+            switch (effectType) {
+                case 'popup':
+                    await effectManager.showEffect('popup');
+                    break;
+                case 'sample':
+                    // サンプルエフェクト（時間経過で自動消失）
+                    await effectManager.showSampleEffect();
+                    break;
+                default:
+                    console.warn(`PopupEffect: Unknown effect type: ${effectType}`);
+                    // フォールバック: デフォルトエフェクトとしてpopupを表示
+                    await effectManager.showEffect('popup');
+                    break;
+            }
+            
+            console.log(`PopupEffect: ${effectType} effect completed`);
+        } catch (error) {
+            console.error(`PopupEffect: Failed to show ${effectType} effect:`, error);
+        }
+    }
+    
     setupEventListeners() {
         // ElectronAPIの準備を待つ
         const setupIPC = () => {
             if (window.electronAPI) {
                 console.log('PopupEffect: Setting up IPC listeners...');
                 
-                // ポップアップアニメーション開始イベント
-                if (window.electronAPI.onStartPopupAnimation) {
-                    window.electronAPI.onStartPopupAnimation(() => {
-                        console.log('IPC: Start popup animation received');
-                        this.showEffect();
-                    });
-                }
+                // 汎用オーバーレイエフェクト開始イベント（receiveを使用）
+                window.electronAPI.receive('start-overlay-effect', (effectType) => {
+                    console.log(`IPC: Start overlay effect received: ${effectType}`);
+                    this.handleOverlayEffect(effectType);
+                });
+                
+                // // 後方互換性のため古いAPIも残す
+                // if (window.electronAPI.onStartPopupAnimation) {
+                //     window.electronAPI.onStartPopupAnimation(() => {
+                //         console.log('IPC: Start popup animation received (legacy)');
+                //         this.showEffect();
+                //     });
+                // }
                 
                 console.log('PopupEffect: IPC setup complete');
             } else {

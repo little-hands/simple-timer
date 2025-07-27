@@ -8,15 +8,20 @@ contextBridge.exposeInMainWorld('electronAPI', {
     }
   },
   receive: (channel: string, func: (...args: any[]) => void) => {
-    const validChannels = ['timer-update', 'start-cards-animation', 'start-snow-animation', 'start-popup-animation', 'effect-type-changed'];
+    const validChannels = ['timer-update', 'start-cards-animation', 'start-snow-animation', 'start-popup-animation', 'start-overlay-effect', 'effect-type-changed'];
     if (validChannels.includes(channel)) {
       ipcRenderer.on(channel, (_event: IpcRendererEvent, ...args: any[]) => func(...args));
     }
   },
   
-  // 新しいAPI追加
+  // 新しいAPI追加（後方互換性のため残す）
   onStartPopupAnimation: (callback: () => void) => {
     ipcRenderer.on('start-popup-animation', callback);
+  },
+  onStartOverlayEffect: (callback: (effectType: string) => void) => {
+    ipcRenderer.on('start-overlay-effect', (_event: IpcRendererEvent, effectType: string) => {
+      callback(effectType);
+    });
   },
   setClickThrough: (enable: boolean) => ipcRenderer.send('set-click-through', enable),
   minimizeWindow: () => ipcRenderer.send('window-minimize'),

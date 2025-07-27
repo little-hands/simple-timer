@@ -91,6 +91,28 @@ export class OverlayEffectManager {
   }
   
   /**
+   * サンプルエフェクトを表示する（3秒後に自動消失）
+   */
+  async showSampleEffect(): Promise<void> {
+    console.log('OverlayEffectManager: Starting sample effect with auto-hide');
+    
+    // まずpopupエフェクトを表示
+    await this.showEffect('popup');
+    
+    // 3秒後に自動的に非表示にする
+    setTimeout(async () => {
+      console.log('OverlayEffectManager: Auto-hiding sample effect');
+      try {
+        await this.stopEffect('popup');
+        // エフェクト終了後はクリックスルーを有効化
+        this.setClickThrough(true);
+      } catch (error) {
+        console.error('OverlayEffectManager: Failed to auto-hide sample effect:', error);
+      }
+    }, 3000);
+  }
+  
+  /**
    * エフェクトを停止する
    */
   async stopEffect(type: EffectType): Promise<void> {

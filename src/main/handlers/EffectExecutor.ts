@@ -158,7 +158,7 @@ export class EffectExecutor {
    */
   private async executePopupMessage(): Promise<void> {
     try {
-      await this.overlayWindowManager.showPopupMessage();
+      await this.overlayWindowManager.showOverlayEffect('sample');
     } catch (error) {
       console.error('Failed to execute popup message:', error);
     }

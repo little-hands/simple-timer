@@ -245,6 +245,40 @@ export class OverlayWindowManager {
   }
   
   /**
+   * 汎用オーバーレイエフェクトを表示します
+   * 
+   * @param effectType - 実行するエフェクトタイプ（popup, cards, snow など）
+   * 
+   * @remarks
+   * - EffectManager経由で指定されたエフェクトを表示
+   * - HTMLの切り替え不要
+   * - 既存の個別メソッドの汎用版
+   */
+  async showOverlayEffect(effectType: string): Promise<void> {
+    try {
+      // ウィンドウが存在しない場合は作成
+      if (!this.window || this.window.isDestroyed()) {
+        this.createWindow();
+      }
+      if (!this.window) {
+        throw new Error('Failed to create overlay window');
+      }
+      
+      // overlay.htmlが読み込まれていることを確認
+      if (this.currentHtmlFile !== path.join(__dirname, '../overlay/overlay.html')) {
+        await this.window.loadFile(path.join(__dirname, '../overlay/overlay.html'));
+        this.currentHtmlFile = path.join(__dirname, '../overlay/overlay.html');
+      }
+      this.show();
+      
+      // EffectManager経由で指定されたエフェクトを表示
+      this.window.webContents.send(IPCChannels.START_OVERLAY_EFFECT, effectType);
+    } catch (error) {
+      console.error(`Failed to show overlay effect: ${effectType}`, error);
+    }
+  }
+  
+  /**
    * オーバーレイウィンドウのクリックスルー設定を変更します
    */
   setClickThrough(enable: boolean): void {
