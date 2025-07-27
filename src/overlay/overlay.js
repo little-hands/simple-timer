@@ -202,7 +202,7 @@ class PopupEffect {
     // 後方互換性のため残す（非推奨）
     async showEffect() {
         console.log('PopupEffect: showEffect() is deprecated. Use handleOverlayEffect() instead.');
-        await this.handleOverlayEffect('popup');
+        await this.handleOverlayEffect('popup-preact');
     }
     
     async handleOverlayEffect(effectType) {
@@ -214,21 +214,18 @@ class PopupEffect {
             const effectManager = new OverlayEffectManager();
             
             switch (effectType) {
-                case 'popup':
-                    await effectManager.showEffect('popup');
-                    break;
                 case 'popup-preact':
                     // Preactベースのポップアップ
                     await this.showPreactPopup();
                     break;
                 case 'sample':
-                    // サンプルエフェクト（時間経過で自動消失）
-                    await effectManager.showSampleEffect();
+                    // サンプルエフェクト（時間経過で自動消失） - Preact popupを使用
+                    await this.showPreactPopup();
                     break;
                 default:
                     console.warn(`PopupEffect: Unknown effect type: ${effectType}`);
-                    // フォールバック: デフォルトエフェクトとしてpopupを表示
-                    await effectManager.showEffect('popup');
+                    // フォールバック: デフォルトエフェクトとしてPreact popupを表示
+                    await this.showPreactPopup();
                     break;
             }
             

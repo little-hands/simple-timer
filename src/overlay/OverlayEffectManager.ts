@@ -47,8 +47,7 @@ export class OverlayEffectManager {
     // 各エフェクトゾーンへの参照を保持
     const zones: Record<EffectType, string> = {
       cards: 'cards-zone',
-      snow: 'snow-zone', 
-      popup: 'popup-zone'
+      snow: 'snow-zone'
     };
     
     for (const [type, id] of Object.entries(zones)) {
@@ -90,27 +89,6 @@ export class OverlayEffectManager {
     }
   }
   
-  /**
-   * サンプルエフェクトを表示する（3秒後に自動消失）
-   */
-  async showSampleEffect(): Promise<void> {
-    console.log('OverlayEffectManager: Starting sample effect with auto-hide');
-    
-    // まずpopupエフェクトを表示
-    await this.showEffect('popup');
-    
-    // 3秒後に自動的に非表示にする
-    setTimeout(async () => {
-      console.log('OverlayEffectManager: Auto-hiding sample effect');
-      try {
-        await this.stopEffect('popup');
-        // エフェクト終了後はクリックスルーを有効化
-        this.setClickThrough(true);
-      } catch (error) {
-        console.error('OverlayEffectManager: Failed to auto-hide sample effect:', error);
-      }
-    }, 3000);
-  }
   
   /**
    * エフェクトを停止する
@@ -152,11 +130,6 @@ export class OverlayEffectManager {
    */
   private createEffect(type: EffectType, container: HTMLElement): IEffect {
     switch (type) {
-      case 'popup':
-        return new PopupEffect(container, () => {
-          this.stopEffect('popup');
-        });
-      
       case 'cards':
         // TODO: CardsEffectクラスを実装
         throw new Error('CardsEffect not implemented yet');

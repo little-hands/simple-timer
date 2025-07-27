@@ -22,7 +22,7 @@ export interface IEffect {
 /**
  * エフェクトの種類
  */
-export type EffectType = 'cards' | 'snow' | 'popup';
+export type EffectType = 'cards' | 'snow';
 
 /**
  * エフェクト作成のためのファクトリーインターフェース

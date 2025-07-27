@@ -9,7 +9,7 @@
     "build:renderer": "tsc -p tsconfig.renderer.json",
     "build:overlay": "tsc -p tsconfig.overlay.json",
     "build:popup-preact": "cd src/overlay/popup-preact && vite build",
-    "copy-assets": "mkdir -p dist/timer dist/overlay dist/settings && cp -r assets dist/ && cp src/timer/timer.html dist/timer/ && cp src/timer/timer.css dist/timer/ && cp src/overlay/overlay.html dist/overlay/ && cp src/overlay/overlay.js dist/overlay/ && cp src/overlay/card-effects.js dist/overlay/ && cp src/overlay/overlay-manager-test.js dist/overlay/ && cp src/overlay/popup.html dist/overlay/ && cp src/overlay/popup.css dist/overlay/ && cp src/overlay/popup-preact.html dist/overlay/ && cp src/settings/settings.html dist/settings/ && cp src/settings/settings.js dist/settings/ && cp src/settings/settings.css dist/settings/",
+    "copy-assets": "mkdir -p dist/timer dist/overlay dist/settings && cp -r assets dist/ && cp src/timer/timer.html dist/timer/ && cp src/timer/timer.css dist/timer/ && cp src/overlay/overlay.html dist/overlay/ && cp src/overlay/overlay.js dist/overlay/ && cp src/overlay/card-effects.js dist/overlay/ && cp src/overlay/overlay-manager-test.js dist/overlay/ && cp src/overlay/popup-preact.html dist/overlay/ && cp src/settings/settings.html dist/settings/ && cp src/settings/settings.js dist/settings/ && cp src/settings/settings.css dist/settings/",
     "start": "npm run build && electron .",
     "dev": "npm run build:main && npm run build:preload && tsc -p tsconfig.renderer.json -w",
     "dev:electron": "electron . --dev",
