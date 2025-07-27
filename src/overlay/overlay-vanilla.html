@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cards Overlay</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        /* エフェクトコンテナの共通スタイル */
+        .effect-zone {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .cards-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .playing-card {
+            position: absolute;
+            width: 60px;
+            height: 84px;
+            background: white;
+            border: 2px solid #333;
+            border-radius: 6px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            font-family: 'Arial', sans-serif;
+            animation: cardFall var(--fall-duration) ease-in forwards;
+            will-change: transform;
+        }
+
+        .playing-card.hearts,
+        .playing-card.diamonds {
+            color: #e74c3c;
+        }
+
+        .playing-card.clubs,
+        .playing-card.spades {
+            color: #2c3e50;
+        }
+
+        @keyframes cardFall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(calc(100vh + 100px)) rotate(var(--rotation));
+                opacity: 0;
+            }
+        }
+
+        .playing-card::after {
+            content: attr(data-suit);
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            font-size: 12px;
+        }
+
+        /* 雪エフェクト用スタイル */
+        .snow-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: transparent;
+            opacity: 0;
+            transition: opacity 0.5s ease-in;
+            z-index: 9998;
+            pointer-events: none;
+        }
+
+        .snow-overlay.active {
+            opacity: 1;
+        }
+
+        .snow-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        /* ポップアップエフェクト用スタイル */
+        #popup-zone {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* 吹き出しデザイン用追加スタイル */
+        .popup-overlay {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100vw;
+            height: 100vh;
+            animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .popup-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .clock-icon {
+            font-size: 64px;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+            animation: bounce 2s infinite;
+        }
+
+        .speech-bubble {
+            position: relative;
+            background: white;
+            border-radius: 25px;
+            padding: 20px 30px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.15),
+                0 2px 8px rgba(0, 0, 0, 0.1);
+            max-width: 300px;
+        }
+
+        .speech-bubble::before {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%) rotate(45deg);
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 0 0 0 8px;
+        }
+
+        .sparkle-container {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .sparkle {
+            position: absolute;
+            font-size: 20px;
+            animation: sparkle 1.5s infinite ease-in-out;
+        }
+
+        .sparkle:nth-child(1) { top: -10px; left: -10px; animation-delay: 0s; }
+        .sparkle:nth-child(2) { top: -15px; right: -5px; animation-delay: 0.3s; }
+        .sparkle:nth-child(3) { bottom: -10px; left: 20px; animation-delay: 0.6s; }
+        .sparkle:nth-child(4) { bottom: -15px; right: 15px; animation-delay: 0.9s; }
+
+        .main-text {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2c3e50;
+            text-align: center;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            animation: textJump 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .click-anywhere-hint {
+            font-size: 14px;
+            color: #7f8c8d;
+            text-align: center;
+            margin-top: 8px;
+            opacity: 0.8;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        @keyframes textJump {
+            0% { transform: translateY(10px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- エフェクトゾーン（各エフェクトが独立して使用） -->
+    <div id="cards-zone" class="effect-zone">
+        <div class="cards-container" id="cardsContainer"></div>
+    </div>
+    
+    <div id="snow-zone" class="effect-zone">
+        <div class="snow-overlay" id="snowOverlay">
+            <canvas class="snow-canvas" id="snowCanvas"></canvas>
+        </div>
+    </div>
+    
+    <div id="popup-zone" class="effect-zone"></div>
+    
+    <script src="card-effects.js"></script>
+    <script src="overlay.js"></script>
+</body>
+</html>
