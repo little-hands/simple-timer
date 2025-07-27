@@ -199,18 +199,10 @@ class PopupEffect {
         this.setupEventListeners();
     }
     
+    // 後方互換性のため残す（非推奨）
     async showEffect() {
-        console.log('PopupEffect: Starting popup effect...');
-        
-        try {
-            // EffectManagerをダイナミックにインポート
-            const { OverlayEffectManager } = await import('./overlay/OverlayEffectManager.js');
-            const effectManager = new OverlayEffectManager();
-            await effectManager.showEffect('popup');
-            console.log('PopupEffect: Popup effect completed');
-        } catch (error) {
-            console.error('PopupEffect: Failed to show popup effect:', error);
-        }
+        console.log('PopupEffect: showEffect() is deprecated. Use handleOverlayEffect() instead.');
+        await this.handleOverlayEffect('popup');
     }
     
     async handleOverlayEffect(effectType) {
@@ -253,14 +245,6 @@ class PopupEffect {
                     console.log(`IPC: Start overlay effect received: ${effectType}`);
                     this.handleOverlayEffect(effectType);
                 });
-                
-                // // 後方互換性のため古いAPIも残す
-                // if (window.electronAPI.onStartPopupAnimation) {
-                //     window.electronAPI.onStartPopupAnimation(() => {
-                //         console.log('IPC: Start popup animation received (legacy)');
-                //         this.showEffect();
-                //     });
-                // }
                 
                 console.log('PopupEffect: IPC setup complete');
             } else {
