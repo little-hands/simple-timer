@@ -219,18 +219,10 @@ class PopupEffect {
             if (window.electronAPI) {
                 console.log('PopupEffect: Setting up IPC listeners...');
                 
-                // 新しいAPI
+                // ポップアップアニメーション開始イベント
                 if (window.electronAPI.onStartPopupAnimation) {
                     window.electronAPI.onStartPopupAnimation(() => {
-                        console.log('IPC: Start popup animation received (new API)');
-                        this.showEffect();
-                    });
-                }
-                
-                // 旧API互換
-                if (window.electronAPI.receive) {
-                    window.electronAPI.receive('start-popup-animation', () => {
-                        console.log('IPC: Start popup animation received (old API)');
+                        console.log('IPC: Start popup animation received');
                         this.showEffect();
                     });
                 }
