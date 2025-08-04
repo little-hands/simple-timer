@@ -405,6 +405,22 @@ loadAppConfig();
 
 ## 開発フロー - Electron自動起動システム
 
+## エフェクト開発用playground
+
+### playgroundコマンド
+`playground`という指示をされたら、利用可能なURLを画面表示し、エフェクト開発用playgroundサーバーを起動します。
+- playgroundディレクトリに移動
+- 表示できるURLを表示
+- python3 -m http.server 8000
+
+このコマンドはHTTPサーバーを起動し、**ユーザーが停止するまでBashプロセスを起動し続けます。**
+そうしなければ動作確認ができないので、必ずそうしてください。
+
+📋 利用可能なURL:
+- 🃏 Cards Effect: http://localhost:8000/cards-effect.html
+- ❄️ Snow Effect: http://localhost:8000/snow-effect.html
+- 🧪 Preact Test: http://localhost:8000/preact-test.html
+- 📖 README: http://localhost:8000/README.md
 
 ## tmux操作ガイド
 
