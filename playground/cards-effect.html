@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cards Effect Playground</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #222;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 10000;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls h2 {
+            margin: 0 0 15px 0;
+            font-size: 18px;
+        }
+
+        button {
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            background: #0051D5;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .settings {
+            margin-top: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        input[type="range"] {
+            width: 200px;
+        }
+
+        input[type="number"] {
+            width: 60px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+
+        select {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+
+        /* 元のカードエフェクト用スタイル */
+        #cardsContainer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .playing-card {
+            position: absolute;
+            width: 60px;
+            height: 84px;
+            background: white;
+            border: 1px solid #333;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            font-family: 'Times New Roman', serif;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            animation: cardFall var(--fall-duration, 4s) ease-in-out forwards;
+            transform: rotateZ(var(--rotation, 0deg));
+        }
+
+        .playing-card.hearts,
+        .playing-card.diamonds {
+            color: #ff0000;
+        }
+
+        .playing-card.spades,
+        .playing-card.clubs {
+            color: #000000;
+        }
+
+        .playing-card::after {
+            content: attr(data-suit);
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            font-size: 14px;
+        }
+
+        @keyframes cardFall {
+            0% {
+                transform: translateY(-100px) rotateZ(var(--rotation, 0deg));
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(calc(100vh + 100px)) rotateZ(calc(var(--rotation, 0deg) + 360deg));
+                opacity: 0;
+            }
+        }
+
+        .stats {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .info {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            max-width: 250px;
+        }
+
+        .info h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+        }
+
+        .info p {
+            margin: 5px 0;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <h2>Cards Celebration</h2>
+        
+        <button onclick="startOriginalCardsCelebration()">Start Original Cards</button>
+        <button onclick="stopAnimation()">Stop Animation</button>
+        <button onclick="clearCards()">Clear All Cards</button>
+        
+        <div class="settings">
+            <label>
+                Card Generation Interval (ms): <span id="intervalValue">80</span>
+                <input type="range" id="interval" min="20" max="200" value="80" 
+                       oninput="document.getElementById('intervalValue').textContent = this.value">
+            </label>
+            
+            <label>
+                Total Cards: <span id="totalCardsValue">104</span>
+                <input type="range" id="totalCards" min="52" max="208" value="104" step="52"
+                       oninput="document.getElementById('totalCardsValue').textContent = this.value">
+            </label>
+            
+            <label>
+                Animation Duration (seconds): <span id="durationValue">4</span>
+                <input type="range" id="duration" min="3" max="8" value="4" step="0.5"
+                       oninput="document.getElementById('durationValue').textContent = this.value">
+            </label>
+        </div>
+    </div>
+    
+    <div class="info">
+        <h3>Original Effect</h3>
+        <p>• 52 playing cards (♠♥♦♣)</p>
+        <p>• Values: A, 2-10, J, Q, K</p>
+        <p>• 104 cards total (2 decks)</p>
+        <p>• 80ms generation interval</p>
+        <p>• 3-6 second fall duration</p>
+        <p>• Random rotation while falling</p>
+    </div>
+    
+    <div class="stats">
+        <div>Active Cards: <span id="activeCards">0</span></div>
+        <div>Total Created: <span id="totalCreated">0</span></div>
+        <div>Peak Active: <span id="peakActive">0</span></div>
+    </div>
+
+    <div id="cardsContainer"></div>
+
+    <script>
+        /**
+         * オリジナルのCardManagerクラス（簡略化版）
+         */
+        class CardManager {
+            constructor() {
+                this.activeCards = new Map();
+                this.cardIdCounter = 0;
+                this.stats = {
+                    totalCreated: 0,
+                    currentActive: 0,
+                    peakActive: 0
+                };
+                this.cardsContainer = document.getElementById('cardsContainer');
+            }
+
+            createCard() {
+                const cardId = this.cardIdCounter++;
+                const card = this._createCardElement();
+                
+                const cardInfo = {
+                    id: cardId,
+                    element: card,
+                    createdAt: Date.now(),
+                    duration: this._getRandomDuration(),
+                    position: { 
+                        x: Math.random() * window.innerWidth, 
+                        y: -100 
+                    },
+                    rotation: (Math.random() - 0.5) * 1080, // -540度から540度
+                    timeoutId: null
+                };
+
+                this._setupAnimation(cardInfo);
+                this.activeCards.set(cardId, cardInfo);
+                this._updateStats();
+                this.cardsContainer.appendChild(card);
+                
+                return cardInfo;
+            }
+
+            removeCard(cardId) {
+                const cardInfo = this.activeCards.get(cardId);
+                if (!cardInfo) return false;
+
+                if (cardInfo.timeoutId) {
+                    clearTimeout(cardInfo.timeoutId);
+                }
+                
+                this._safeRemoveElement(cardInfo.element);
+                this.activeCards.delete(cardId);
+                this._updateStats();
+                
+                return true;
+            }
+
+            forceCleanup() {
+                this.activeCards.forEach(cardInfo => {
+                    if (cardInfo.timeoutId) {
+                        clearTimeout(cardInfo.timeoutId);
+                    }
+                });
+                
+                this.cardsContainer.innerHTML = '';
+                this.activeCards.clear();
+                this.stats.currentActive = 0;
+                this._updateStats();
+            }
+
+            getStats() {
+                return {
+                    totalCreated: this.stats.totalCreated,
+                    currentActive: this.activeCards.size,
+                    peakActive: this.stats.peakActive
+                };
+            }
+
+            _createCardElement() {
+                const suits = ['♠', '♥', '♦', '♣'];
+                const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+                const suitNames = ['spades', 'hearts', 'diamonds', 'clubs'];
+                
+                const suit = Math.floor(Math.random() * suits.length);
+                const value = values[Math.floor(Math.random() * values.length)];
+                
+                const card = document.createElement('div');
+                card.className = `playing-card ${suitNames[suit]}`;
+                card.textContent = value;
+                card.setAttribute('data-suit', suits[suit]);
+                
+                return card;
+            }
+
+            _setupAnimation(cardInfo) {
+                const { element, position, duration, rotation } = cardInfo;
+                
+                element.style.left = `${position.x}px`;
+                element.style.top = `${position.y}px`;
+                element.style.setProperty('--rotation', `${rotation}deg`);
+                element.style.setProperty('--fall-duration', `${duration / 1000}s`);
+                
+                cardInfo.timeoutId = setTimeout(() => {
+                    this.removeCard(cardInfo.id);
+                }, duration + 1000);
+            }
+
+            _getRandomDuration() {
+                const baseDuration = parseFloat(document.getElementById('duration').value) * 1000;
+                return baseDuration + (Math.random() * 2000 - 1000); // ±1秒のバリエーション
+            }
+
+            _updateStats() {
+                this.stats.totalCreated++;
+                this.stats.currentActive = this.activeCards.size;
+                this.stats.peakActive = Math.max(this.stats.peakActive, this.stats.currentActive);
+                
+                // UI更新
+                updateStatsUI();
+            }
+
+            _safeRemoveElement(element) {
+                try {
+                    if (element && element.parentNode) {
+                        element.parentNode.removeChild(element);
+                    }
+                } catch (error) {
+                    console.warn('Failed to remove element:', error);
+                }
+            }
+        }
+
+        // グローバル変数
+        let cardManager = new CardManager();
+        let cardInterval = null;
+
+        function startOriginalCardsCelebration() {
+            if (cardInterval) return;
+            
+            // 前回の残骸をクリア
+            cardManager.forceCleanup();
+            
+            let cardCount = 0;
+            const totalCards = parseInt(document.getElementById('totalCards').value);
+            const interval = parseInt(document.getElementById('interval').value);
+            
+            console.log(`Starting cards celebration: ${totalCards} cards, ${interval}ms interval`);
+            
+            cardInterval = setInterval(() => {
+                cardManager.createCard();
+                cardCount++;
+                
+                if (cardCount >= totalCards) {
+                    clearInterval(cardInterval);
+                    cardInterval = null;
+                    console.log('Cards generation completed:', cardManager.getStats());
+                    
+                    // 全アニメーション終了後のクリーンアップ
+                    setTimeout(() => {
+                        cardManager.forceCleanup();
+                        console.log('Animation cleanup completed');
+                    }, 10000);
+                }
+            }, interval);
+        }
+
+        function stopAnimation() {
+            if (cardInterval) {
+                clearInterval(cardInterval);
+                cardInterval = null;
+            }
+        }
+
+        function clearCards() {
+            stopAnimation();
+            cardManager.forceCleanup();
+        }
+
+        function updateStatsUI() {
+            const stats = cardManager.getStats();
+            document.getElementById('activeCards').textContent = stats.currentActive;
+            document.getElementById('totalCreated').textContent = stats.totalCreated;
+            document.getElementById('peakActive').textContent = stats.peakActive;
+        }
+
+        // キーボードショートカット
+        document.addEventListener('keydown', (e) => {
+            switch (e.key) {
+                case ' ':
+                    e.preventDefault();
+                    startOriginalCardsCelebration();
+                    break;
+                case 'Escape':
+                    stopAnimation();
+                    break;
+                case 'c':
+                    clearCards();
+                    break;
+            }
+        });
+
+        // 初期化
+        updateStatsUI();
+    </script>
+</body>
+</html>

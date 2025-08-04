@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snow Effect Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom, #1e3c72, #2a5298);
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 10000;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls h2 {
+            margin: 0 0 15px 0;
+            font-size: 18px;
+        }
+
+        button {
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            background: #0051D5;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .settings {
+            margin-top: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input[type="range"] {
+            width: 200px;
+        }
+
+        input[type="number"] {
+            width: 60px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+
+        /* 雪のスタイル */
+        .snowflake {
+            position: absolute;
+            color: white;
+            user-select: none;
+            pointer-events: none;
+            animation: snowfall linear;
+            font-size: 1em;
+            filter: blur(0px);
+        }
+
+        @keyframes snowfall {
+            0% {
+                transform: translateY(-100vh) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) translateX(100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes sway {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            50% {
+                transform: translateX(50px);
+            }
+        }
+
+        .stats {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        /* 背景オプション */
+        .background-winter {
+            background: linear-gradient(to bottom, #e6f2ff, #cce7ff);
+        }
+
+        .background-night {
+            background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e);
+        }
+
+        .background-twilight {
+            background: linear-gradient(to bottom, #ffd89b, #19547b);
+        }
+
+        /* 風エフェクト */
+        .wind-effect .snowflake {
+            animation: snowfall linear, sway 3s ease-in-out infinite;
+        }
+
+        /* パーティクルサイズ */
+        .size-small {
+            font-size: 0.8em;
+        }
+
+        .size-medium {
+            font-size: 1.2em;
+        }
+
+        .size-large {
+            font-size: 1.6em;
+        }
+
+        .size-xlarge {
+            font-size: 2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <h2>Snow Effect Controller</h2>
+        
+        <button onclick="startSnowfall()">Start Snowfall</button>
+        <button onclick="stopSnowfall()">Stop Snowfall</button>
+        <button onclick="clearSnow()">Clear All Snow</button>
+        <button onclick="burstSnow()">Snow Burst!</button>
+        
+        <div class="settings">
+            <label>
+                Snow Density: <span id="densityValue">50</span>
+                <input type="range" id="density" min="10" max="200" value="50" 
+                       oninput="document.getElementById('densityValue').textContent = this.value">
+            </label>
+            
+            <label>
+                Fall Speed (seconds): <span id="speedValue">10</span>
+                <input type="range" id="speed" min="3" max="30" value="10" 
+                       oninput="document.getElementById('speedValue').textContent = this.value">
+            </label>
+            
+            <label>
+                Snowflake Type:
+                <select id="snowflakeType">
+                    <option value="mixed">Mixed</option>
+                    <option value="dots">Dots Only (•)</option>
+                    <option value="stars">Stars Only (*)</option>
+                    <option value="flakes">Snowflakes Only (❄)</option>
+                    <option value="sparkles">Sparkles Only (✨)</option>
+                </select>
+            </label>
+            
+            <label>
+                Background:
+                <select id="backgroundType" onchange="changeBackground()">
+                    <option value="default">Default Blue</option>
+                    <option value="winter">Winter Day</option>
+                    <option value="night">Night Sky</option>
+                    <option value="twilight">Twilight</option>
+                </select>
+            </label>
+            
+            <label>
+                <input type="checkbox" id="windEffect" onchange="toggleWind()">
+                Enable Wind Effect
+            </label>
+            
+            <label>
+                <input type="checkbox" id="blur" onchange="toggleBlur()">
+                Enable Blur Effect
+            </label>
+        </div>
+    </div>
+    
+    <div class="stats">
+        <div>Active Snowflakes: <span id="activeSnow">0</span></div>
+        <div>Total Created: <span id="totalSnow">0</span></div>
+    </div>
+
+    <script>
+        const snowflakeChars = {
+            dots: ['•', '·', '∙'],
+            stars: ['*', '✦', '✧', '★', '☆'],
+            flakes: ['❄', '❅', '❆', '❄️'],
+            sparkles: ['✨', '✨', '✨'],
+            mixed: ['•', '·', '*', '❄', '❅', '❆', '✨', '★']
+        };
+
+        let snowInterval = null;
+        let activeSnowCount = 0;
+        let totalSnowCount = 0;
+        let isWindEnabled = false;
+        let isBlurEnabled = false;
+
+        function createSnowflake(x = null) {
+            const snowflake = document.createElement('div');
+            snowflake.className = 'snowflake';
+            
+            // 雪の種類を選択
+            const type = document.getElementById('snowflakeType').value;
+            const chars = snowflakeChars[type];
+            snowflake.textContent = chars[Math.floor(Math.random() * chars.length)];
+            
+            // ランダムなサイズ
+            const sizes = ['size-small', 'size-medium', 'size-large', 'size-xlarge'];
+            snowflake.classList.add(sizes[Math.floor(Math.random() * sizes.length)]);
+            
+            // 位置設定
+            if (x !== null) {
+                snowflake.style.left = x + 'px';
+            } else {
+                snowflake.style.left = Math.random() * window.innerWidth + 'px';
+            }
+            snowflake.style.top = '-50px';
+            
+            // アニメーション速度
+            const speed = parseInt(document.getElementById('speed').value);
+            const randomSpeed = speed + (Math.random() * 10 - 5); // ±5秒のランダム性
+            snowflake.style.animationDuration = randomSpeed + 's';
+            
+            // 風エフェクト
+            if (isWindEnabled) {
+                snowflake.classList.add('wind-effect');
+            }
+            
+            // ブラーエフェクト
+            if (isBlurEnabled) {
+                snowflake.style.filter = `blur(${Math.random() * 2}px)`;
+            }
+            
+            // 透明度のバリエーション
+            snowflake.style.opacity = 0.3 + Math.random() * 0.7;
+            
+            document.body.appendChild(snowflake);
+            activeSnowCount++;
+            totalSnowCount++;
+            updateStats();
+            
+            // アニメーション終了後に削除
+            snowflake.addEventListener('animationend', () => {
+                snowflake.remove();
+                activeSnowCount--;
+                updateStats();
+            });
+        }
+
+        function startSnowfall() {
+            if (snowInterval) return;
+            
+            const density = parseInt(document.getElementById('density').value);
+            const interval = 5000 / density; // 密度に応じて間隔を調整
+            
+            // 即座にいくつか作成
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => createSnowflake(), i * 100);
+            }
+            
+            snowInterval = setInterval(() => {
+                createSnowflake();
+            }, interval);
+        }
+
+        function stopSnowfall() {
+            if (snowInterval) {
+                clearInterval(snowInterval);
+                snowInterval = null;
+            }
+        }
+
+        function clearSnow() {
+            stopSnowfall();
+            document.querySelectorAll('.snowflake').forEach(snow => snow.remove());
+            activeSnowCount = 0;
+            updateStats();
+        }
+
+        function burstSnow() {
+            // 画面全体に一気に雪を降らせる
+            const burstCount = 100;
+            for (let i = 0; i < burstCount; i++) {
+                setTimeout(() => {
+                    const x = (window.innerWidth / burstCount) * i;
+                    createSnowflake(x);
+                }, i * 10);
+            }
+        }
+
+        function changeBackground() {
+            const bgType = document.getElementById('backgroundType').value;
+            document.body.className = '';
+            
+            switch (bgType) {
+                case 'winter':
+                    document.body.classList.add('background-winter');
+                    break;
+                case 'night':
+                    document.body.classList.add('background-night');
+                    break;
+                case 'twilight':
+                    document.body.classList.add('background-twilight');
+                    break;
+            }
+        }
+
+        function toggleWind() {
+            isWindEnabled = document.getElementById('windEffect').checked;
+            
+            // 既存の雪にも適用
+            document.querySelectorAll('.snowflake').forEach(snow => {
+                if (isWindEnabled) {
+                    snow.classList.add('wind-effect');
+                } else {
+                    snow.classList.remove('wind-effect');
+                }
+            });
+        }
+
+        function toggleBlur() {
+            isBlurEnabled = document.getElementById('blur').checked;
+        }
+
+        function updateStats() {
+            document.getElementById('activeSnow').textContent = activeSnowCount;
+            document.getElementById('totalSnow').textContent = totalSnowCount;
+        }
+
+        // キーボードショートカット
+        document.addEventListener('keydown', (e) => {
+            switch (e.key) {
+                case ' ':
+                    e.preventDefault();
+                    startSnowfall();
+                    break;
+                case 'Escape':
+                    stopSnowfall();
+                    break;
+                case 'c':
+                    clearSnow();
+                    break;
+                case 'b':
+                    burstSnow();
+                    break;
+            }
+        });
+
+        // マウスクリックで雪を生成
+        document.addEventListener('click', (e) => {
+            // コントロールパネルをクリックした場合は無視
+            if (e.target.closest('.controls')) return;
+            
+            // クリック位置に雪を生成
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const offsetX = (Math.random() - 0.5) * 100;
+                    createSnowflake(e.clientX + offsetX);
+                }, i * 50);
+            }
+        });
+
+        // 自動開始オプション
+        if (window.location.hash === '#autostart') {
+            startSnowfall();
+        }
+    </script>
+</body>
+</html>

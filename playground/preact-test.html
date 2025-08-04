@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preact Components Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #222;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 10000;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            max-width: 350px;
+        }
+
+        .controls h2 {
+            margin: 0 0 15px 0;
+            font-size: 18px;
+        }
+
+        button {
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: #0051D5;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .section {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .settings {
+            margin-top: 10px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        input[type="range"] {
+            width: 150px;
+        }
+
+        select {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        .value-display {
+            font-weight: bold;
+            color: #007AFF;
+        }
+
+        .info {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 12px;
+            max-width: 200px;
+        }
+
+        .info h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+        }
+
+        .info p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        #app {
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+    <!-- Preact CDN -->
+    <script src="https://unpkg.com/preact@10.26.9/dist/preact.umd.js"></script>
+    <script src="https://unpkg.com/preact@10.26.9/hooks/dist/hooks.umd.js"></script>
+</head>
+<body>
+    <div class="controls">
+        <h2>Preact Components Test</h2>
+        
+        <div class="section">
+            <h3>🃏 Cards Effect</h3>
+            <button onclick="startCards()" id="cardsBtn">Start Cards</button>
+            <button onclick="stopEffect()" id="stopBtn" disabled>Stop Effect</button>
+            
+            <div class="settings">
+                <label>
+                    Generation Interval: <span id="intervalValue" class="value-display">80ms</span>
+                    <input type="range" id="interval" min="20" max="200" value="80" 
+                           oninput="updateValue('intervalValue', this.value + 'ms')">
+                </label>
+                
+                <label>
+                    Total Cards: <span id="totalCardsValue" class="value-display">104</span>
+                    <input type="range" id="totalCards" min="52" max="208" value="104" step="52"
+                           oninput="updateValue('totalCardsValue', this.value)">
+                </label>
+                
+                <label>
+                    Duration: <span id="cardDurationValue" class="value-display">4s</span>
+                    <input type="range" id="cardDuration" min="3" max="8" value="4" step="0.5"
+                           oninput="updateValue('cardDurationValue', this.value + 's')">
+                </label>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>❄️ Snow Effect</h3>
+            <button onclick="startSnow()" id="snowBtn">Start Snow</button>
+            
+            <div class="settings">
+                <label>
+                    Density: <span id="densityValue" class="value-display">50</span>
+                    <input type="range" id="density" min="10" max="200" value="50" 
+                           oninput="updateValue('densityValue', this.value)">
+                </label>
+                
+                <label>
+                    Speed: <span id="speedValue" class="value-display">10s</span>
+                    <input type="range" id="speed" min="3" max="30" value="10" 
+                           oninput="updateValue('speedValue', this.value + 's')">
+                </label>
+                
+                <label>
+                    Type:
+                    <select id="snowType">
+                        <option value="mixed">Mixed</option>
+                        <option value="dots">Dots</option>
+                        <option value="stars">Stars</option>
+                        <option value="flakes">Snowflakes</option>
+                        <option value="sparkles">Sparkles</option>
+                    </select>
+                </label>
+                
+                <label>
+                    Background:
+                    <select id="background">
+                        <option value="default">Default</option>
+                        <option value="winter">Winter</option>
+                        <option value="night">Night</option>
+                        <option value="twilight">Twilight</option>
+                    </select>
+                </label>
+                
+                <label>
+                    <input type="checkbox" id="wind"> Wind Effect
+                </label>
+                
+                <label>
+                    <input type="checkbox" id="blur"> Blur Effect
+                </label>
+                
+                <label>
+                    Auto Finish: <span id="autoFinishValue" class="value-display">10s</span>
+                    <input type="range" id="autoFinish" min="5" max="30" value="10" 
+                           oninput="updateValue('autoFinishValue', this.value + 's')">
+                </label>
+            </div>
+        </div>
+    </div>
+    
+    <div class="info">
+        <h3>Preact Components</h3>
+        <p>• Pure Preact/Hooks implementation</p>
+        <p>• Ready for overlay-preact integration</p>
+        <p>• Configurable props</p>
+        <p>• Auto cleanup on unmount</p>
+        <p>• Development stats included</p>
+    </div>
+
+    <div id="app"></div>
+
+    <script>
+        const { createElement: h, render } = preact;
+        const { useState, useEffect, useRef } = preactHooks;
+
+        // CardsComponent（簡略版 - 実際のコンポーネントのコア部分）
+        function CardsComponent({ onDismiss, interval = 80, totalCards = 104, duration = 4, autoFinish = true }) {
+            const containerRef = useRef();
+            const [stats, setStats] = useState({ totalCreated: 0, currentActive: 0, peakActive: 0 });
+            
+            const activeCardsRef = useRef(new Map());
+            const cardIdCounterRef = useRef(0);
+            const cardIntervalRef = useRef(null);
+
+            const createCardElement = () => {
+                const suits = ['♠', '♥', '♦', '♣'];
+                const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+                const suitNames = ['spades', 'hearts', 'diamonds', 'clubs'];
+                
+                const suit = Math.floor(Math.random() * suits.length);
+                const value = values[Math.floor(Math.random() * values.length)];
+                
+                const card = document.createElement('div');
+                card.className = `playing-card ${suitNames[suit]}`;
+                card.textContent = value;
+                card.setAttribute('data-suit', suits[suit]);
+                
+                return card;
+            };
+
+            const removeCard = (cardId) => {
+                const cardInfo = activeCardsRef.current.get(cardId);
+                if (!cardInfo) return false;
+
+                if (cardInfo.timeoutId) {
+                    clearTimeout(cardInfo.timeoutId);
+                }
+                
+                try {
+                    if (cardInfo.element && cardInfo.element.parentNode) {
+                        cardInfo.element.parentNode.removeChild(cardInfo.element);
+                    }
+                } catch (error) {
+                    console.warn('Failed to remove card element:', error);
+                }
+                
+                activeCardsRef.current.delete(cardId);
+                setStats(prev => ({ ...prev, currentActive: activeCardsRef.current.size }));
+                
+                return true;
+            };
+
+            const createCard = () => {
+                if (!containerRef.current) return null;
+
+                const cardId = cardIdCounterRef.current++;
+                const card = createCardElement();
+                
+                const cardDuration = (duration + (Math.random() * 2 - 1)) * 1000;
+                const cardInfo = {
+                    id: cardId,
+                    element: card,
+                    createdAt: Date.now(),
+                    duration: cardDuration,
+                    position: { 
+                        x: Math.random() * window.innerWidth, 
+                        y: -100 
+                    },
+                    rotation: (Math.random() - 0.5) * 1080
+                };
+
+                // アニメーション設定
+                card.style.left = `${cardInfo.position.x}px`;
+                card.style.top = `${cardInfo.position.y}px`;
+                card.style.setProperty('--rotation', `${cardInfo.rotation}deg`);
+                card.style.setProperty('--fall-duration', `${cardInfo.duration / 1000}s`);
+                
+                // 自動削除タイマー
+                cardInfo.timeoutId = setTimeout(() => {
+                    removeCard(cardInfo.id);
+                }, cardInfo.duration + 1000);
+
+                // 管理対象に追加
+                activeCardsRef.current.set(cardId, cardInfo);
+                const currentActive = activeCardsRef.current.size;
+                setStats(prev => ({
+                    totalCreated: prev.totalCreated + 1,
+                    currentActive,
+                    peakActive: Math.max(prev.peakActive, currentActive)
+                }));
+                
+                // DOM追加
+                containerRef.current.appendChild(card);
+                
+                return cardInfo;
+            };
+
+            const forceCleanup = () => {
+                activeCardsRef.current.forEach(cardInfo => {
+                    if (cardInfo.timeoutId) {
+                        clearTimeout(cardInfo.timeoutId);
+                    }
+                });
+                
+                if (containerRef.current) {
+                    containerRef.current.innerHTML = '';
+                }
+                
+                activeCardsRef.current.clear();
+                setStats(prev => ({ ...prev, currentActive: 0 }));
+            };
+
+            useEffect(() => {
+                // 前回の残骸をクリア
+                forceCleanup();
+                
+                let cardCount = 0;
+                
+                cardIntervalRef.current = setInterval(() => {
+                    createCard();
+                    cardCount++;
+                    
+                    if (cardCount >= totalCards) {
+                        clearInterval(cardIntervalRef.current);
+                        cardIntervalRef.current = null;
+                        
+                        if (autoFinish) {
+                            // 全アニメーション終了後にonDismissを呼び出し
+                            setTimeout(() => {
+                                forceCleanup();
+                                onDismiss?.();
+                            }, Math.max(duration * 1000 + 2000, 8000));
+                        }
+                    }
+                }, interval);
+                
+                // クリーンアップ
+                return () => {
+                    if (cardIntervalRef.current) {
+                        clearInterval(cardIntervalRef.current);
+                    }
+                    forceCleanup();
+                };
+            }, []);
+
+            return h('div', {
+                ref: containerRef,
+                style: {
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    pointerEvents: 'none',
+                    zIndex: 1000
+                }
+            }, [
+                // Stats display
+                h('div', {
+                    style: {
+                        position: 'fixed',
+                        bottom: '20px',
+                        right: '20px',
+                        background: 'rgba(255, 255, 255, 0.9)',
+                        padding: '10px',
+                        borderRadius: '5px',
+                        fontSize: '12px',
+                        pointerEvents: 'auto'
+                    }
+                }, [
+                    h('div', {}, `Active: ${stats.currentActive}`),
+                    h('div', {}, `Total: ${stats.totalCreated}`),
+                    h('div', {}, `Peak: ${stats.peakActive}`)
+                ])
+            ]);
+        }
+
+        // SnowComponent（簡略版）
+        function SnowComponent({ onDismiss, density = 50, speed = 10, snowflakeType = 'mixed', windEffect = false, blurEffect = false, backgroundType = 'default', autoFinishTime = 10 }) {
+            const containerRef = useRef();
+            const [stats, setStats] = useState({ totalCreated: 0, currentActive: 0 });
+            
+            const activeSnowflakesRef = useRef(new Map());
+            const snowflakeIdCounterRef = useRef(0);
+            const snowIntervalRef = useRef(null);
+
+            const snowflakeChars = {
+                dots: ['•', '·', '∙'],
+                stars: ['*', '✦', '✧', '★', '☆'],
+                flakes: ['❄', '❅', '❆', '❄️'],
+                sparkles: ['✨', '✨', '✨'],
+                mixed: ['•', '·', '*', '❄', '❅', '❆', '✨', '★']
+            };
+
+            const createSnowflake = () => {
+                if (!containerRef.current) return null;
+
+                const snowflakeId = snowflakeIdCounterRef.current++;
+                const chars = snowflakeChars[snowflakeType];
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                
+                if (windEffect) {
+                    snowflake.classList.add('wind-effect');
+                }
+                
+                snowflake.textContent = chars[Math.floor(Math.random() * chars.length)];
+                
+                // ランダムなサイズ
+                const sizes = ['size-small', 'size-medium', 'size-large', 'size-xlarge'];
+                snowflake.classList.add(sizes[Math.floor(Math.random() * sizes.length)]);
+                
+                snowflake.style.left = Math.random() * window.innerWidth + 'px';
+                snowflake.style.top = '-50px';
+                
+                const randomSpeed = speed + (Math.random() * 10 - 5);
+                snowflake.style.animationDuration = randomSpeed + 's';
+                
+                if (blurEffect) {
+                    snowflake.style.filter = `blur(${Math.random() * 2}px)`;
+                }
+                
+                snowflake.style.opacity = (0.3 + Math.random() * 0.7);
+                
+                const snowflakeInfo = {
+                    id: snowflakeId,
+                    element: snowflake,
+                    createdAt: Date.now()
+                };
+
+                snowflake.addEventListener('animationend', () => {
+                    if (snowflakeInfo.element && snowflakeInfo.element.parentNode) {
+                        snowflakeInfo.element.parentNode.removeChild(snowflakeInfo.element);
+                    }
+                    activeSnowflakesRef.current.delete(snowflakeId);
+                    setStats(prev => ({ ...prev, currentActive: activeSnowflakesRef.current.size }));
+                });
+
+                activeSnowflakesRef.current.set(snowflakeId, snowflakeInfo);
+                setStats(prev => ({
+                    totalCreated: prev.totalCreated + 1,
+                    currentActive: activeSnowflakesRef.current.size
+                }));
+                
+                containerRef.current.appendChild(snowflake);
+                
+                return snowflakeInfo;
+            };
+
+            const forceCleanup = () => {
+                if (containerRef.current) {
+                    containerRef.current.innerHTML = '';
+                }
+                activeSnowflakesRef.current.clear();
+                setStats(prev => ({ ...prev, currentActive: 0 }));
+            };
+
+            useEffect(() => {
+                const interval = 5000 / density;
+                
+                // 即座にいくつか作成
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => createSnowflake(), i * 100);
+                }
+                
+                snowIntervalRef.current = setInterval(() => {
+                    createSnowflake();
+                }, interval);
+
+                // 自動終了タイマー
+                const autoFinishTimer = setTimeout(() => {
+                    if (snowIntervalRef.current) {
+                        clearInterval(snowIntervalRef.current);
+                        snowIntervalRef.current = null;
+                    }
+                    setTimeout(() => {
+                        forceCleanup();
+                        onDismiss?.();
+                    }, speed * 1000 + 2000);
+                }, autoFinishTime * 1000);
+                
+                return () => {
+                    if (snowIntervalRef.current) {
+                        clearInterval(snowIntervalRef.current);
+                    }
+                    clearTimeout(autoFinishTimer);
+                    forceCleanup();
+                };
+            }, []);
+
+            const getBackgroundStyle = () => {
+                switch (backgroundType) {
+                    case 'winter': return 'linear-gradient(to bottom, #e6f2ff, #cce7ff)';
+                    case 'night': return 'linear-gradient(to bottom, #0f0c29, #302b63, #24243e)';
+                    case 'twilight': return 'linear-gradient(to bottom, #ffd89b, #19547b)';
+                    default: return 'linear-gradient(to bottom, #1e3c72, #2a5298)';
+                }
+            };
+
+            return h('div', {
+                ref: containerRef,
+                style: {
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    pointerEvents: 'none',
+                    zIndex: 1000,
+                    background: getBackgroundStyle()
+                }
+            }, [
+                // Stats display
+                h('div', {
+                    style: {
+                        position: 'fixed',
+                        bottom: '20px',
+                        left: '20px',
+                        background: 'rgba(255, 255, 255, 0.9)',
+                        padding: '10px',
+                        borderRadius: '5px',
+                        fontSize: '12px',
+                        pointerEvents: 'auto'
+                    }
+                }, [
+                    h('div', {}, `Active: ${stats.currentActive}`),
+                    h('div', {}, `Total: ${stats.totalCreated}`)
+                ])
+            ]);
+        }
+
+        // アプリケーション状態
+        let currentComponent = null;
+        let currentComponentType = null;
+
+        function updateValue(elementId, value) {
+            document.getElementById(elementId).textContent = value;
+        }
+
+        function startCards() {
+            if (currentComponent) {
+                stopEffect();
+            }
+
+            const interval = parseInt(document.getElementById('interval').value);
+            const totalCards = parseInt(document.getElementById('totalCards').value);
+            const duration = parseFloat(document.getElementById('cardDuration').value);
+
+            currentComponent = h(CardsComponent, {
+                onDismiss: () => {
+                    currentComponent = null;
+                    currentComponentType = null;
+                    render(null, document.getElementById('app'));
+                    document.getElementById('cardsBtn').disabled = false;
+                    document.getElementById('snowBtn').disabled = false;
+                    document.getElementById('stopBtn').disabled = true;
+                },
+                interval,
+                totalCards,
+                duration,
+                autoFinish: true
+            });
+            
+            currentComponentType = 'cards';
+            render(currentComponent, document.getElementById('app'));
+            
+            document.getElementById('cardsBtn').disabled = true;
+            document.getElementById('snowBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+        }
+
+        function startSnow() {
+            if (currentComponent) {
+                stopEffect();
+            }
+
+            const density = parseInt(document.getElementById('density').value);
+            const speed = parseInt(document.getElementById('speed').value);
+            const snowflakeType = document.getElementById('snowType').value;
+            const backgroundType = document.getElementById('background').value;
+            const windEffect = document.getElementById('wind').checked;
+            const blurEffect = document.getElementById('blur').checked;
+            const autoFinishTime = parseInt(document.getElementById('autoFinish').value);
+
+            currentComponent = h(SnowComponent, {
+                onDismiss: () => {
+                    currentComponent = null;
+                    currentComponentType = null;
+                    render(null, document.getElementById('app'));
+                    document.getElementById('cardsBtn').disabled = false;
+                    document.getElementById('snowBtn').disabled = false;
+                    document.getElementById('stopBtn').disabled = true;
+                },
+                density,
+                speed,
+                snowflakeType,
+                backgroundType,
+                windEffect,
+                blurEffect,
+                autoFinishTime
+            });
+            
+            currentComponentType = 'snow';
+            render(currentComponent, document.getElementById('app'));
+            
+            document.getElementById('cardsBtn').disabled = true;
+            document.getElementById('snowBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+        }
+
+        function stopEffect() {
+            if (currentComponent) {
+                render(null, document.getElementById('app'));
+                currentComponent = null;
+                currentComponentType = null;
+                
+                document.getElementById('cardsBtn').disabled = false;
+                document.getElementById('snowBtn').disabled = false;
+                document.getElementById('stopBtn').disabled = true;
+            }
+        }
+
+        // キーボードショートカット
+        document.addEventListener('keydown', (e) => {
+            switch (e.key) {
+                case '1':
+                    startCards();
+                    break;
+                case '2':
+                    startSnow();
+                    break;
+                case 'Escape':
+                    stopEffect();
+                    break;
+            }
+        });
+
+        // CSS styles injection
+        const styles = `
+            .playing-card {
+                position: absolute;
+                width: 60px;
+                height: 84px;
+                background: white;
+                border: 1px solid #333;
+                border-radius: 6px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 24px;
+                font-weight: bold;
+                font-family: 'Times New Roman', serif;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+                animation: cardFall var(--fall-duration, 4s) ease-in-out forwards;
+                transform: rotateZ(var(--rotation, 0deg));
+            }
+
+            .playing-card.hearts,
+            .playing-card.diamonds {
+                color: #ff0000;
+            }
+
+            .playing-card.spades,
+            .playing-card.clubs {
+                color: #000000;
+            }
+
+            .playing-card::after {
+                content: attr(data-suit);
+                position: absolute;
+                bottom: 4px;
+                right: 4px;
+                font-size: 14px;
+            }
+
+            @keyframes cardFall {
+                0% {
+                    transform: translateY(-100px) rotateZ(var(--rotation, 0deg));
+                    opacity: 0;
+                }
+                10% {
+                    opacity: 1;
+                }
+                90% {
+                    opacity: 1;
+                }
+                100% {
+                    transform: translateY(calc(100vh + 100px)) rotateZ(calc(var(--rotation, 0deg) + 360deg));
+                    opacity: 0;
+                }
+            }
+
+            .snowflake {
+                position: absolute;
+                color: white;
+                user-select: none;
+                pointer-events: none;
+                animation: snowfall linear;
+                font-size: 1em;
+                filter: blur(0px);
+            }
+
+            @keyframes snowfall {
+                0% {
+                    transform: translateY(-100vh) translateX(0) rotate(0deg);
+                    opacity: 0;
+                }
+                10% {
+                    opacity: 1;
+                }
+                90% {
+                    opacity: 1;
+                }
+                100% {
+                    transform: translateY(100vh) translateX(100px) rotate(360deg);
+                    opacity: 0;
+                }
+            }
+
+            @keyframes sway {
+                0%, 100% {
+                    transform: translateX(0);
+                }
+                50% {
+                    transform: translateX(50px);
+                }
+            }
+
+            .wind-effect .snowflake {
+                animation: snowfall linear, sway 3s ease-in-out infinite;
+            }
+
+            .size-small { font-size: 0.8em; }
+            .size-medium { font-size: 1.2em; }
+            .size-large { font-size: 1.6em; }
+            .size-xlarge { font-size: 2em; }
+        `;
+
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = styles;
+        document.head.appendChild(styleSheet);
+    </script>
+</body>
+</html>
