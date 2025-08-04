@@ -52,12 +52,6 @@ export enum IPCChannels {
   WINDOW_CLOSE = 'window-close',
   
   // アニメーション
-  SHOW_CARDS_CELEBRATION = 'show-cards-celebration',
-  START_CARDS_ANIMATION = 'start-cards-animation',
-  SHOW_SNOW_EFFECT = 'show-snow-effect',
-  START_SNOW_ANIMATION = 'start-snow-animation',
-  SHOW_POPUP_MESSAGE = 'show-popup-message',
-  START_POPUP_ANIMATION = 'start-popup-animation',
   START_OVERLAY_EFFECT = 'start-overlay-effect',
   
   // 設定管理

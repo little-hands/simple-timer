@@ -127,7 +127,7 @@ export class EffectExecutor {
    */
   private async executeCardsCelebration(): Promise<void> {
     try {
-      await this.overlayWindowManager.showCardsCelebration();
+      await this.overlayWindowManager.showOverlayEffect('cards');
     } catch (error) {
       console.error('Failed to execute cards celebration:', error);
     }
@@ -145,7 +145,7 @@ export class EffectExecutor {
    */
   private async executeSnowEffect(): Promise<void> {
     try {
-      await this.overlayWindowManager.showSnowEffect();
+      await this.overlayWindowManager.showOverlayEffect('snow');
     } catch (error) {
       console.error('Failed to execute snow effect:', error);
     }
@@ -168,6 +168,6 @@ export class EffectExecutor {
    * ポップアップメッセージを非表示にします
    */
   hidePopupMessage(): void {
-    this.overlayWindowManager.hidePopupMessage();
+    this.overlayWindowManager.hide();
   }
 }

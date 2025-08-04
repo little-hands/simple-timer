@@ -83,20 +83,7 @@ export class IPCHandler {
       this.handleWindowControl('close');
     });
     
-    // カードアニメーション
-    ipcMain.on(IPCChannels.SHOW_CARDS_CELEBRATION, () => {
-      this.handleCardsCelebration();
-    });
     
-    // 雪エフェクト
-    ipcMain.on(IPCChannels.SHOW_SNOW_EFFECT, () => {
-      this.handleSnowEffect();
-    });
-    
-    // ポップアップメッセージ非表示
-    ipcMain.on('hide-popup-message', () => {
-      this.effectExecutor.hidePopupMessage();
-    });
     
     // オーバーレイクリックスルー設定
     ipcMain.on('set-click-through', (event, enable: boolean) => {
@@ -202,7 +189,7 @@ export class IPCHandler {
    */
   private async handleCardsCelebration(): Promise<void> {
     try {
-      await this.overlayWindowManager.showCardsCelebration();
+      await this.overlayWindowManager.showOverlayEffect('cards');
     } catch (error) {
       console.error('Failed to handle cards celebration:', error);
     }
@@ -220,7 +207,7 @@ export class IPCHandler {
    */
   private async handleSnowEffect(): Promise<void> {
     try {
-      await this.overlayWindowManager.showSnowEffect();
+      await this.overlayWindowManager.showOverlayEffect('snow');
     } catch (error) {
       console.error('Failed to handle snow effect:', error);
     }
@@ -231,7 +218,7 @@ export class IPCHandler {
    */
   private async handlePopupMessage(): Promise<void> {
     try {
-      await this.overlayWindowManager.showPopupMessage();
+      await this.overlayWindowManager.showOverlayEffect('popup');
     } catch (error) {
       console.error('Failed to handle popup message:', error);
     }

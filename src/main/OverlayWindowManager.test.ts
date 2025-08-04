@@ -62,12 +62,12 @@ describe('OverlayWindowManager - popup functionality', () => {
     (BrowserWindow as jest.MockedClass<typeof BrowserWindow>).mockImplementation(() => mockWindow);
   });
 
-  describe('showPopupMessage()', () => {
+  describe('showOverlayEffect()', () => {
     test('ウィンドウが存在しない場合、新しいウィンドウを作成する', async () => {
-      await overlayManager.showPopupMessage();
+      await overlayManager.showOverlayEffect('popup');
       
       expect(BrowserWindow).toHaveBeenCalledTimes(1);
-      expect(mockWindow.loadFile).toHaveBeenCalledWith('__dirname/../overlay/popup.html');
+      expect(mockWindow.loadFile).toHaveBeenCalledWith('__dirname/../overlay/overlay.html');
       expect(mockWindow.show).toHaveBeenCalledTimes(1);
     });
 
@@ -79,20 +79,20 @@ describe('OverlayWindowManager - popup functionality', () => {
       // ウィンドウが破棄された状態をシミュレート
       mockWindow.isDestroyed.mockReturnValue(true);
       
-      await overlayManager.showPopupMessage();
+      await overlayManager.showOverlayEffect('popup');
       
       expect(BrowserWindow).toHaveBeenCalledTimes(1);
-      expect(mockWindow.loadFile).toHaveBeenCalledWith('__dirname/../overlay/popup.html');
+      expect(mockWindow.loadFile).toHaveBeenCalledWith('__dirname/../overlay/overlay.html');
     });
 
     test('popup.htmlを正しく読み込む', async () => {
-      await overlayManager.showPopupMessage();
+      await overlayManager.showOverlayEffect('popup');
       
-      expect(mockWindow.loadFile).toHaveBeenCalledWith('__dirname/../overlay/popup.html');
+      expect(mockWindow.loadFile).toHaveBeenCalledWith('__dirname/../overlay/overlay.html');
     });
 
     test('ウィンドウを表示する', async () => {
-      await overlayManager.showPopupMessage();
+      await overlayManager.showOverlayEffect('popup');
       
       expect(mockWindow.show).toHaveBeenCalledTimes(1);
     });
@@ -100,7 +100,7 @@ describe('OverlayWindowManager - popup functionality', () => {
     test('3秒後に自動的に非表示にする', async () => {
       jest.useFakeTimers();
       
-      await overlayManager.showPopupMessage();
+      await overlayManager.showOverlayEffect('popup');
       
       // 3秒経過前は非表示されない
       expect(mockWindow.hide).not.toHaveBeenCalled();
@@ -119,7 +119,7 @@ describe('OverlayWindowManager - popup functionality', () => {
       
       mockWindow.loadFile.mockRejectedValue(new Error('File not found'));
       
-      await overlayManager.showPopupMessage();
+      await overlayManager.showOverlayEffect('popup');
       
       expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to show popup message:', expect.any(Error));
       expect(consoleSpy).toHaveBeenCalledWith('✨ Time\'s up ✨');
@@ -134,7 +134,7 @@ describe('OverlayWindowManager - popup functionality', () => {
       // BrowserWindow作成時にnullを返すように設定
       (BrowserWindow as jest.MockedClass<typeof BrowserWindow>).mockImplementation(() => null as any);
       
-      await overlayManager.showPopupMessage();
+      await overlayManager.showOverlayEffect('popup');
       
       expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to show popup message:', expect.any(Error));
       
@@ -142,17 +142,17 @@ describe('OverlayWindowManager - popup functionality', () => {
     });
   });
 
-  describe('hidePopupMessage()', () => {
+  describe('hide()', () => {
     test('ウィンドウが存在する場合、非表示にする', () => {
       overlayManager.createWindow();
       
-      overlayManager.hidePopupMessage();
+      overlayManager.hide();
       
       expect(mockWindow.hide).toHaveBeenCalledTimes(1);
     });
 
     test('ウィンドウが存在しない場合、何もしない', () => {
-      overlayManager.hidePopupMessage();
+      overlayManager.hide();
       
       // エラーが発生しないことを確認
       expect(mockWindow.hide).not.toHaveBeenCalled();
@@ -162,34 +162,34 @@ describe('OverlayWindowManager - popup functionality', () => {
       overlayManager.createWindow();
       mockWindow.isDestroyed.mockReturnValue(true);
       
-      overlayManager.hidePopupMessage();
+      overlayManager.hide();
       
       expect(mockWindow.hide).not.toHaveBeenCalled();
     });
   });
 
   describe('統合テスト', () => {
-    test('showPopupMessage → hidePopupMessage の完全なフロー', async () => {
-      // ポップアップ表示
-      await overlayManager.showPopupMessage();
+    test('showOverlayEffect → hide の完全なフロー', async () => {
+      // エフェクト表示
+      await overlayManager.showOverlayEffect('popup');
       
-      expect(mockWindow.loadFile).toHaveBeenCalledWith('__dirname/../overlay/popup.html');
+      expect(mockWindow.loadFile).toHaveBeenCalledWith('__dirname/../overlay/overlay.html');
       expect(mockWindow.show).toHaveBeenCalledTimes(1);
       
       // 手動で非表示
-      overlayManager.hidePopupMessage();
+      overlayManager.hide();
       
       expect(mockWindow.hide).toHaveBeenCalledTimes(1);
     });
 
-    test('複数回のshowPopupMessage呼び出し', async () => {
-      await overlayManager.showPopupMessage();
-      await overlayManager.showPopupMessage();
+    test('複数回のshowOverlayEffect呼び出し', async () => {
+      await overlayManager.showOverlayEffect('popup');
+      await overlayManager.showOverlayEffect('cards');
       
       // ウィンドウは1回だけ作成される（既存を再利用）
       expect(BrowserWindow).toHaveBeenCalledTimes(1);
-      // loadFileは2回呼ばれる
-      expect(mockWindow.loadFile).toHaveBeenCalledTimes(2);
+      // loadFileは1回だけ（同じHTMLファイル）
+      expect(mockWindow.loadFile).toHaveBeenCalledTimes(1);
       // showは2回呼ばれる
       expect(mockWindow.show).toHaveBeenCalledTimes(2);
     });

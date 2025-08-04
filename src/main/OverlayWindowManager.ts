@@ -31,23 +31,6 @@ export class OverlayWindowManager {
     private isDevelopmentMode: boolean
   ) {}
   
-  /**
-   * エフェクトに適したHTMLファイルを確実に読み込む
-   */
-  private async ensureCorrectHtmlLoaded(effectType: EffectType): Promise<void> {
-    if (!this.window) {
-      throw new Error('Window must be created before loading HTML');
-    }
-    
-    const htmlFile = effectType === 'popup' ? 'popup.html' : 'overlay.html';
-    const htmlPath = path.join(__dirname, `../overlay/${htmlFile}`);
-    
-    // HTMLファイルが異なる場合のみ読み込み
-    if (this.currentHtmlFile !== htmlPath) {
-      await this.window.loadFile(htmlPath);
-      this.currentHtmlFile = htmlPath;
-    }
-  }
   
   /**
    * オーバーレイウィンドウを作成します
@@ -131,99 +114,9 @@ export class OverlayWindowManager {
     }
   }
   
-  /**
-   * カードセレブレーションアニメーションを表示します
-   * 
-   * @remarks
-   * - オーバーレイウィンドウを表示
-   * - カードアニメーション開始イベントを送信
-   * - 設定された時間後に自動的に非表示
-   */
-  async showCardsCelebration(): Promise<void> {
-    try {
-      if (!this.window || this.window.isDestroyed()) {
-        this.createWindow();
-      }
-      
-      if (!this.window) {
-        throw new Error('Failed to create overlay window');
-      }
-      
-      // 適切なHTMLファイルを読み込み
-      await this.ensureCorrectHtmlLoaded('cards');
-      
-      // オーバーレイウィンドウを表示
-      this.show();
-      
-      // カードアニメーション開始イベントを送信
-      this.window.webContents.send(IPCChannels.START_CARDS_ANIMATION);
-      
-      // 設定された時間後に自動的に隠す
-      const duration = this.appConfigStore.getCardAnimationDuration();
-      setTimeout(() => {
-        this.hide();
-      }, duration);
-    } catch (error) {
-      console.error('Failed to show cards celebration:', error);
-    }
-  }
   
-  /**
-   * 雪エフェクトを表示します
-   * 
-   * @remarks
-   * - オーバーレイウィンドウを表示
-   * - 雪アニメーション開始イベントを送信
-   * - 指定時間後に自動的に非表示
-   */
-  async showSnowEffect(): Promise<void> {
-    try {
-      if (!this.window || this.window.isDestroyed()) {
-        this.createWindow();
-      }
-      
-      if (!this.window) {
-        throw new Error('Failed to create overlay window');
-      }
-      
-      // 適切なHTMLファイルを読み込み
-      await this.ensureCorrectHtmlLoaded('snow');
-      
-      // オーバーレイウィンドウを表示
-      this.show();
-      
-      // 雪アニメーション開始イベントを送信
-      this.window.webContents.send(IPCChannels.START_SNOW_ANIMATION);
-      
-      // 設定された時間後に自動的に隠す
-      setTimeout(() => {
-        this.hide();
-      }, EFFECT_DURATION.SNOW);
-    } catch (error) {
-      console.error('Failed to show snow effect:', error);
-    }
-  }
   
-  /**
-   * ポップアップメッセージを表示します（新方式）
-   * 
-   * @remarks
-   * - EffectManager経由でpopupエフェクトを表示
-   * - HTMLの切り替え不要
-   */
-  async showPopupMessage(): Promise<void> {
-    console.warn('OverlayWindowManager.showPopupMessage() is deprecated. Use showOverlayEffect() instead.');
-    await this.showOverlayEffect('popup');
-  }
   
-  /**
-   * ポップアップメッセージを非表示にします
-   */
-  hidePopupMessage(): void {
-    if (this.window && !this.window.isDestroyed()) {
-      this.hide();
-    }
-  }
   
   /**
    * 汎用オーバーレイエフェクトを表示します
