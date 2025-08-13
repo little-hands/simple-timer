@@ -82,15 +82,6 @@ export class OverlayWindowManager {
   }
   
   /**
-   * オーバーレイウィンドウを取得します
-   * 
-   * @returns オーバーレイウィンドウ、存在しない場合はnull
-   */
-  getWindow(): BrowserWindow | null {
-    return this.window;
-  }
-  
-  /**
    * オーバーレイウィンドウを表示します
    * 
    * @remarks
@@ -114,10 +105,7 @@ export class OverlayWindowManager {
     }
   }
   
-  
-  
-  
-  
+
   /**
    * 汎用オーバーレイエフェクトを表示します
    * 

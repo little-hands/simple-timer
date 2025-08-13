@@ -1,14 +1,6 @@
 /**
- * アプリケーション設定の管理を担当するクラス
- * 
- * @description
- * このクラスは以下の責務を持ちます：
- * - アプリケーション機能設定の提供
- * - デフォルト設定値の管理
- * - 開発モード設定の管理
- * 
- * UI状態（ウィンドウ位置など）は WindowStateStore が担当し、
- * このクラスは純粋にアプリケーションの動作設定のみを扱います。
+ * アプリケーション設定の管理クラス
+ * 機能設定とデフォルト値を管理。UI状態はWindowStateStoreが担当。
  */
 import { AppConfig, EffectType } from "../types/app-types";
 import { DEFAULT_APP_CONFIG } from './constants';
@@ -18,13 +10,7 @@ export class AppConfigStore {
   private isDevelopmentMode: boolean;
   
   /**
-   * AppConfigStoreのコンストラクタ
-   * 
-   * @param isDevelopmentMode - 開発モードかどうか
-   * 
-   * @remarks
-   * electron-storeは動的インポートで初期化する必要があるため、
-   * コンストラクタではなくinitializeメソッドで初期化します
+   * @param isDevelopmentMode - 開発モードフラグ
    */
   constructor(isDevelopmentMode: boolean = false) {
     this.store = null;
@@ -32,16 +18,7 @@ export class AppConfigStore {
   }
   
   /**
-   * AppConfigStoreを初期化します
-   * 
-   * @returns 初期化が完了したPromise
-   * @throws electron-storeのインポートに失敗した場合
-   * 
-   * @example
-   * ```typescript
-   * const configStore = new AppConfigStore();
-   * await configStore.initialize();
-   * ```
+   * electron-storeを動的インポートして初期化
    */
   async initialize(): Promise<void> {
     const Store = (await import('electron-store')).default;
@@ -49,54 +26,7 @@ export class AppConfigStore {
   }
   
   /**
-   * デフォルトのタイマー時間を取得します（秒単位）
-   * 
-   * @returns デフォルトタイマー時間（秒）
-   * 
-   * @remarks
-   * 開発モード時は1秒、通常時は設定値を返します
-   * 
-   * @example
-   * ```typescript
-   * const seconds = configStore.getDefaultTimerSeconds(); // 180 または 1（開発モード）
-   * ```
-   */
-  getDefaultTimerSeconds(): number {
-    // 開発モード時は1秒を返す
-    if (this.isDevelopmentMode) {
-      return 1;
-    }
-    const config = this.getAppConfig();
-    return config.defaultTimerSeconds;
-  }
-  
-  /**
-   * カードアニメーションの表示時間を取得します（ミリ秒単位）
-   * 
-   * @returns アニメーション表示時間（ミリ秒）
-   * 
-   * @example
-   * ```typescript
-   * const duration = configStore.getCardAnimationDuration(); // 6000
-   * ```
-   */
-  getCardAnimationDuration(): number {
-    const config = this.getAppConfig();
-    return config.cardAnimationDuration;
-  }
-  
-  /**
-   * 開発モード設定を取得します
-   * 
-   * @returns 開発モード設定、設定がない場合はデフォルト値
-   * 
-   * @example
-   * ```typescript
-   * const devSettings = configStore.getDevSettings();
-   * if (devSettings.enableFileWatch) {
-   *   setupFileWatching();
-   * }
-   * ```
+   * 開発モード設定を取得
    */
   getDevSettings(): AppConfig['dev'] {
     const config = this.getAppConfig();
@@ -104,14 +34,7 @@ export class AppConfigStore {
   }
   
   /**
-   * エフェクトタイプを取得します
-   * 
-   * @returns 現在設定されているエフェクトタイプ
-   * 
-   * @example
-   * ```typescript
-   * const effectType = configStore.getEffectType(); // 'notifier' | 'cards'
-   * ```
+   * 現在のエフェクトタイプを取得
    */
   getEffectType(): EffectType {
     const config = this.getAppConfig();
@@ -119,15 +42,8 @@ export class AppConfigStore {
   }
   
   /**
-   * エフェクトタイプを設定・保存します
-   * 
-   * @param effectType - 設定するエフェクトタイプ
-   * @throws AppConfigStoreが初期化されていない場合
-   * 
-   * @example
-   * ```typescript
-   * await configStore.setEffectType('cards');
-   * ```
+   * エフェクトタイプを保存
+   * @param effectType - 新しいエフェクトタイプ
    */
   async setEffectType(effectType: EffectType): Promise<void> {
     if (!this.store) {
@@ -140,17 +56,8 @@ export class AppConfigStore {
   }
   
   /**
-   * レンダラープロセスに公開するための設定を取得します
-   * 
-   * @returns レンダラーで利用可能なアプリケーション設定
-   * 
-   * @remarks
-   * 開発モード時はdefaultTimerSecondsを1秒に上書きします
-   * 
-   * @example
-   * ```typescript
-   * const publicConfig = configStore.getPublicConfig();
-   * ```
+   * レンダラー向け設定を取得
+   * 開発モード時はタイマーを1秒に上書き
    */
   getPublicConfig(): AppConfig {
     const config = this.getAppConfig();
@@ -168,13 +75,8 @@ export class AppConfigStore {
   
   
   /**
-   * 完全なアプリケーション設定を取得します
-   * 
-   * @returns アプリケーション設定（保存された設定とデフォルト設定のマージ）
+   * 保存済み設定とデフォルト設定をマージして取得
    * @private
-   * 
-   * @remarks
-   * 保存された設定が部分的な場合、デフォルト設定で補完されます
    */
   private getAppConfig(): AppConfig {
     if (!this.store) {

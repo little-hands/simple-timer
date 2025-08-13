@@ -99,23 +99,4 @@ export class SettingsWindowManager {
       this.settingsWindow.close();
     }
   }
-
-  /**
-   * 設定ウィンドウのインスタンスを取得します
-   * 
-   * @returns 設定ウィンドウのインスタンス（null の場合もある）
-   */
-  getWindow(): BrowserWindow | null {
-    return this.settingsWindow;
-  }
-
-  /**
-   * 設定ウィンドウのリソースを解放します
-   */
-  destroy(): void {
-    if (this.settingsWindow && !this.settingsWindow.isDestroyed()) {
-      this.settingsWindow.destroy();
-      this.settingsWindow = null;
-    }
-  }
 }

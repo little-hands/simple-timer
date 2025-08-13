@@ -1,14 +1,6 @@
 /**
- * タイマーウィンドウの管理を担当するクラス
- * 
- * @description
- * このクラスは以下の責務を持ちます：
- * - タイマーウィンドウの作成とライフサイクル管理
- * - ウィンドウ位置の自動保存
- * - 開発モード時のファイル監視とリロード
- * 
- * ユーザーが操作するメインのタイマーウィンドウのみを担当し、
- * オーバーレイウィンドウは OverlayWindowManager が管理します。
+ * タイマーウィンドウ管理クラス
+ * メインウィンドウのライフサイクルと位置保存を管理。オーバーレイはOverlayWindowManagerが担当。
  */
 import { BrowserWindow } from 'electron';
 import * as path from 'path';
@@ -22,11 +14,9 @@ export class TimerWindowManager {
   private window: BrowserWindow | null = null;
   
   /**
-   * TimerWindowManagerのコンストラクタ
-   * 
-   * @param appConfigStore - アプリケーション設定ストアクラスのインスタンス
-   * @param windowStateStore - ウィンドウ状態ストアのインスタンス
-   * @param isDevelopmentMode - 開発モードかどうか
+   * @param appConfigStore - アプリ設定ストア
+   * @param windowStateStore - ウィンドウ状態ストア
+   * @param isDevelopmentMode - 開発モードフラグ
    */
   constructor(
     private appConfigStore: AppConfigStore,
@@ -35,15 +25,9 @@ export class TimerWindowManager {
   ) {}
   
   /**
-   * タイマーウィンドウを作成します
-   * 
-   * @param savedBounds - 保存されたウィンドウ位置（オプション）
-   * @returns 作成されたBrowserWindow
-   * 
-   * @remarks
-   * - 保存された位置情報がある場合はその位置に表示
-   * - ウィンドウ移動時は自動的に位置を保存
-   * - 開発モード時はファイル変更の監視を行う
+   * タイマーウィンドウを作成
+   * @param savedBounds - 保存済み位置（オプション）
+   * @returns 作成したBrowserWindow
    */
   createWindow(savedBounds?: WindowBounds): BrowserWindow {
     this.window = new BrowserWindow({
@@ -83,9 +67,7 @@ export class TimerWindowManager {
   }
   
   /**
-   * タイマーウィンドウを取得します
-   * 
-   * @returns タイマーウィンドウ、存在しない場合はnull
+   * タイマーウィンドウを取得
    */
   getWindow(): BrowserWindow | null {
     return this.window;
@@ -93,11 +75,7 @@ export class TimerWindowManager {
   
   
   /**
-   * ファイル変更の監視を設定します
-   * 
-   * @remarks
-   * 開発モード時のみ有効。監視対象ファイルが変更されたら
-   * タイマーウィンドウを自動的にリロードします。
+   * 開発モード時のファイル監視設定
    * @private
    */
   private setupFileWatching(): void {

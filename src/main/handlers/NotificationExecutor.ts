@@ -12,9 +12,9 @@
 import { Notification } from 'electron';
 import { TimerWindowManager } from '../TimerWindowManager';
 
-export class EffectExecutor {
+export class NotificationExecutor {
   /**
-   * EffectExecutorのコンストラクタ
+   * NotificationExecutorのコンストラクタ
    * 
    * @param timerWindowManager - タイマーウィンドウ管理クラスのインスタンス
    */

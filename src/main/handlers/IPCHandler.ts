@@ -17,11 +17,11 @@ import { TimerWindowManager } from '../TimerWindowManager';
 import { OverlayWindowManager } from '../OverlayWindowManager';
 import { AppConfigStore } from '../AppConfigStore';
 import { SettingsWindowManager } from '../SettingsWindowManager';
-import { EffectExecutor } from './EffectExecutor';
+import { NotificationExecutor } from './NotificationExecutor';
 
 export class IPCHandler {
   private settingsWindowManager: SettingsWindowManager | null = null;
-  private effectExecutor: EffectExecutor;
+  private notificationExecutor: NotificationExecutor;
 
   /**
    * IPCHandlerのコンストラクタ
@@ -35,7 +35,7 @@ export class IPCHandler {
     private overlayWindowManager: OverlayWindowManager,
     private appConfigStore: AppConfigStore
   ) {
-    this.effectExecutor = new EffectExecutor(timerWindowManager);
+    this.notificationExecutor = new NotificationExecutor(timerWindowManager);
   }
 
   /**
@@ -131,8 +131,8 @@ export class IPCHandler {
     
     switch (effectType) {
       case 'notifier':
-        // 通知ロジックはEffectExecutorに委譲
-        await this.effectExecutor.executeTimerFinishedEffect(totalSeconds);
+        // 通知ロジックはNotificationExecutorに委譲
+        await this.notificationExecutor.executeTimerFinishedEffect(totalSeconds);
         break;
       case 'cards':
       case 'snow':
