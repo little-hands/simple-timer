@@ -13,7 +13,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
       ipcRenderer.on(channel, (_event: IpcRendererEvent, ...args: any[]) => func(...args));
     }
   },
-  
+
   onStartOverlayEffect: (callback: (effectType: string) => void) => {
     ipcRenderer.on('start-overlay-effect', (_event: IpcRendererEvent, effectType: string) => {
       callback(effectType);
@@ -24,10 +24,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   maximizeWindow: () => ipcRenderer.send('window-maximize'),
   closeWindow: () => ipcRenderer.send('window-close'),
   timerFinished: (totalSeconds: number) => ipcRenderer.send('timer-finished', totalSeconds),
-  
+
   // 設定管理API
   getAppConfig: () => ipcRenderer.invoke('get-app-config'),
   setEffectType: (effectType: string) => ipcRenderer.invoke('set-effect-type', effectType),
   showSettingsWindow: () => ipcRenderer.send('show-settings-window'),
-  hideSettingsWindow: () => ipcRenderer.send('hide-settings-window')
+  hideSettingsWindow: () => ipcRenderer.send('hide-settings-window'),
 });

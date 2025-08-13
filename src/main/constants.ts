@@ -1,7 +1,7 @@
 /**
  * アプリケーション全体で使用される定数定義
  */
-import { AppConfig } from "../types/app-types";
+import { AppConfig } from '../types/app-types';
 
 /**
  * タイマーウィンドウの設定
@@ -11,14 +11,14 @@ export const TIMER_WINDOW_CONFIG = {
   height: 180,
   webPreferences: {
     contextIsolation: true,
-    nodeIntegration: false
+    nodeIntegration: false,
   },
   titleBarStyle: 'hidden' as const,
   frame: false,
   resizable: false,
   transparent: true,
   vibrancy: 'under-window' as const,
-  alwaysOnTop: true
+  alwaysOnTop: true,
 };
 
 /**
@@ -29,7 +29,7 @@ export const OVERLAY_WINDOW_CONFIG = {
   y: 0,
   webPreferences: {
     contextIsolation: true,
-    nodeIntegration: false
+    nodeIntegration: false,
   },
   frame: false,
   transparent: true,
@@ -42,7 +42,7 @@ export const OVERLAY_WINDOW_CONFIG = {
   minimizable: false,
   maximizable: false,
   closable: false,
-  show: false
+  show: false,
 };
 
 /**
@@ -50,7 +50,7 @@ export const OVERLAY_WINDOW_CONFIG = {
  */
 export const EFFECT_DURATION = {
   CARDS: 3000,
-  SNOW: 6000
+  SNOW: 6000,
 } as const;
 
 /**
@@ -60,20 +60,17 @@ export const DEFAULT_APP_CONFIG: AppConfig = {
   defaultTimerSeconds: 180, // 3分
   timerWindowSize: {
     width: TIMER_WINDOW_CONFIG.width,
-    height: TIMER_WINDOW_CONFIG.height
+    height: TIMER_WINDOW_CONFIG.height,
   },
   cardAnimationDuration: 6000,
   effectType: 'popup', // テスト用にpopupに変更
   dev: {
     enableFileWatch: true,
-    openDevTools: true
-  }
+    openDevTools: true,
+  },
 };
 
 /**
  * 開発モードで監視するファイル
  */
-export const WATCH_FILES = [
-  '../timer/timer.css',
-  '../timer/timer.html'
-];
+export const WATCH_FILES = ['../timer/timer.css', '../timer/timer.html'];
