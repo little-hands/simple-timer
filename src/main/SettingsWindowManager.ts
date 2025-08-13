@@ -1,11 +1,6 @@
 /**
- * 設定ウィンドウの管理を担当するクラス
- * 
- * @description
- * このクラスは以下の責務を持ちます：
- * - 設定ウィンドウのライフサイクル管理
- * - タイマーウィンドウとの連携
- * - 設定ウィンドウの表示・非表示制御
+ * 設定ウィンドウ管理クラス
+ * モーダル設定ウィンドウのライフサイクルとタイマーウィンドウとの連携を担当。
  */
 import { BrowserWindow, screen } from 'electron';
 import path from 'path';
@@ -15,16 +10,14 @@ export class SettingsWindowManager {
   private timerWindow: BrowserWindow;
 
   /**
-   * SettingsWindowManagerのコンストラクタ
-   * 
-   * @param timerWindow - タイマーウィンドウのインスタンス
+   * @param timerWindow - タイマーウィンドウ
    */
   constructor(timerWindow: BrowserWindow) {
     this.timerWindow = timerWindow;
   }
 
   /**
-   * 設定ウィンドウを作成・表示します
+   * 設定ウィンドウを作成・表示
    */
   async show(): Promise<void> {
     if (this.settingsWindow && !this.settingsWindow.isDestroyed()) {
@@ -41,14 +34,17 @@ export class SettingsWindowManager {
     // 設定ウィンドウの位置を計算（タイマーウィンドウの中央）
     const settingsWidth = 340;
     const settingsHeight = 541;
-    const x = Math.max(0, Math.min(
-      timerBounds.x + (timerBounds.width - settingsWidth) / 2,
-      screenWidth - settingsWidth
-    ));
-    const y = Math.max(0, Math.min(
-      timerBounds.y + (timerBounds.height - settingsHeight) / 2,
-      screenHeight - settingsHeight
-    ));
+    const x = Math.max(
+      0,
+      Math.min(timerBounds.x + (timerBounds.width - settingsWidth) / 2, screenWidth - settingsWidth)
+    );
+    const y = Math.max(
+      0,
+      Math.min(
+        timerBounds.y + (timerBounds.height - settingsHeight) / 2,
+        screenHeight - settingsHeight
+      )
+    );
 
     this.settingsWindow = new BrowserWindow({
       width: settingsWidth,
@@ -68,8 +64,8 @@ export class SettingsWindowManager {
       webPreferences: {
         preload: path.join(__dirname, '../preload.js'),
         contextIsolation: true,
-        nodeIntegration: false
-      }
+        nodeIntegration: false,
+      },
     });
 
     // 設定HTMLファイルを読み込み
@@ -92,7 +88,7 @@ export class SettingsWindowManager {
   }
 
   /**
-   * 設定ウィンドウを非表示にします
+   * 設定ウィンドウを非表示
    */
   hide(): void {
     if (this.settingsWindow && !this.settingsWindow.isDestroyed()) {

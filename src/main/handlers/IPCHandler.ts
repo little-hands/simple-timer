@@ -1,18 +1,9 @@
 /**
- * プロセス間通信（IPC）のハンドリングを担当するクラス
- * 
- * @description
- * このクラスは以下の責務を持ちます：
- * - レンダラープロセスからのIPCイベントの受信と処理
- * - 通知の表示とウィンドウフォーカス管理
- * - ウィンドウ制御コマンドの処理
- * - カードアニメーションの制御
- * 
- * すべてのIPC通信はこのクラスに集約され、
- * WindowManagerを通じて適切なウィンドウ操作を行います。
+ * IPCハンドラークラス
+ * レンダラーからのIPCイベントを受信し、各Window Managerに振り分け。
  */
 import { ipcMain } from 'electron';
-import { IPCChannels, EffectType } from "../../types/app-types";
+import { IPCChannels, EffectType } from '../../types/app-types';
 import { TimerWindowManager } from '../TimerWindowManager';
 import { OverlayWindowManager } from '../OverlayWindowManager';
 import { AppConfigStore } from '../AppConfigStore';
@@ -24,11 +15,9 @@ export class IPCHandler {
   private notificationExecutor: NotificationExecutor;
 
   /**
-   * IPCHandlerのコンストラクタ
-   * 
-   * @param timerWindowManager - タイマーウィンドウ管理クラスのインスタンス
-   * @param overlayWindowManager - オーバーレイウィンドウ管理クラスのインスタンス
-   * @param appConfigStore - アプリケーション設定ストアクラスのインスタンス
+   * @param timerWindowManager - タイマーウィンドウ管理
+   * @param overlayWindowManager - オーバーレイウィンドウ管理
+   * @param appConfigStore - アプリ設定ストア
    */
   constructor(
     private timerWindowManager: TimerWindowManager,
@@ -39,67 +28,55 @@ export class IPCHandler {
   }
 
   /**
-   * 設定ウィンドウマネージャーを設定します
-   * 
-   * @param settingsWindowManager - 設定ウィンドウ管理クラスのインスタンス
+   * 設定ウィンドウマネージャーを設定
+   * @param settingsWindowManager - 設定ウィンドウ管理
    */
   setSettingsWindowManager(settingsWindowManager: SettingsWindowManager): void {
     this.settingsWindowManager = settingsWindowManager;
   }
-  
+
   /**
-   * すべてのIPCハンドラーを設定します
-   * 
-   * @remarks
-   * アプリケーション起動時に一度だけ呼び出されます。
-   * 各IPCチャンネルに対応するハンドラーを登録します。
-   * 
-   * @example
-   * ```typescript
-   * const ipcHandler = new IPCHandler(windowManager, configManager);
-   * ipcHandler.setupHandlers();
-   * ```
+   * IPCハンドラーを登録
+   * アプリ起動時に1回実行
    */
   setupHandlers(): void {
     // タイマー終了通知
     ipcMain.on(IPCChannels.TIMER_FINISHED, async (event, totalSeconds: number) => {
       await this.handleTimerFinished(totalSeconds);
     });
-    
+
     // ウィンドウ制御
     ipcMain.on(IPCChannels.WINDOW_MINIMIZE, () => {
       this.handleWindowControl('minimize');
     });
-    
+
     ipcMain.on(IPCChannels.WINDOW_MAXIMIZE, () => {
       this.handleWindowControl('maximize');
     });
-    
+
     ipcMain.on(IPCChannels.WINDOW_CLOSE, () => {
       this.handleWindowControl('close');
     });
-    
-    
-    
+
     // オーバーレイクリックスルー設定
     ipcMain.on('set-click-through', (event, enable: boolean) => {
       this.overlayWindowManager.setClickThrough(enable);
     });
-    
+
     // 設定管理API
     ipcMain.handle(IPCChannels.GET_APP_CONFIG, () => {
       return this.appConfigStore.getPublicConfig();
     });
-    
+
     ipcMain.handle(IPCChannels.SET_EFFECT_TYPE, async (event, effectType: EffectType) => {
       await this.appConfigStore.setEffectType(effectType);
-      
+
       // タイマーウィンドウに設定変更を通知
       const timerWindow = this.timerWindowManager.getWindow();
       if (timerWindow && !timerWindow.isDestroyed()) {
         timerWindow.webContents.send(IPCChannels.EFFECT_TYPE_CHANGED, effectType);
       }
-      
+
       return true;
     });
 
@@ -112,23 +89,16 @@ export class IPCHandler {
       this.handleHideSettingsWindow();
     });
   }
-  
-  
 
   /**
-   * タイマー終了時の処理を実行します
-   * 
-   * @param totalSeconds - タイマーの総秒数
+   * タイマー終了時処理
+   * エフェクトタイプに応じて振り分け
+   * @param totalSeconds - タイマー総秒数
    * @private
-   * 
-   * @remarks
-   * エフェクトタイプに応じて適切な処理を振り分けます：
-   * - notifier: Mac通知センターへの通知
-   * - cards/snow/popup: オーバーレイエフェクトの表示
    */
   private async handleTimerFinished(totalSeconds: number): Promise<void> {
     const effectType = this.appConfigStore.getEffectType();
-    
+
     switch (effectType) {
       case 'notifier':
         // 通知ロジックはNotificationExecutorに委譲
@@ -144,8 +114,7 @@ export class IPCHandler {
   }
 
   /**
-   * 設定ウィンドウの表示を処理します
-   * 
+   * 設定ウィンドウ表示処理
    * @private
    */
   private handleShowSettingsWindow(): void {
@@ -155,8 +124,7 @@ export class IPCHandler {
   }
 
   /**
-   * 設定ウィンドウの非表示を処理します
-   * 
+   * 設定ウィンドウ非表示処理
    * @private
    */
   private handleHideSettingsWindow(): void {
@@ -164,29 +132,24 @@ export class IPCHandler {
       this.settingsWindowManager.hide();
     }
   }
-  
+
   /**
-   * ウィンドウ制御コマンドを処理します
-   * 
-   * @param action - 実行するアクション（minimize, maximize, close）
+   * ウィンドウ制御処理
+   * @param action - アクション（minimize, maximize, close）
    * @private
-   * 
-   * @remarks
-   * タイマーウィンドウに対する制御のみを行います。
-   * オーバーレイウィンドウは対象外です。
    */
   private handleWindowControl(action: 'minimize' | 'maximize' | 'close'): void {
     const timerWindow = this.timerWindowManager.getWindow();
-    
+
     if (!timerWindow || timerWindow.isDestroyed()) {
       return;
     }
-    
+
     switch (action) {
       case 'minimize':
         timerWindow.minimize();
         break;
-        
+
       case 'maximize':
         if (timerWindow.isMaximized()) {
           timerWindow.unmaximize();
@@ -194,11 +157,10 @@ export class IPCHandler {
           timerWindow.maximize();
         }
         break;
-        
+
       case 'close':
         timerWindow.close();
         break;
     }
   }
-  
 }
