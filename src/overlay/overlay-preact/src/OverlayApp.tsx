@@ -3,7 +3,7 @@ import { PopupComponent } from './components/PopupComponent';
 import { CardsComponent } from './components/CardsComponent';
 import { SnowComponent } from './components/SnowComponent';
 
-type EffectType = 'popup-preact' | 'sample' | 'cards' | 'snow' | null;
+type EffectType = 'popup' | 'sample' | 'cards' | 'snow' | null;
 
 export function OverlayApp() {
   const [currentEffect, setCurrentEffect] = useState<EffectType>(null);
@@ -45,10 +45,10 @@ export function OverlayApp() {
     
     try {
       switch (effectType) {
-        case 'popup-preact':
+        case 'popup':
         case 'sample':
           // Preactベースのポップアップ
-          setCurrentEffect('popup-preact');
+          setCurrentEffect('popup');
           break;
         case 'cards':
           // Cards エフェクト（プレースホルダー）
@@ -60,8 +60,8 @@ export function OverlayApp() {
           break;
         default:
           console.warn(`OverlayApp: Unknown effect type: ${effectType}`);
-          // フォールバック: デフォルトエフェクトとしてpopup-preactを表示
-          setCurrentEffect('popup-preact');
+          // フォールバック: デフォルトエフェクトとしてpopupを表示
+          setCurrentEffect('popup');
           break;
       }
       
@@ -85,7 +85,7 @@ export function OverlayApp() {
 
   return (
     <div className="overlay-app">
-      {currentEffect === 'popup-preact' && (
+      {currentEffect === 'popup' && (
         <PopupComponent onDismiss={handleEffectDismiss} />
       )}
       {currentEffect === 'cards' && (

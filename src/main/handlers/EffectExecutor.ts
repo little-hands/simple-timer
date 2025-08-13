@@ -60,14 +60,28 @@ export class EffectExecutor {
         this.showNotification(totalSeconds);
         break;
       case 'cards':
-        await this.executeCardsCelebration();
+        await this.executeOverlayEffect('cards');
         break;
       case 'snow':
-        await this.executeSnowEffect();
+        await this.executeOverlayEffect('snow');
         break;
       case 'popup':
-        await this.executePopupMessage();
+        await this.executeOverlayEffect('popup');
         break;
+    }
+  }
+  
+  /**
+   * オーバーレイエフェクトを実行する共通メソッド
+   * 
+   * @param overlayType - 実行するオーバーレイタイプ
+   * @private
+   */
+  private async executeOverlayEffect(overlayType: 'cards' | 'snow' | 'popup'): Promise<void> {
+    try {
+      await this.overlayWindowManager.showOverlayEffect(overlayType);
+    } catch (error) {
+      console.error(`Failed to execute ${overlayType} effect:`, error);
     }
   }
   
@@ -113,61 +127,5 @@ export class EffectExecutor {
     });
     
     notification.show();
-  }
-  
-  /**
-   * カードセレブレーションアニメーションを実行します
-   * 
-   * @private
-   * 
-   * @remarks
-   * - オーバーレイウィンドウを表示
-   * - アニメーション開始イベントを送信
-   * - 指定時間後に自動的に非表示
-   */
-  private async executeCardsCelebration(): Promise<void> {
-    try {
-      await this.overlayWindowManager.showOverlayEffect('cards');
-    } catch (error) {
-      console.error('Failed to execute cards celebration:', error);
-    }
-  }
-  
-  /**
-   * 雪エフェクトアニメーションを実行します
-   * 
-   * @private
-   * 
-   * @remarks
-   * - オーバーレイウィンドウを表示
-   * - 雪アニメーション開始イベントを送信
-   * - 指定時間後に自動的に非表示
-   */
-  private async executeSnowEffect(): Promise<void> {
-    try {
-      await this.overlayWindowManager.showOverlayEffect('snow');
-    } catch (error) {
-      console.error('Failed to execute snow effect:', error);
-    }
-  }
-  
-  /**
-   * ポップアップメッセージを実行します
-   * 
-   * @private
-   */
-  private async executePopupMessage(): Promise<void> {
-    try {
-      await this.overlayWindowManager.showOverlayEffect('popup-preact');
-    } catch (error) {
-      console.error('Failed to execute popup message:', error);
-    }
-  }
-  
-  /**
-   * ポップアップメッセージを非表示にします
-   */
-  hidePopupMessage(): void {
-    this.overlayWindowManager.hide();
   }
 }
