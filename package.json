@@ -18,7 +18,8 @@
     "test": "jest",
     "lint": "eslint src --ext .ts,.tsx --fix",
     "lint:check": "eslint src --ext .ts,.tsx",
-    "format": "prettier --write \"src/**/*.{ts,tsx,json}\""
+    "format": "prettier --write \"src/**/*.{ts,tsx,json}\"",
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "",
