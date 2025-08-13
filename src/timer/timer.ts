@@ -20,7 +20,6 @@ let currentEffectType: 'notifier' | 'cards' | 'snow' | 'popup' = 'notifier'; // 
 const timerDisplay = document.getElementById('timerDisplay') as HTMLElement;
 const startBtn = document.getElementById('startBtn') as HTMLButtonElement;
 const resetBtn = document.getElementById('resetBtn') as HTMLButtonElement;
-const statusText = document.getElementById('statusText') as HTMLElement;
 const progressCircle = document.getElementById('progressCircle') as unknown as SVGCircleElement;
 const timerContainer = document.querySelector('.timer-container') as HTMLElement;
 const settingsBtn = document.getElementById('settingsBtn') as HTMLButtonElement;
@@ -277,21 +276,6 @@ async function loadAppConfig(): Promise<void> {
   } catch (error) {
     console.warn('設定読み込みに失敗しました:', error);
     currentEffectType = 'notifier'; // フォールバック
-  }
-}
-
-// エフェクト設定保存
-async function saveEffectType(effectType: 'notifier' | 'cards' | 'snow'): Promise<void> {
-  try {
-    const electronAPI = (window as any).electronAPI;
-    if (electronAPI && typeof electronAPI.setEffectType === 'function') {
-      await electronAPI.setEffectType(effectType);
-      currentEffectType = effectType;
-      console.log('設定保存完了:', { effectType: currentEffectType });
-      updateSettingsUI();
-    }
-  } catch (error) {
-    console.warn('設定保存に失敗しました:', error);
   }
 }
 

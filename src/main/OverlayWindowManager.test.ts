@@ -1,5 +1,4 @@
 import { OverlayWindowManager } from './OverlayWindowManager';
-import { AppConfigStore } from './AppConfigStore';
 import { BrowserWindow } from 'electron';
 
 // Electronのモック
