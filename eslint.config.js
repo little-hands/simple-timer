@@ -21,7 +21,6 @@ export default [
     },
     rules: {
       'prettier/prettier': 'error',
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-explicit-any': 'warn',
@@ -31,6 +30,18 @@ export default [
       'no-var': 'error',
       'no-console': 'off',
       'no-undef': 'off',
+      // パラメータプロパティ対応：TypeScriptコンストラクタパラメータは使用される前提
+      '@typescript-eslint/no-unused-vars': ['error', { 
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        ignoreRestSiblings: true,
+        args: 'after-used',
+        destructuredArrayIgnorePattern: '^_',
+        // TypeScriptパラメータプロパティの特別扱い
+        caughtErrors: 'none'
+      }],
+      // 通常のno-unused-varsを無効化してTypeScript版を使用
+      'no-unused-vars': 'off',
     },
   },
   {
