@@ -35,11 +35,7 @@ export class IPCHandler {
     private overlayWindowManager: OverlayWindowManager,
     private appConfigStore: AppConfigStore
   ) {
-    this.effectExecutor = new EffectExecutor(
-      timerWindowManager,
-      overlayWindowManager,
-      appConfigStore
-    );
+    this.effectExecutor = new EffectExecutor(timerWindowManager);
   }
 
   /**
@@ -67,7 +63,7 @@ export class IPCHandler {
   setupHandlers(): void {
     // タイマー終了通知
     ipcMain.on(IPCChannels.TIMER_FINISHED, async (event, totalSeconds: number) => {
-      await this.effectExecutor.executeTimerFinishedEffect(totalSeconds);
+      await this.handleTimerFinished(totalSeconds);
     });
     
     // ウィンドウ制御
@@ -118,6 +114,34 @@ export class IPCHandler {
   }
   
   
+
+  /**
+   * タイマー終了時の処理を実行します
+   * 
+   * @param totalSeconds - タイマーの総秒数
+   * @private
+   * 
+   * @remarks
+   * エフェクトタイプに応じて適切な処理を振り分けます：
+   * - notifier: Mac通知センターへの通知
+   * - cards/snow/popup: オーバーレイエフェクトの表示
+   */
+  private async handleTimerFinished(totalSeconds: number): Promise<void> {
+    const effectType = this.appConfigStore.getEffectType();
+    
+    switch (effectType) {
+      case 'notifier':
+        // 通知ロジックはEffectExecutorに委譲
+        await this.effectExecutor.executeTimerFinishedEffect(totalSeconds);
+        break;
+      case 'cards':
+      case 'snow':
+      case 'popup':
+        // オーバーレイ系は直接OverlayWindowManagerを呼ぶ
+        await this.overlayWindowManager.showOverlayEffect(effectType);
+        break;
+    }
+  }
 
   /**
    * 設定ウィンドウの表示を処理します
