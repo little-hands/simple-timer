@@ -34,6 +34,26 @@ export default [
     },
   },
   {
+    files: ['src/**/*.js'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'script',
+      globals: {
+        window: 'readonly',
+        document: 'readonly',
+        console: 'readonly',
+        navigator: 'readonly',
+      },
+    },
+    plugins: {
+      prettier: prettier,
+    },
+    rules: {
+      'prettier/prettier': 'error',
+      'no-undef': 'error',
+    },
+  },
+  {
     ignores: [
       'dist/**',
       'node_modules/**',

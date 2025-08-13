@@ -8,16 +8,16 @@ export default defineConfig({
       entry: './src/main.tsx',
       name: 'OverlayPreact',
       fileName: 'overlay-preact',
-      formats: ['iife']
+      formats: ['iife'],
     },
     rollupOptions: {
       output: {
         dir: '../../../dist/overlay/overlay-preact',
-        assetFileNames: '[name].[ext]'
-      }
+        assetFileNames: '[name].[ext]',
+      },
     },
     outDir: '../../../dist/overlay/overlay-preact',
-    emptyOutDir: true
+    emptyOutDir: true,
   },
-  base: './'
+  base: './',
 });

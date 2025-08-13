@@ -29,7 +29,6 @@ jest.mock('path', () => ({
   join: jest.fn().mockImplementation((...args) => args.join('/')),
 }));
 
-
 describe('OverlayWindowManager - popup functionality', () => {
   let overlayManager: OverlayWindowManager;
   let mockWindow: any;

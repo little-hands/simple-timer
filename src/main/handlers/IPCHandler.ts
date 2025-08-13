@@ -16,7 +16,7 @@ export class IPCHandler {
 
   /**
    * @param timerWindowManager - タイマーウィンドウ管理
-   * @param overlayWindowManager - オーバーレイウィンドウ管理  
+   * @param overlayWindowManager - オーバーレイウィンドウ管理
    * @param appConfigStore - アプリ設定ストア
    */
   constructor(

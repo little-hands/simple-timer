@@ -10,19 +10,19 @@ export function OverlayApp() {
 
   useEffect(() => {
     console.log('OverlayApp: Setting up IPC listeners...');
-    
+
     // ElectronAPIの準備を待つ
     const setupIPC = () => {
       const electronAPI = (window as any).electronAPI;
       if (electronAPI) {
         console.log('OverlayApp: ElectronAPI ready, setting up listeners');
-        
+
         // 汎用オーバーレイエフェクト開始イベント
         electronAPI.receive('start-overlay-effect', (effectType: string) => {
           console.log(`OverlayApp: Start overlay effect received: ${effectType}`);
           handleOverlayEffect(effectType);
         });
-        
+
         console.log('OverlayApp: IPC setup complete');
       } else {
         console.warn('OverlayApp: electronAPI not ready, retrying...');
@@ -35,14 +35,14 @@ export function OverlayApp() {
 
   const handleOverlayEffect = (effectType: string) => {
     console.log(`OverlayApp: Starting overlay effect: ${effectType}`);
-    
+
     // エフェクト開始時はクリックスルーを無効化
     const electronAPI = (window as any).electronAPI;
     if (electronAPI?.setClickThrough) {
       electronAPI.setClickThrough(false);
       console.log('OverlayApp: Click-through disabled');
     }
-    
+
     try {
       switch (effectType) {
         case 'popup':
@@ -64,7 +64,7 @@ export function OverlayApp() {
           setCurrentEffect('popup');
           break;
       }
-      
+
       console.log(`OverlayApp: ${effectType} effect started`);
     } catch (error) {
       console.error(`OverlayApp: Failed to show ${effectType} effect:`, error);
@@ -74,7 +74,7 @@ export function OverlayApp() {
   const handleEffectDismiss = () => {
     console.log('OverlayApp: Effect dismissed');
     setCurrentEffect(null);
-    
+
     // エフェクト終了後はクリックスルーを有効化
     const electronAPI = (window as any).electronAPI;
     if (electronAPI?.setClickThrough) {
@@ -85,15 +85,9 @@ export function OverlayApp() {
 
   return (
     <div className="overlay-app">
-      {currentEffect === 'popup' && (
-        <PopupComponent onDismiss={handleEffectDismiss} />
-      )}
-      {currentEffect === 'cards' && (
-        <CardsComponent onDismiss={handleEffectDismiss} />
-      )}
-      {currentEffect === 'snow' && (
-        <SnowComponent onDismiss={handleEffectDismiss} />
-      )}
+      {currentEffect === 'popup' && <PopupComponent onDismiss={handleEffectDismiss} />}
+      {currentEffect === 'cards' && <CardsComponent onDismiss={handleEffectDismiss} />}
+      {currentEffect === 'snow' && <SnowComponent onDismiss={handleEffectDismiss} />}
     </div>
   );
 }

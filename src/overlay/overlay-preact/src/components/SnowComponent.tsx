@@ -18,9 +18,7 @@ export function SnowComponent({ onDismiss }: SnowComponentProps) {
     <div className="effect-placeholder">
       <h2>Snow Effect</h2>
       <p>Coming soon... ❄️</p>
-      <p style={{ fontSize: '12px', color: '#666' }}>
-        Snow animation will be implemented here
-      </p>
+      <p style={{ fontSize: '12px', color: '#666' }}>Snow animation will be implemented here</p>
     </div>
   );
 }

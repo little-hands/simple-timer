@@ -18,9 +18,7 @@ export function CardsComponent({ onDismiss }: CardsComponentProps) {
     <div className="effect-placeholder">
       <h2>Cards Effect</h2>
       <p>Coming soon... 🃏</p>
-      <p style={{ fontSize: '12px', color: '#666' }}>
-        Cards animation will be implemented here
-      </p>
+      <p style={{ fontSize: '12px', color: '#666' }}>Cards animation will be implemented here</p>
     </div>
   );
 }
