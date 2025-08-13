@@ -30,15 +30,10 @@ export default [
       'no-var': 'error',
       'no-console': 'off',
       'no-undef': 'off',
-      // パラメータプロパティ対応：TypeScriptコンストラクタパラメータは使用される前提
+      // パラメータプロパティ対応：TypeScriptコンストラクタパラメータの誤検知を防ぐ
       '@typescript-eslint/no-unused-vars': ['error', { 
-        argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_',
-        ignoreRestSiblings: true,
-        args: 'after-used',
-        destructuredArrayIgnorePattern: '^_',
-        // TypeScriptパラメータプロパティの特別扱い
-        caughtErrors: 'none'
+        args: 'after-used',      // パラメータプロパティの誤検知防止（メイン設定）
+        caughtErrors: 'none'     // catch文のエラー引数は警告しない
       }],
       // 通常のno-unused-varsを無効化してTypeScript版を使用
       'no-unused-vars': 'off',
