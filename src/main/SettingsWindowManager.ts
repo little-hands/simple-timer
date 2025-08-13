@@ -7,7 +7,7 @@ import path from 'path';
 
 export class SettingsWindowManager {
   private settingsWindow: BrowserWindow | null = null;
-  private timerWindow: BrowserWindow;
+  private readonly timerWindow: BrowserWindow;
 
   /**
    * @param timerWindow - タイマーウィンドウ

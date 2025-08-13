@@ -42,7 +42,7 @@ describe('OverlayWindowManager - popup functionality', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    overlayManager = new OverlayWindowManager(mockAppConfigStore, false);
+    overlayManager = new OverlayWindowManager(false);
 
     // BrowserWindowのモックインスタンスを取得
     mockWindow = {

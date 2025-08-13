@@ -9,7 +9,7 @@ export class NotificationExecutor {
   /**
    * @param timerWindowManager - タイマーウィンドウ管理
    */
-  constructor(private timerWindowManager: TimerWindowManager) {}
+  constructor(private readonly timerWindowManager: TimerWindowManager) {}
 
   /**
    * タイマー終了通知を実行

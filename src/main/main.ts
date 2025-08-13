@@ -45,7 +45,7 @@ async function initializeApp(): Promise<void> {
 
   // ウィンドウマネージャーの初期化
   timerWindowManager = new TimerWindowManager(appConfigStore, windowStateStore, isDevelopmentMode);
-  overlayWindowManager = new OverlayWindowManager(appConfigStore, isDevelopmentMode);
+  overlayWindowManager = new OverlayWindowManager(isDevelopmentMode);
 
   // IPCハンドラーの初期化
   ipcHandler = new IPCHandler(timerWindowManager, overlayWindowManager, appConfigStore);

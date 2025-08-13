@@ -7,7 +7,7 @@ import { DEFAULT_APP_CONFIG } from './constants';
 
 export class AppConfigStore {
   private store: any; // electron-storeのインスタンス
-  private isDevelopmentMode: boolean;
+  private readonly isDevelopmentMode: boolean;
 
   /**
    * @param isDevelopmentMode - 開発モードフラグ

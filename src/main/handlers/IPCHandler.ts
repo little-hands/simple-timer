@@ -12,7 +12,7 @@ import { NotificationExecutor } from './NotificationExecutor';
 
 export class IPCHandler {
   private settingsWindowManager: SettingsWindowManager | null = null;
-  private notificationExecutor: NotificationExecutor;
+  private readonly notificationExecutor: NotificationExecutor;
 
   /**
    * @param timerWindowManager - タイマーウィンドウ管理
@@ -20,9 +20,9 @@ export class IPCHandler {
    * @param appConfigStore - アプリ設定ストア
    */
   constructor(
-    private timerWindowManager: TimerWindowManager,
-    private overlayWindowManager: OverlayWindowManager,
-    private appConfigStore: AppConfigStore
+    private readonly timerWindowManager: TimerWindowManager,
+    private readonly overlayWindowManager: OverlayWindowManager,
+    private readonly appConfigStore: AppConfigStore
   ) {
     this.notificationExecutor = new NotificationExecutor(timerWindowManager);
   }

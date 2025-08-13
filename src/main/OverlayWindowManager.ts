@@ -5,7 +5,6 @@
 import { BrowserWindow, screen } from 'electron';
 import * as path from 'path';
 import { OVERLAY_WINDOW_CONFIG, EFFECT_DURATION } from './constants';
-import { AppConfigStore } from './AppConfigStore';
 import { IPCChannels, EffectType } from '../types/app-types';
 
 export class OverlayWindowManager {
@@ -13,13 +12,9 @@ export class OverlayWindowManager {
   private currentHtmlFile: string | null = null;
 
   /**
-   * @param appConfigStore - アプリ設定ストア
    * @param isDevelopmentMode - 開発モードフラグ
    */
-  constructor(
-    private appConfigStore: AppConfigStore,
-    private isDevelopmentMode: boolean
-  ) {}
+  constructor(private readonly isDevelopmentMode: boolean) {}
 
   /**
    * オーバーレイウィンドウを作成

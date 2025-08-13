@@ -19,9 +19,9 @@ export class TimerWindowManager {
    * @param isDevelopmentMode - 開発モードフラグ
    */
   constructor(
-    private appConfigStore: AppConfigStore,
-    private windowStateStore: WindowStateStore,
-    private isDevelopmentMode: boolean
+    private readonly appConfigStore: AppConfigStore,
+    private readonly windowStateStore: WindowStateStore,
+    private readonly isDevelopmentMode: boolean
   ) {}
 
   /**
