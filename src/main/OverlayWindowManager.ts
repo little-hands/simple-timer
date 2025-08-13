@@ -4,8 +4,8 @@
  */
 import { BrowserWindow, screen } from 'electron';
 import * as path from 'path';
-import { OVERLAY_WINDOW_CONFIG, EFFECT_DURATION } from './constants';
-import { IPCChannels, EffectType } from '../types/app-types';
+import { OVERLAY_WINDOW_CONFIG } from './constants';
+import { IPCChannels } from '../types/app-types';
 
 export class OverlayWindowManager {
   private window: BrowserWindow | null = null;

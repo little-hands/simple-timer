@@ -29,12 +29,6 @@ jest.mock('path', () => ({
   join: jest.fn().mockImplementation((...args) => args.join('/')),
 }));
 
-// AppConfigStoreのモック
-const mockAppConfigStore = {
-  getDevSettings: jest.fn().mockReturnValue({
-    openDevTools: false,
-  }),
-} as unknown as AppConfigStore;
 
 describe('OverlayWindowManager - popup functionality', () => {
   let overlayManager: OverlayWindowManager;
