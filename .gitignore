@@ -8,3 +8,9 @@ dist-electron/
 
 # 作業用ドキュメント（一時ファイル）
 work_documents/
+
+# Agent Chat作業ログ
+_agent_chat/
+
+# フロー作業ディレクトリ
+.flow/

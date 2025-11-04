@@ -61,3 +61,26 @@ export enum IPCChannels {
   SHOW_SETTINGS_WINDOW = 'show-settings-window',
   HIDE_SETTINGS_WINDOW = 'hide-settings-window',
 }
+
+/**
+ * ElectronAPI (Settings用)
+ * preload.tsで公開されるAPIの型定義
+ */
+export interface ElectronAPI {
+  /** アプリケーション設定を取得 */
+  getAppConfig(): Promise<AppConfig>;
+  /** エフェクトタイプを設定 */
+  setEffectType(effectType: EffectType): Promise<void>;
+  /** 設定ウィンドウを非表示にする */
+  hideSettingsWindow(): void;
+}
+
+/**
+ * Window型の拡張
+ * window.electronAPIにアクセスできるようにする
+ */
+declare global {
+  interface Window {
+    electronAPI?: ElectronAPI;
+  }
+}
