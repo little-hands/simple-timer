@@ -45,12 +45,12 @@ export interface AppConfig {
 export enum IPCChannels {
   // タイマー関連
   TIMER_FINISHED = 'timer-finished',
-  
+
   // ウィンドウ制御
   WINDOW_MINIMIZE = 'window-minimize',
   WINDOW_MAXIMIZE = 'window-maximize',
   WINDOW_CLOSE = 'window-close',
-  
+
   // アニメーション
   SHOW_CARDS_CELEBRATION = 'show-cards-celebration',
   START_CARDS_ANIMATION = 'start-cards-animation',
@@ -59,12 +59,35 @@ export enum IPCChannels {
   SHOW_POPUP_MESSAGE = 'show-popup-message',
   START_POPUP_ANIMATION = 'start-popup-animation',
   START_OVERLAY_EFFECT = 'start-overlay-effect',
-  
+
   // 設定管理
   GET_APP_CONFIG = 'get-app-config',
   SET_EFFECT_TYPE = 'set-effect-type',
   EFFECT_TYPE_CHANGED = 'effect-type-changed',
   SHOW_SETTINGS_WINDOW = 'show-settings-window',
   HIDE_SETTINGS_WINDOW = 'hide-settings-window'
+}
+
+/**
+ * ElectronAPI (Settings用)
+ * preload.tsで公開されるAPIの型定義
+ */
+export interface ElectronAPI {
+  /** アプリケーション設定を取得 */
+  getAppConfig(): Promise<AppConfig>;
+  /** エフェクトタイプを設定 */
+  setEffectType(effectType: EffectType): Promise<void>;
+  /** 設定ウィンドウを非表示にする */
+  hideSettingsWindow(): void;
+}
+
+/**
+ * Window型の拡張
+ * window.electronAPIにアクセスできるようにする
+ */
+declare global {
+  interface Window {
+    electronAPI?: ElectronAPI;
+  }
 }
 
